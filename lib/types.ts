@@ -5,6 +5,7 @@ export interface User {
   email: string
   name: string
   role: UserRole
+  password?: string
   phone?: string
   location?: string
   avatar?: string

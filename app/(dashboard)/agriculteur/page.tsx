@@ -23,11 +23,11 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { CATEGORIES, ORDER_STATUS_LABELS, type ProductCategory } from "@/lib/types"
-import { Package, Plus, Settings, LogOut, Leaf, Home, Upload, X, User as UserIcon, Check, Trash2, ShoppingCart, Truck, TrendingUp, Menu } from "lucide-react"
+import { Package, Plus, Settings, LogOut, Leaf, Home, Upload, X, User as UserIcon, Check, Trash2, ShoppingCart, Truck, TrendingUp, Menu, KeyRound, Eye, EyeOff } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function FarmerDashboard() {
-  const { user, logout, isLoading: authLoading, updateUser: updateAuthUser } = useAuth()
+  const { user, logout, isLoading: authLoading, updateUser: updateAuthUser, changePassword } = useAuth()
   const { products, orders, addProduct, updateProduct, deleteProduct, updateOrderStatus, updateUser: updateDataUser } = useData()
   const router = useRouter()
   const { toast } = useToast()
@@ -53,6 +53,15 @@ export default function FarmerDashboard() {
     description: user?.description || "",
     avatar: user?.avatar || "",
   })
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  })
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null)
 
@@ -110,6 +119,42 @@ export default function FarmerDashboard() {
     updateAuthUser(profileData)
     updateDataUser(user.id, profileData)
     setIsProfileDialogOpen(false)
+  }
+
+  const handleChangePassword = async () => {
+    if (!passwordData.newPassword || !passwordData.currentPassword) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs.",
+        variant: "destructive",
+      })
+      return
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Les nouveaux mots de passe ne correspondent pas.",
+        variant: "destructive",
+      })
+      return
+    }
+    setIsChangingPassword(true)
+    const result = await changePassword(passwordData.currentPassword, passwordData.newPassword)
+    setIsChangingPassword(false)
+    if (result.success) {
+      toast({
+        title: "Mot de passe modifié",
+        description: "Votre mot de passe a été mis à jour avec succès.",
+      })
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" })
+      setIsProfileDialogOpen(false)
+    } else {
+      toast({
+        title: "Erreur",
+        description: result.error,
+        variant: "destructive",
+      })
+    }
   }
 
   const handleAddProduct = () => {
@@ -344,6 +389,86 @@ export default function FarmerDashboard() {
                           value={profileData.description}
                           onChange={(e) => setProfileData({ ...profileData, description: e.target.value })}
                         />
+                      </div>
+
+                      {/* Section changement de mot de passe */}
+                      <div className="space-y-3 rounded-lg border p-4">
+                        <div className="flex items-center gap-2">
+                          <KeyRound className="h-4 w-4 text-muted-foreground" />
+                          <h4 className="text-sm font-semibold">Changer le mot de passe</h4>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="current-password">Mot de passe actuel</Label>
+                          <div className="relative">
+                            <Input
+                              id="current-password"
+                              type={showCurrentPassword ? "text" : "password"}
+                              placeholder="Votre mot de passe actuel"
+                              value={passwordData.currentPassword}
+                              onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                              className="pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              tabIndex={-1}
+                            >
+                              {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                          <div className="relative">
+                            <Input
+                              id="new-password"
+                              type={showNewPassword ? "text" : "password"}
+                              placeholder="Min. 6 caractères"
+                              value={passwordData.newPassword}
+                              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                              className="pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowNewPassword(!showNewPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              tabIndex={-1}
+                            >
+                              {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm-new-password">Confirmer le nouveau mot de passe</Label>
+                          <div className="relative">
+                            <Input
+                              id="confirm-new-password"
+                              type={showConfirmNewPassword ? "text" : "password"}
+                              placeholder="Répétez le nouveau mot de passe"
+                              value={passwordData.confirmPassword}
+                              onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                              className="pr-10"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              tabIndex={-1}
+                            >
+                              {showConfirmNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="w-full gap-2"
+                          onClick={handleChangePassword}
+                          disabled={isChangingPassword}
+                        >
+                          <KeyRound className="h-4 w-4" />
+                          {isChangingPassword ? "Modification..." : "Modifier le mot de passe"}
+                        </Button>
                       </div>
                     </div>
                   </div>

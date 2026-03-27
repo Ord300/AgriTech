@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ORDER_STATUS_LABELS, CATEGORIES, type User } from "@/lib/types"
-import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu } from "lucide-react"
+import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 export default function AdminDashboard() {
@@ -24,11 +24,15 @@ export default function AdminDashboard() {
 
   const [isAddFarmerDialogOpen, setIsAddFarmerDialogOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showFarmerPassword, setShowFarmerPassword] = useState(false)
+  const [showFarmerConfirmPassword, setShowFarmerConfirmPassword] = useState(false)
   const [newFarmerData, setNewFarmerData] = useState({
     name: "",
     email: "",
     phone: "",
     location: "",
+    password: "",
+    confirmPassword: "",
   })
 
   if (isLoading) {
@@ -109,6 +113,33 @@ export default function AdminDashboard() {
       return
     }
 
+    if (!newFarmerData.password) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez définir un mot de passe temporaire.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (newFarmerData.password.length < 6) {
+      toast({
+        title: "Erreur",
+        description: "Le mot de passe doit contenir au moins 6 caractères.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (newFarmerData.password !== newFarmerData.confirmPassword) {
+      toast({
+        title: "Erreur",
+        description: "Les mots de passe ne correspondent pas.",
+        variant: "destructive",
+      })
+      return
+    }
+
     // Vérifier si l'email existe déjà
     if (users.some(u => u.email.toLowerCase() === newFarmerData.email.toLowerCase())) {
       toast({
@@ -124,17 +155,18 @@ export default function AdminDashboard() {
       email: newFarmerData.email,
       name: newFarmerData.name,
       role: "farmer",
+      password: newFarmerData.password,
       phone: newFarmerData.phone,
       location: newFarmerData.location,
       createdAt: new Date().toISOString().split("T")[0],
     }
 
-    // Ajouter à la liste des utilisateurs
-    const updatedUsers = [...users, newFarmer]
+    // Charger la liste existante (avec les mocks si rien en localStorage)
+    const storedUsers = localStorage.getItem("agrimarche_users")
+    const existingUsers: User[] = storedUsers ? JSON.parse(storedUsers) : users
+    const updatedUsers = [...existingUsers, newFarmer]
     localStorage.setItem("agrimarche_users", JSON.stringify(updatedUsers))
 
-    // Mettre à jour le state
-    // Note: On ne peut pas directement modifier users ici, mais le rechargement forcera la mise à jour
     window.location.reload()
 
     toast({
@@ -147,6 +179,8 @@ export default function AdminDashboard() {
       email: "",
       phone: "",
       location: "",
+      password: "",
+      confirmPassword: "",
     })
     setIsAddFarmerDialogOpen(false)
   }
@@ -339,6 +373,48 @@ export default function AdminDashboard() {
                               value={newFarmerData.location}
                               onChange={(e) => setNewFarmerData({ ...newFarmerData, location: e.target.value })}
                             />
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="farmer-password">Mot de passe temporaire *</Label>
+                            <div className="relative">
+                              <Input
+                                id="farmer-password"
+                                type={showFarmerPassword ? "text" : "password"}
+                                placeholder="Min. 6 caractères"
+                                value={newFarmerData.password}
+                                onChange={(e) => setNewFarmerData({ ...newFarmerData, password: e.target.value })}
+                                className="pr-10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowFarmerPassword(!showFarmerPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                tabIndex={-1}
+                              >
+                                {showFarmerPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="farmer-confirm-password">Confirmer le mot de passe *</Label>
+                            <div className="relative">
+                              <Input
+                                id="farmer-confirm-password"
+                                type={showFarmerConfirmPassword ? "text" : "password"}
+                                placeholder="Répétez le mot de passe"
+                                value={newFarmerData.confirmPassword}
+                                onChange={(e) => setNewFarmerData({ ...newFarmerData, confirmPassword: e.target.value })}
+                                className="pr-10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowFarmerConfirmPassword(!showFarmerConfirmPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                tabIndex={-1}
+                              >
+                                {showFarmerConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
                           </div>
                         </div>
                         <DialogFooter>

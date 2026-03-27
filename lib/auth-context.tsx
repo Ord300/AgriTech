@@ -11,6 +11,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   updateUser: (updates: Partial<User>) => void
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>
 }
 
 interface RegisterData {
@@ -40,11 +41,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 500))
 
     const storedUsers = localStorage.getItem("agrimarche_users")
-    const users: User[] = storedUsers ? JSON.parse(storedUsers) : mockUsers
+    // Pour les comptes mock sans mot de passe, on leur attribue "password" par défaut
+    const baseUsers: User[] = mockUsers.map((u) => ({ ...u, password: u.password ?? "password" }))
+    const users: User[] = storedUsers ? JSON.parse(storedUsers) : baseUsers
 
     const foundUser = users.find((u) => u.email.toLowerCase() === email.toLowerCase())
 
     if (!foundUser) {
+      return { success: false, error: "Email ou mot de passe incorrect" }
+    }
+
+    const userPassword = foundUser.password ?? "password"
+    if (password !== userPassword) {
       return { success: false, error: "Email ou mot de passe incorrect" }
     }
 
@@ -57,7 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 500))
 
     const storedUsers = localStorage.getItem("agrimarche_users")
-    const users: User[] = storedUsers ? JSON.parse(storedUsers) : [...mockUsers]
+    // Initialise la liste avec les comptes mock (mot de passe par défaut: "password")
+    const baseUsers: User[] = mockUsers.map((u) => ({ ...u, password: u.password ?? "password" }))
+    const users: User[] = storedUsers ? JSON.parse(storedUsers) : [...baseUsers]
 
     if (users.some((u) => u.email.toLowerCase() === data.email.toLowerCase())) {
       return { success: false, error: "Cet email est déjà utilisé" }
@@ -68,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: data.email,
       name: data.name,
       role: data.role,
+      password: data.password,
       phone: data.phone,
       location: data.location,
       createdAt: new Date().toISOString().split("T")[0],
@@ -101,7 +112,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  return <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUser }}>{children}</AuthContext.Provider>
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!user) return { success: false, error: "Utilisateur non connecté" }
+
+    const storedUsers = localStorage.getItem("agrimarche_users")
+    const baseUsers: User[] = mockUsers.map((u) => ({ ...u, password: u.password ?? "password" }))
+    const users: User[] = storedUsers ? JSON.parse(storedUsers) : baseUsers
+
+    const foundUser = users.find((u) => u.id === user.id)
+    const userPassword = foundUser?.password ?? "password"
+
+    if (currentPassword !== userPassword) {
+      return { success: false, error: "Le mot de passe actuel est incorrect" }
+    }
+
+    if (newPassword.length < 6) {
+      return { success: false, error: "Le nouveau mot de passe doit contenir au moins 6 caractères" }
+    }
+
+    const updatedUser = { ...user, password: newPassword }
+    const updatedUsers = users.map((u) => (u.id === user.id ? { ...u, password: newPassword } : u))
+
+    localStorage.setItem("agrimarche_users", JSON.stringify(updatedUsers))
+    localStorage.setItem("agrimarche_user", JSON.stringify(updatedUser))
+    setUser(updatedUser)
+
+    return { success: true }
+  }
+
+  return <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUser, changePassword }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
