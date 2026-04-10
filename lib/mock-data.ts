@@ -1,4 +1,4 @@
-import type { User, Product, Order } from "./types"
+import type { User, Product, Order, Article, Rating } from "./types"
 
 export const mockUsers: User[] = [
   {
@@ -9,6 +9,8 @@ export const mockUsers: User[] = [
     phone: "+33 6 12 34 56 78",
     location: "Provence-Alpes-Côte d'Azur",
     createdAt: "2024-01-15",
+    rating: 4.5,
+    reviewCount: 1,
   },
   {
     id: "farmer-2",
@@ -18,6 +20,8 @@ export const mockUsers: User[] = [
     phone: "+33 6 98 76 54 32",
     location: "Bretagne",
     createdAt: "2024-02-20",
+    rating: 4.8,
+    reviewCount: 2,
   },
   {
     id: "buyer-1",
@@ -158,5 +162,67 @@ export const mockOrders: Order[] = [
     totalPrice: 8.4,
     status: "pending",
     createdAt: "2024-06-12",
+  },
+]
+
+export const mockArticles: Article[] = [
+  {
+    id: "article-1",
+    title: "Comment l'IA transforme nos rendements",
+    description: "Découvrez comment l'agriculture de précision aide les agriculteurs à optimiser leurs récoltes.",
+    content: "L'intelligence artificielle n'est plus réservée aux entreprises technologiques. Aujourd'hui, elle descend dans les champs. Grâce à des capteurs IoT, des drones et des algorithmes d'analyse d'images satellitaires, les agriculteurs peuvent désormais prédire le meilleur moment pour semer, irriguer et récolter.\n\nUne récente étude montre que l'adoption de ces technologies permettrait d'augmenter les rendements de 15% tout en réduisant l'utilisation d'eau et de pesticides de 20%. Cette transition technologique offre de nouvelles perspectives pour une agriculture à la fois plus rentable et plus respectueuse de l'environnement.",
+    category: "agriculteurs",
+    imageUrl: "https://images.unsplash.com/photo-1628102491629-778571d893a3?q=80&w=1000",
+    authorName: "Jean Dupont",
+    createdAt: "2024-06-15",
+  },
+  {
+    id: "article-2",
+    title: "Le boom des produits laitiers locaux",
+    description: "Les consommateurs se tournent de plus en plus vers le lait et le fromage en circuit court.",
+    content: "Au cours des cinq dernières années, la demande pour les produits laitiers issus de circuits courts a explosé. Les consommateurs, de plus en plus soucieux de leur santé et de l'environnement, préfèrent acheter directement auprès des producteurs de leur région.\n\nCe phénomène s'explique par un besoin de transparence et de qualité. Le goût du lait frais, non standardisé par l'industrie de masse, séduit une nouvelle génération d'acheteurs prêts à payer le juste prix pour soutenir l'économie locale. Les fromages artisanaux, riches de leur terroir, regagnent également leurs lettres de noblesse dans les étals de marché.",
+    category: "produits",
+    imageUrl: "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=1000",
+    authorName: "Marie Martin",
+    createdAt: "2024-06-18",
+  },
+  {
+    id: "article-3",
+    title: "Changement climatique : Défis pour l'agriculture mondiale",
+    description: "Des températures extrêmes aux précipitations imprévisibles, comment s'adapter ?",
+    content: "Le monde agricole est en première ligne face au dérèglement climatique. Les épisodes de sécheresse prolongée, suivis de pluies diluviennes, bouleversent les calendriers de semi et de récolte à travers le globe.\n\nFace à ces défis, l'adaptation est le maître mot. Les chercheurs travaillent sur le développement de nouvelles variétés de semences plus résistantes à la sécheresse et à la chaleur. Parallèlement, les pratiques agroécologiques telles que l'agroforesterie et la couverture végétale des sols gagnent du terrain. Elles permettent de maintenir l'humidité, d'améliorer la biodiversité et de séquestrer plus de carbone, offrant ainsi des solutions durables pour l'avenir de notre alimentation.",
+    category: "monde",
+    imageUrl: "https://images.unsplash.com/photo-1500937386664-56d1dfef3844?q=80&w=1000",
+    authorName: "Administrateur",
+    createdAt: "2024-06-20",
+  }
+]
+export const mockRatings: Rating[] = [
+  {
+    id: "rating-1",
+    farmerId: "farmer-1",
+    authorId: "buyer-1",
+    authorName: "Pierre Bernard",
+    stars: 4,
+    comment: "Très bons légumes, frais et savoureux.",
+    createdAt: "2024-06-15",
+  },
+  {
+    id: "rating-2",
+    farmerId: "farmer-2",
+    authorId: "buyer-1",
+    authorName: "Pierre Bernard",
+    stars: 5,
+    comment: "Le lait est exceptionnel, je recommande !",
+    createdAt: "2024-06-18",
+  },
+  {
+    id: "rating-3",
+    farmerId: "farmer-2",
+    authorId: "admin-1",
+    authorName: "Administrateur",
+    stars: 5,
+    comment: "Producteur sérieux et régulier.",
+    createdAt: "2024-06-20",
   },
 ]

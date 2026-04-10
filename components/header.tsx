@@ -57,6 +57,12 @@ export function Header() {
           >
             À Propos
           </Link>
+          <Link
+            href="/actualites"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Actualités
+          </Link>
         </nav>
 
         <div className="flex items-center gap-3">
@@ -139,6 +145,13 @@ export function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               À Propos
+            </Link>
+            <Link
+              href="/actualites"
+              className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Actualités
             </Link>
             {!user && (
               <div className="flex flex-col gap-2 border-t pt-3">

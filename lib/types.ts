@@ -6,10 +6,23 @@ export interface User {
   name: string
   role: UserRole
   password?: string
+  masterPassword?: string
   phone?: string
   location?: string
   avatar?: string
   description?: string
+  createdAt: string
+  rating?: number
+  reviewCount?: number
+}
+
+export interface Rating {
+  id: string
+  farmerId: string
+  authorId: string
+  authorName: string
+  stars: number
+  comment: string
   createdAt: string
 }
 
@@ -72,4 +85,17 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   confirmed: "Confirmée",
   delivered: "Livrée",
   cancelled: "Annulée",
+}
+
+export type ArticleCategory = "agriculteurs" | "produits" | "monde"
+
+export interface Article {
+  id: string
+  title: string
+  description: string
+  content: string
+  category: ArticleCategory
+  imageUrl: string
+  authorName: string
+  createdAt: string
 }

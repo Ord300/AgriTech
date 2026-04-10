@@ -8,11 +8,29 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Home, LogOut } from "lucide-react"
-import { ORDER_STATUS_LABELS } from "@/lib/types"
+import { ORDER_STATUS_LABELS, type Order } from "@/lib/types"
+
+import { useState } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { StarRating } from "@/components/star-rating"
+import { toast } from "sonner"
 
 export default function MesCommandesPage() {
   const { user, logout, isLoading } = useAuth()
-  const { orders } = useData()
+  const { orders, ratings, addRating } = useData()
+  const [isRatingOpen, setIsRatingOpen] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [stars, setStars] = useState(5)
+  const [comment, setComment] = useState("")
   const router = useRouter()
 
   if (isLoading) {
@@ -37,6 +55,32 @@ export default function MesCommandesPage() {
       default:
         return "outline"
     }
+  }
+
+  const handleRate = (order: Order) => {
+    setSelectedOrder(order)
+    setStars(5)
+    setComment("")
+    setIsRatingOpen(true)
+  }
+
+  const submitRating = () => {
+    if (!selectedOrder || !user) return
+
+    addRating({
+      farmerId: selectedOrder.farmerId,
+      authorId: user.id,
+      authorName: user.name,
+      stars,
+      comment,
+    })
+
+    toast.success("Votre avis a été enregistré !")
+    setIsRatingOpen(false)
+  }
+
+  const hasRated = (farmerId: string) => {
+    return ratings.some((r) => r.farmerId === farmerId && r.authorId === user?.id)
   }
 
   return (
@@ -102,12 +146,22 @@ export default function MesCommandesPage() {
                       <p className="text-sm text-muted-foreground">
                         {order.quantity} unités • {order.totalPrice.toFixed(2)} €
                       </p>
-                      <p className="text-sm text-muted-foreground">Vendeur : {order.farmerName}</p>
+                      <p className="text-sm text-muted-foreground">Agriculteur : {order.farmerName}</p>
                       <p className="text-xs text-muted-foreground">
                         Commandé le {new Date(order.createdAt).toLocaleDateString("fr-FR")}
                       </p>
                     </div>
-                    <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                    <div className="flex items-center gap-3">
+                      <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                      {order.status === "delivered" && !hasRated(order.farmerId) && (
+                        <Button size="sm" variant="outline" onClick={() => handleRate(order)}>
+                          Noter
+                        </Button>
+                      )}
+                      {hasRated(order.farmerId) && (
+                        <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">Déjà noté</Badge>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -115,6 +169,35 @@ export default function MesCommandesPage() {
           </CardContent>
         </Card>
       </main>
+
+      <Dialog open={isRatingOpen} onOpenChange={setIsRatingOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Noter l'agriculteur</DialogTitle>
+            <DialogDescription>
+              Votre avis aide les autres acheteurs et encourage les agriculteurs.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-sm font-medium">Votre note pour {selectedOrder?.farmerName}</span>
+              <StarRating rating={stars} readonly={false} onChange={setStars} size="lg" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Votre commentaire</label>
+              <Textarea 
+                placeholder="Partagez votre expérience..." 
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRatingOpen(false)}>Annuler</Button>
+            <Button onClick={submitRating}>Envoyer l'avis</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

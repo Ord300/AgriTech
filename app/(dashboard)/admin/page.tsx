@@ -12,13 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ORDER_STATUS_LABELS, CATEGORIES, type User } from "@/lib/types"
-import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff } from "lucide-react"
+import { ORDER_STATUS_LABELS, CATEGORIES, type User, type ArticleCategory } from "@/lib/types"
+import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff, Newspaper } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 export default function AdminDashboard() {
-  const { user, logout, isLoading } = useAuth()
-  const { products, orders, users, deleteProduct, deleteUser, updateOrderStatus, updateUser } = useData()
+  const { user, logout, isLoading, updateUser: updateAuthUser, changePassword } = useAuth()
+  const { products, orders, users, articles, deleteProduct, deleteUser, updateOrderStatus, updateUser, addArticle, deleteArticle } = useData()
   const router = useRouter()
   const { toast } = useToast()
 
@@ -26,6 +26,14 @@ export default function AdminDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showFarmerPassword, setShowFarmerPassword] = useState(false)
   const [showFarmerConfirmPassword, setShowFarmerConfirmPassword] = useState(false)
+  
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false)
+  const [showNewMasterPassword, setShowNewMasterPassword] = useState(false)
+  const [showConfirmNewMasterPassword, setShowConfirmNewMasterPassword] = useState(false)
+  const [showVerifyPassword, setShowVerifyPassword] = useState(false)
+
   const [newFarmerData, setNewFarmerData] = useState({
     name: "",
     email: "",
@@ -33,6 +41,33 @@ export default function AdminDashboard() {
     location: "",
     password: "",
     confirmPassword: "",
+  })
+
+  // State for password visibility
+  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({})
+  const [passwordTargetUser, setPasswordTargetUser] = useState<User | null>(null)
+  const [adminPasswordAttempt, setAdminPasswordAttempt] = useState("")
+
+  // Security settings state
+  const [securityData, setSecurityData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: "",
+    newMasterPassword: "",
+    confirmNewMasterPassword: "",
+  })
+
+  // Article state
+  const [isAddArticleDialogOpen, setIsAddArticleDialogOpen] = useState(false)
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [newArticleData, setNewArticleData] = useState({
+    title: "",
+    description: "",
+    content: "",
+    category: "agriculteurs" as ArticleCategory,
+    imageUrl: "",
+    authorName: user?.name || "Administrateur",
   })
 
   if (isLoading) {
@@ -185,6 +220,132 @@ export default function AdminDashboard() {
     setIsAddFarmerDialogOpen(false)
   }
 
+  const handleTogglePasswordVisibility = (targetUser: User) => {
+    if (revealedPasswords[targetUser.id]) {
+      setRevealedPasswords((prev) => ({ ...prev, [targetUser.id]: false }))
+    } else {
+      setPasswordTargetUser(targetUser)
+      setAdminPasswordAttempt("")
+    }
+  }
+
+  const handleChangeConnectionPassword = async () => {
+    if (!securityData.currentPassword || !securityData.newPassword || !securityData.confirmNewPassword) {
+      toast({ title: "Erreur", description: "Veuillez remplir tous les champs.", variant: "destructive" })
+      return
+    }
+    if (securityData.newPassword !== securityData.confirmNewPassword) {
+      toast({ title: "Erreur", description: "Les nouveaux mots de passe ne correspondent pas.", variant: "destructive" })
+      return
+    }
+    const res = await changePassword(securityData.currentPassword, securityData.newPassword)
+    if (res.success) {
+      toast({ title: "Succès", description: "Mot de passe de connexion modifié." })
+      setSecurityData(prev => ({ ...prev, currentPassword: "", newPassword: "", confirmNewPassword: "" }))
+    } else {
+      toast({ title: "Erreur", description: res.error, variant: "destructive" })
+    }
+  }
+
+  const handleChangeMasterPassword = () => {
+    if (!securityData.newMasterPassword || !securityData.confirmNewMasterPassword) {
+      toast({ title: "Erreur", description: "Veuillez remplir tous les champs du mot de passe maître.", variant: "destructive" })
+      return
+    }
+    if (securityData.newMasterPassword !== securityData.confirmNewMasterPassword) {
+      toast({ title: "Erreur", description: "Les mots de passe maîtres ne correspondent pas.", variant: "destructive" })
+      return
+    }
+    if (securityData.newMasterPassword.length < 6) {
+      toast({ title: "Erreur", description: "Le mot de passe maître doit faire au moins 6 caractères.", variant: "destructive" })
+      return
+    }
+    updateAuthUser({ masterPassword: securityData.newMasterPassword })
+    toast({ title: "Succès", description: "Mot de passe maître défini avec succès." })
+    setSecurityData(prev => ({ ...prev, newMasterPassword: "", confirmNewMasterPassword: "" }))
+  }
+
+  const handleVerifyAdminPassword = () => {
+    const expectedPassword = user?.masterPassword || user?.password || "password"
+    
+    if (adminPasswordAttempt === expectedPassword || (!user?.masterPassword && adminPasswordAttempt === "password")) {
+      if (passwordTargetUser) {
+        setRevealedPasswords((prev) => ({ ...prev, [passwordTargetUser.id]: true }))
+        setPasswordTargetUser(null)
+        setAdminPasswordAttempt("")
+        toast({
+          title: "Accès autorisé",
+          description: `Le mot de passe de ${passwordTargetUser.name} est maintenant visible.`,
+        })
+      }
+    } else {
+      toast({
+        title: "Accès refusé",
+        description: "Mot de passe administrateur incorrect.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleAddArticle = async () => {
+    if (!newArticleData.title || !newArticleData.content) {
+      toast({ title: "Erreur", description: "Le titre et le contenu sont obligatoires.", variant: "destructive" })
+      return
+    }
+
+    setIsUploading(true)
+    let finalImageUrl = newArticleData.imageUrl
+
+    if (selectedImageFile) {
+      try {
+        const formData = new FormData()
+        formData.append("file", selectedImageFile)
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        })
+
+        if (!res.ok) throw new Error("Échec de l'upload")
+        
+        const data = await res.json()
+        finalImageUrl = data.url
+      } catch (error) {
+        toast({ title: "Erreur", description: "Le téléchargement de l'image a échoué.", variant: "destructive" })
+        setIsUploading(false)
+        return
+      }
+    }
+
+    addArticle({
+      title: newArticleData.title,
+      description: newArticleData.description,
+      content: newArticleData.content,
+      category: newArticleData.category,
+      authorName: newArticleData.authorName || "Administrateur",
+      imageUrl: finalImageUrl || "https://images.unsplash.com/photo-1500937386664-56d1dfef3844?q=80&w=800&auto=format&fit=crop"
+    })
+    
+    toast({ title: "Article publié", description: "L'actualité a été mise en ligne." })
+    
+    setNewArticleData({
+      title: "",
+      description: "",
+      content: "",
+      category: "agriculteurs",
+      imageUrl: "",
+      authorName: user?.name || "Administrateur",
+    })
+    setSelectedImageFile(null)
+    setIsUploading(false)
+    setIsAddArticleDialogOpen(false)
+  }
+
+  const handleDeleteArticle = (id: string, title: string) => {
+    deleteArticle(id)
+    toast({ title: "Article supprimé", description: `L'article "${title}" a été retiré.` })
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -307,10 +468,12 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:w-auto">
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
             <TabsTrigger value="products">Produits</TabsTrigger>
             <TabsTrigger value="orders">Commandes</TabsTrigger>
+            <TabsTrigger value="news">Actualités</TabsTrigger>
+            <TabsTrigger value="security">Sécurité</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users">
@@ -438,6 +601,27 @@ export default function AdminDashboard() {
                             <p className="font-medium">{farmer.name}</p>
                             <p className="text-sm text-muted-foreground">{farmer.email}</p>
                             <p className="text-xs text-muted-foreground">{farmer.location}</p>
+                            {farmer.rating && (
+                              <div className="flex items-center gap-1 mt-1">
+                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                                <span className="text-xs font-medium">{farmer.rating} ({farmer.reviewCount})</span>
+                              </div>
+                            )}
+                            <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
+                              Mot de passe: {revealedPasswords[farmer.id] ? (
+                                <span className="font-mono text-foreground">{farmer.password || "password"}</span>
+                              ) : (
+                                <span className="font-mono text-muted-foreground">••••••••</span>
+                              )}
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-5 w-5 ml-1" 
+                                onClick={() => handleTogglePasswordVisibility(farmer)}
+                              >
+                                {revealedPasswords[farmer.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                              </Button>
+                            </p>
                           </div>
                           <div className="flex items-center gap-2">
                             <Select
@@ -485,6 +669,21 @@ export default function AdminDashboard() {
                             <p className="font-medium">{buyer.name}</p>
                             <p className="text-sm text-muted-foreground">{buyer.email}</p>
                             <p className="text-xs text-muted-foreground">{buyer.location}</p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
+                              Mot de passe: {revealedPasswords[buyer.id] ? (
+                                <span className="font-mono text-foreground">{buyer.password || "password"}</span>
+                              ) : (
+                                <span className="font-mono text-muted-foreground">••••••••</span>
+                              )}
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-5 w-5 ml-1" 
+                                onClick={() => handleTogglePasswordVisibility(buyer)}
+                              >
+                                {revealedPasswords[buyer.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                              </Button>
+                            </p>
                           </div>
                           <div className="flex items-center gap-2">
                             <Select
@@ -598,8 +797,268 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="news">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Actualités ({articles?.length || 0})</CardTitle>
+                    <CardDescription>Gérez les articles d'actualité de la plateforme</CardDescription>
+                  </div>
+                  <Dialog open={isAddArticleDialogOpen} onOpenChange={setIsAddArticleDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="gap-2">
+                        <Newspaper className="h-4 w-4" />
+                        Ajouter un article
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Créer un nouvel article</DialogTitle>
+                        <DialogDescription>
+                          Publiez une actualité sur le monde agricole, les tendances ou les agriculteurs.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="article-title">Titre</Label>
+                          <Input
+                            id="article-title"
+                            placeholder="Titre accrocheur..."
+                            value={newArticleData.title}
+                            onChange={(e) => setNewArticleData({ ...newArticleData, title: e.target.value })}
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="article-desc">Description courte</Label>
+                          <Input
+                            id="article-desc"
+                            placeholder="Résumé en une phrase..."
+                            value={newArticleData.description}
+                            onChange={(e) => setNewArticleData({ ...newArticleData, description: e.target.value })}
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="article-category">Catégorie</Label>
+                            <Select
+                              value={newArticleData.category}
+                              onValueChange={(val: any) => setNewArticleData({ ...newArticleData, category: val })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Catégorie" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="agriculteurs">Agriculteurs</SelectItem>
+                                <SelectItem value="produits">Produits en Vogue</SelectItem>
+                                <SelectItem value="monde">Monde Agricole</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="article-author">Auteur</Label>
+                            <Input
+                              id="article-author"
+                              value={newArticleData.authorName}
+                              onChange={(e) => setNewArticleData({ ...newArticleData, authorName: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="article-image-file">Image d'illustration (optionnel)</Label>
+                          <div className="flex flex-col gap-3">
+                            <Input
+                              id="article-image-file"
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  setSelectedImageFile(e.target.files[0])
+                                  setNewArticleData({ ...newArticleData, imageUrl: "" })
+                                }
+                              }}
+                            />
+                            <div className="text-center text-sm text-muted-foreground">ou URL web :</div>
+                            <Input
+                              id="article-image"
+                              placeholder="https://images.unsplash.com/..."
+                              value={newArticleData.imageUrl}
+                              onChange={(e) => {
+                                setNewArticleData({ ...newArticleData, imageUrl: e.target.value })
+                                setSelectedImageFile(null)
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="article-content">Contenu de l'article</Label>
+                          <textarea
+                            id="article-content"
+                            className="flex min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            placeholder="Rédigez le contenu complet ici..."
+                            value={newArticleData.content}
+                            onChange={(e) => setNewArticleData({ ...newArticleData, content: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsAddArticleDialogOpen(false)} disabled={isUploading}>
+                          Annuler
+                        </Button>
+                        <Button onClick={handleAddArticle} disabled={isUploading}>
+                          {isUploading ? "Publication..." : "Publier"}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {!articles || articles.length === 0 ? (
+                  <p className="text-muted-foreground">Aucun article publié pour le moment.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {articles.map((article) => (
+                      <div key={article.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-lg border p-4">
+                        <div className="flex gap-4">
+                          {article.imageUrl && (
+                            <img src={article.imageUrl} alt="" className="h-16 w-16 rounded-md object-cover hidden sm:block" />
+                          )}
+                          <div>
+                            <p className="font-medium text-lg leading-tight">{article.title}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs uppercase bg-muted/50">{article.category}</Badge>
+                              <span className="text-xs text-muted-foreground">{article.authorName} · {new Date(article.createdAt).toLocaleDateString("fr-FR")}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-2 line-clamp-1">{article.description}</p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon" className="shrink-0" onClick={() => handleDeleteArticle(article.id, article.title)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="security">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mot de passe de connexion</CardTitle>
+                  <CardDescription>Modifiez votre mot de passe pour vous connecter à la plateforme</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="current-pw">Mot de passe actuel</Label>
+                    <div className="relative">
+                      <Input id="current-pw" type={showCurrentPassword ? "text" : "password"} value={securityData.currentPassword} onChange={e => setSecurityData({...securityData, currentPassword: e.target.value})} className="pr-10" />
+                      <button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1}>
+                        {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-pw">Nouveau mot de passe</Label>
+                    <div className="relative">
+                      <Input id="new-pw" type={showNewPassword ? "text" : "password"} value={securityData.newPassword} onChange={e => setSecurityData({...securityData, newPassword: e.target.value})} className="pr-10" />
+                      <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1}>
+                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-new-pw">Confirmer le nouveau mot de passe</Label>
+                    <div className="relative">
+                      <Input id="confirm-new-pw" type={showConfirmNewPassword ? "text" : "password"} value={securityData.confirmNewPassword} onChange={e => setSecurityData({...securityData, confirmNewPassword: e.target.value})} className="pr-10" />
+                      <button type="button" onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1}>
+                        {showConfirmNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <Button onClick={handleChangeConnectionPassword}>Mettre à jour</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mot de passe maître</CardTitle>
+                  <CardDescription>Définissez un mot de passe spécifique pour voir les mots de passe des utilisateurs (min. 6 caractères)</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-master">Nouveau mot de passe maître</Label>
+                    <div className="relative">
+                      <Input id="new-master" type={showNewMasterPassword ? "text" : "password"} value={securityData.newMasterPassword} onChange={e => setSecurityData({...securityData, newMasterPassword: e.target.value})} className="pr-10" />
+                      <button type="button" onClick={() => setShowNewMasterPassword(!showNewMasterPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1}>
+                        {showNewMasterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-master">Confirmer le mot de passe maître</Label>
+                    <div className="relative">
+                      <Input id="confirm-master" type={showConfirmNewMasterPassword ? "text" : "password"} value={securityData.confirmNewMasterPassword} onChange={e => setSecurityData({...securityData, confirmNewMasterPassword: e.target.value})} className="pr-10" />
+                      <button type="button" onClick={() => setShowConfirmNewMasterPassword(!showConfirmNewMasterPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1}>
+                        {showConfirmNewMasterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <Button onClick={handleChangeMasterPassword}>Définir le mot de passe maître</Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
         </Tabs>
       </main>
+
+      {/* Password Verification Dialog */}
+      <Dialog open={!!passwordTargetUser} onOpenChange={(open) => !open && setPasswordTargetUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Vérification de sécurité</DialogTitle>
+            <DialogDescription>
+              En tant qu'administrateur, veuillez entrer votre mot de passe pour voir les informations d'identification de cet utilisateur.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="admin-verify-password">Mot de passe administrateur</Label>
+              <div className="relative">
+                <Input
+                  id="admin-verify-password"
+                  type={showVerifyPassword ? "text" : "password"}
+                  placeholder="Votre mot de passe..."
+                  value={adminPasswordAttempt}
+                  onChange={(e) => setAdminPasswordAttempt(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleVerifyAdminPassword()
+                  }}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowVerifyPassword(!showVerifyPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
+                >
+                  {showVerifyPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPasswordTargetUser(null)}>
+              Annuler
+            </Button>
+            <Button onClick={handleVerifyAdminPassword}>Vérifier</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

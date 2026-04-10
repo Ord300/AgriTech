@@ -18,6 +18,10 @@ import {
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { StarRating } from "./star-rating"
+import { FarmerRatings } from "./farmer-ratings"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Star } from "lucide-react"
 
 interface ProductCardProps {
   product: Product
@@ -56,6 +60,12 @@ export function ProductCard({ product, onOrder, showOrderButton = true }: Produc
             <User className="h-4 w-4" />
             {product.farmerName}
           </span>
+          {farmer?.rating && (
+            <span className="flex items-center gap-1 text-yellow-600 font-medium">
+              <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+              {farmer.rating} ({farmer.reviewCount})
+            </span>
+          )}
           <span className="flex items-center gap-1">
             <MapPin className="h-4 w-4" />
             {product.location}
@@ -92,75 +102,94 @@ export function ProductCard({ product, onOrder, showOrderButton = true }: Produc
 
               <div className="flex-1 overflow-y-auto p-6">
                 <div className="space-y-8">
-                  {/* Farmer Info */}
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    <div className="flex flex-col items-center gap-4 rounded-xl bg-primary/5 p-6 text-center">
-                      <Avatar className="h-24 w-24 border-2 border-primary">
-                        <AvatarImage src={farmer?.avatar} alt={product.farmerName} />
-                        <AvatarFallback className="text-3xl font-bold bg-primary text-primary-foreground">
-                          {product.farmerName.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="text-xl font-bold">{product.farmerName}</h3>
-                        <Badge variant="secondary" className="mt-1">Agriculteur Vérifié</Badge>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4 pt-4">
-                      <div className="flex items-center gap-3 text-muted-foreground">
-                        <Phone className="h-4 w-4 text-primary" />
-                        <span>{farmer?.phone || "Non renseigné"}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-muted-foreground">
-                        <Mail className="h-4 w-4 text-primary" />
-                        <span>{farmer?.email}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-muted-foreground">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        <span>{product.location}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-muted-foreground">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        <span>Inscrit le {farmer?.createdAt ? new Date(farmer.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : "Inconnu"}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Farmer Description */}
-                  {farmer?.description && (
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold border-b pb-2">À propos de l'agriculteur</h4>
-                      <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                        {farmer.description}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Other Products */}
-                  {farmerProducts.length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold border-b pb-2">Autres produits de ce vendeur</h4>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        {farmerProducts.map((p) => (
-                          <div key={p.id} className="flex gap-3 rounded-lg border p-3 items-center">
-                            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border">
-                              <Image
-                                src={p.image || "/placeholder.svg"}
-                                alt={p.name}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">{p.name}</p>
-                              <p className="text-sm text-primary font-bold">{p.price.toFixed(2)} € / {p.unit}</p>
-                            </div>
+                  <Tabs defaultValue="info" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="info">Informations</TabsTrigger>
+                      <TabsTrigger value="reviews">Avis ({farmer?.reviewCount || 0})</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="info" className="space-y-6 pt-4">
+                      {/* Farmer Info */}
+                      <div className="grid gap-6 sm:grid-cols-2">
+                        <div className="flex flex-col items-center gap-4 rounded-xl bg-primary/5 p-6 text-center">
+                          <Avatar className="h-24 w-24 border-2 border-primary">
+                            <AvatarImage src={farmer?.avatar} alt={product.farmerName} />
+                            <AvatarFallback className="text-3xl font-bold bg-primary text-primary-foreground">
+                              {product.farmerName.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="text-xl font-bold">{product.farmerName}</h3>
+                            <Badge variant="secondary" className="mt-1">Agriculteur Vérifié</Badge>
+                            {farmer?.rating && (
+                              <div className="mt-2 flex items-center justify-center gap-1">
+                                <StarRating rating={farmer.rating} size="sm" />
+                                <span className="text-sm font-medium">({farmer.reviewCount})</span>
+                              </div>
+                            )}
                           </div>
-                        ))}
+                        </div>
+
+                        <div className="space-y-4 pt-4">
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <Phone className="h-4 w-4 text-primary" />
+                            <span>{farmer?.phone || "Non renseigné"}</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <Mail className="h-4 w-4 text-primary" />
+                            <span>{farmer?.email}</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <MapPin className="h-4 w-4 text-primary" />
+                            <span>{product.location}</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <Calendar className="h-4 w-4 text-primary" />
+                            <span>Inscrit le {farmer?.createdAt ? new Date(farmer.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : "Inconnu"}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  )}
+
+                      {/* Farmer Description */}
+                      {farmer?.description && (
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold border-b pb-2">À propos de l'agriculteur</h4>
+                          <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                            {farmer.description}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Other Products */}
+                      {farmerProducts.length > 0 && (
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold border-b pb-2">Autres produits de ce vendeur</h4>
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            {farmerProducts.map((p) => (
+                              <div key={p.id} className="flex gap-3 rounded-lg border p-3 items-center">
+                                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border">
+                                  <Image
+                                    src={p.image || "/placeholder.svg"}
+                                    alt={p.name}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium truncate">{p.name}</p>
+                                  <p className="text-sm text-primary font-bold">{p.price.toFixed(2)} € / {p.unit}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="reviews" className="pt-4">
+                      <FarmerRatings farmerId={product.farmerId} />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
             </DialogContent>
