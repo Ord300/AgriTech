@@ -23,7 +23,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { CATEGORIES, ORDER_STATUS_LABELS, type ProductCategory } from "@/lib/types"
-import { Package, Plus, Settings, LogOut, Leaf, Home, Upload, X, User as UserIcon, Check, Trash2, ShoppingCart, Truck, TrendingUp, Menu, KeyRound, Eye, EyeOff } from "lucide-react"
+import { Package, Plus, Settings, LogOut, Leaf, Home, Upload, X, User as UserIcon, Check, Trash2, ShoppingCart, Truck, TrendingUp, Menu, KeyRound, Eye, EyeOff, MessageSquare } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function FarmerDashboard() {
@@ -216,6 +216,17 @@ export default function FarmerDashboard() {
     })
   }
 
+  const { startConversation } = useData()
+
+  const handleContactAdmin = () => {
+    if (!user) return
+    const admin = users.find(u => u.role === "admin")
+    if (admin) {
+      startConversation([user.id, admin.id], [user.name, admin.name])
+      router.push("/agriculteur/messages")
+    }
+  }
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -230,90 +241,131 @@ export default function FarmerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-                <Leaf className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold">AgriMarché</span>
-            </Link>
-            <Badge variant="secondary" className="max-[374px]:hidden">Agriculteur</Badge>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden flex-col items-end sm:flex">
-              <span className="text-sm font-medium text-foreground">{user.name}</span>
-              <span className="text-xs text-muted-foreground capitalize">{user.role}</span>
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden md:flex flex-col w-64 border-r bg-card fixed left-0 top-0 h-screen">
+        <div className="p-6 border-b">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+              <Leaf className="h-5 w-5 text-primary-foreground" />
             </div>
-            <Avatar className="h-9 w-9 border">
-              <AvatarImage src={user.avatar} alt={user.name} />
+            <span className="text-lg font-bold">AgriMarché</span>
+          </Link>
+        </div>
+
+        <div className="p-4 border-b">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 border">
+              <AvatarImage src={user.avatar} />
               <AvatarFallback className="bg-primary text-primary-foreground">
                 {user.name.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <div className="hidden items-center gap-1 sm:flex">
-              <Button variant="ghost" size="icon" asChild>
-                <Link href="/marche">
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="sr-only">Explorer le marché</span>
-                </Link>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <Link href="/">
-                  <Home className="h-5 w-5" />
-                  <span className="sr-only">Accueil</span>
-                </Link>
-              </Button>
-              <Button variant="ghost" size="icon" onClick={logout}>
-                <LogOut className="h-5 w-5" />
-                <span className="sr-only">Déconnexion</span>
-              </Button>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground capitalize">Agriculteur</p>
             </div>
-            <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Menu</span>
-            </Button>
           </div>
         </div>
-      </header>
+
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+          <Button variant="ghost" className="w-full justify-start gap-3" asChild>
+            <Link href="/agriculteur">
+              <Home className="h-5 w-5" />
+              <span className="text-sm font-medium">Tableau de bord</span>
+            </Link>
+          </Button>
+          <Button variant="ghost" className="w-full justify-start gap-3" asChild>
+            <Link href="/agriculteur/messages">
+              <MessageSquare className="h-5 w-5" />
+              <span className="text-sm font-medium">Messages</span>
+            </Link>
+          </Button>
+          <Button variant="outline" className="w-full justify-start gap-3 mt-4" onClick={handleContactAdmin}>
+            <MessageSquare className="h-5 w-5" />
+            <span className="text-sm font-medium">Contacter l'Admin</span>
+          </Button>
+        </nav>
+
+        <div className="p-4 border-t space-y-2">
+          <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground" asChild>
+            <Link href="/marche">
+              <ShoppingCart className="h-4 w-4" />
+              <span className="text-sm">Le Marché</span>
+            </Link>
+          </Button>
+          <Button variant="ghost" className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10" onClick={logout}>
+            <LogOut className="h-4 w-4" />
+            <span className="text-sm">Déconnexion</span>
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 md:ml-64 flex flex-col">
+        {/* Header - Mobile & Desktop Profile */}
+        <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+          <div className="h-16 flex items-center justify-between px-4 container">
+            <div className="flex items-center gap-4 md:hidden">
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                <Menu className="h-5 w-5" />
+              </Button>
+              <Link href="/" className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                  <Leaf className="h-4 w-4 text-primary-foreground" />
+                </div>
+              </Link>
+            </div>
+            <div className="hidden md:block">
+              <h1 className="text-xl font-semibold">Tableau de Bord</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="hidden sm:inline text-sm text-muted-foreground">{user.name}</span>
+            </div>
+          </div>
+        </header>
 
       {mobileMenuOpen && (
-        <div className="sticky top-16 z-40 border-t border-b bg-card p-4 sm:hidden">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3 pb-3 border-b">
-              <Avatar className="h-8 w-8 border">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  {user.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium text-sm">{user.name}</p>
-                <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
-              </div>
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
+          <aside className="fixed left-0 top-0 w-64 h-screen bg-card border-r flex flex-col z-50">
+            <div className="flex items-center justify-between p-4 border-b">
+              <span className="font-bold">Menu</span>
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <nav className="flex flex-col gap-2">
-              <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
-                <Link href="/marche">
-                  <ShoppingCart className="h-4 w-4" />
-                  Explorer le marché
-                </Link>
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
-                <Link href="/">
+            <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+              <Button variant="ghost" className="w-full justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/agriculteur">
                   <Home className="h-4 w-4" />
-                  Accueil
+                  Tableau de bord
                 </Link>
               </Button>
-              <Button variant="ghost" className="justify-start gap-2 text-destructive hover:text-destructive" onClick={() => { logout(); setMobileMenuOpen(false); }}>
-                <LogOut className="h-4 w-4" />
-                Déconnexion
+              <Button variant="ghost" className="w-full justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/agriculteur/messages">
+                  <MessageSquare className="h-4 w-4" />
+                  Messages
+                </Link>
               </Button>
+              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => { handleContactAdmin(); setMobileMenuOpen(false); }}>
+                <MessageSquare className="h-4 w-4" />
+                Contacter l'Admin
+              </Button>
+              <div className="pt-4 border-t mt-4">
+                <Button variant="ghost" className="w-full justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/marche">
+                    <ShoppingCart className="h-4 w-4" />
+                    Marché
+                  </Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start gap-2 text-destructive" onClick={() => { logout(); setMobileMenuOpen(false); }}>
+                  <LogOut className="h-4 w-4" />
+                  Déconnexion
+                </Button>
+              </div>
             </nav>
-          </div>
+          </aside>
         </div>
       )}
 
@@ -619,9 +671,14 @@ export default function FarmerDashboard() {
                 <Button onClick={handleAddProduct}>Ajouter</Button>
               </DialogFooter>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+
+            <Button variant="outline" className="gap-2" onClick={handleContactAdmin}>
+              <MessageSquare className="h-4 w-4" />
+              Contact Support
+            </Button>
+          </div>
         </div>
-      </div>
 
         {/* Stats Cards */}
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -813,5 +870,6 @@ export default function FarmerDashboard() {
         </div>
       </main>
     </div>
-  )
+  </div>
+)
 }

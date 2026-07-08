@@ -1,8 +1,8 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { Product, Order, User, Article, Rating, Notification, SupportTicket, SupportMessage } from "./types"
-import { mockProducts, mockOrders, mockUsers, mockArticles, mockRatings } from "./mock-data"
+import type { Product, Order, User, Article, Rating, Notification, SupportTicket, SupportMessage, Conversation, ChatMessage } from "./types"
+import { mockProducts, mockOrders, mockUsers, mockArticles, mockRatings, mockConversations, mockMessages } from "./mock-data"
 
 interface DataContextType {
   products: Product[]
@@ -29,6 +29,10 @@ interface DataContextType {
   createSupportTicket: (ticket: Omit<SupportTicket, "id" | "createdAt" | "updatedAt" | "messages">) => void
   addMessageToTicket: (ticketId: string, message: Omit<SupportMessage, "id" | "timestamp">) => void
   updateTicketStatus: (ticketId: string, status: SupportTicket["status"]) => void
+  conversations: Conversation[]
+  messages: ChatMessage[]
+  sendMessage: (conversationId: string, senderId: string, content: string) => void
+  startConversation: (participantIds: string[], participantNames: string[]) => string
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined)
@@ -41,6 +45,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [ratings, setRatings] = useState<Rating[]>([])
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([])
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
 
   useEffect(() => {
     const storedProducts = localStorage.getItem("agrimarche_products")
@@ -50,6 +56,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const storedRatings = localStorage.getItem("agrimarche_ratings")
     const storedNotifications = localStorage.getItem("agrimarche_notifications")
     const storedTickets = localStorage.getItem("agrimarche_support_tickets")
+    const storedConversations = localStorage.getItem("agrimarche_conversations")
+    const storedMessages = localStorage.getItem("agrimarche_messages")
 
     setProducts(storedProducts ? JSON.parse(storedProducts) : mockProducts)
     setOrders(storedOrders ? JSON.parse(storedOrders) : mockOrders)
@@ -58,6 +66,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setRatings(storedRatings ? JSON.parse(storedRatings) : mockRatings)
     setNotifications(storedNotifications ? JSON.parse(storedNotifications) : [])
     setSupportTickets(storedTickets ? JSON.parse(storedTickets) : [])
+    setConversations(storedConversations ? JSON.parse(storedConversations) : mockConversations)
+    setMessages(storedMessages ? JSON.parse(storedMessages) : mockMessages)
   }, [])
 
   const saveProducts = (newProducts: Product[]) => {
@@ -147,6 +157,64 @@ export function DataProvider({ children }: { children: ReactNode }) {
       return ticket
     })
     saveSupportTickets(updatedTickets)
+  }
+
+  const saveConversations = (newConversations: Conversation[]) => {
+    setConversations(newConversations)
+    localStorage.setItem("agrimarche_conversations", JSON.stringify(newConversations))
+  }
+
+  const saveMessages = (newMessages: ChatMessage[]) => {
+    setMessages(newMessages)
+    localStorage.setItem("agrimarche_messages", JSON.stringify(newMessages))
+  }
+
+  const sendMessage = (conversationId: string, senderId: string, content: string) => {
+    const newMessage: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      conversationId,
+      senderId,
+      content,
+      timestamp: new Date().toISOString(),
+      read: false,
+    }
+
+    const newMessages = [...messages, newMessage]
+    saveMessages(newMessages)
+
+    const updatedConversations = conversations.map((conv) => {
+      if (conv.id === conversationId) {
+        return {
+          ...conv,
+          lastMessage: content,
+          lastMessageAt: newMessage.timestamp,
+        }
+      }
+      return conv
+    })
+    saveConversations(updatedConversations)
+  }
+
+  const startConversation = (participantIds: string[], participantNames: string[]) => {
+    const existing = conversations.find(
+      (conv) =>
+        conv.participantIds.length === participantIds.length &&
+        participantIds.every((id) => conv.participantIds.includes(id))
+    )
+
+    if (existing) return existing.id
+
+    const newId = `conv-${Date.now()}`
+    const newConversation: Conversation = {
+      id: newId,
+      participantIds,
+      participantNames,
+      lastMessageAt: new Date().toISOString(),
+      unreadCount: 0,
+    }
+
+    saveConversations([newConversation, ...conversations])
+    return newId
   }
 
   const updateTicketStatus = (ticketId: string, status: SupportTicket["status"]) => {
@@ -340,6 +408,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         createSupportTicket,
         addMessageToTicket,
         updateTicketStatus,
+        conversations,
+        messages,
+        sendMessage,
+        startConversation,
         addRating: (rating: Omit<Rating, "id" | "createdAt">) => {
           const newRating: Rating = {
             ...rating,

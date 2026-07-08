@@ -1,4 +1,4 @@
-import type { User, Product, Order, Article, Rating } from "./types"
+import type { User, Product, Order, Article, Rating, Conversation, ChatMessage } from "./types"
 
 export const mockUsers: User[] = [
   {
@@ -224,5 +224,51 @@ export const mockRatings: Rating[] = [
     stars: 5,
     comment: "Producteur sérieux et régulier.",
     createdAt: "2024-06-20",
+  },
+]
+
+export const mockConversations: Conversation[] = [
+  {
+    id: "conv-1",
+    participantIds: ["admin-1", "farmer-1"],
+    participantNames: ["Administrateur", "Jean Dupont"],
+    lastMessage: "Bien sûr, je m'en occupe dès que possible.",
+    lastMessageAt: "2024-06-24T10:30:00Z",
+    unreadCount: 1,
+  },
+  {
+    id: "conv-2",
+    participantIds: ["admin-1", "farmer-2"],
+    participantNames: ["Administrateur", "Marie Martin"],
+    lastMessage: "Bonjour Marie, j'ai une question sur vos produits.",
+    lastMessageAt: "2024-06-23T15:45:00Z",
+    unreadCount: 0,
+  },
+]
+
+export const mockMessages: ChatMessage[] = [
+  {
+    id: "msg-1",
+    conversationId: "conv-1",
+    senderId: "admin-1",
+    content: "Bonjour Jean, pourriez-vous mettre à jour vos stocks de tomates ?",
+    timestamp: "2024-06-24T09:00:00Z",
+    read: true,
+  },
+  {
+    id: "msg-2",
+    conversationId: "conv-1",
+    senderId: "farmer-1",
+    content: "Bien sûr, je m'en occupe dès que possible.",
+    timestamp: "2024-06-24T10:30:00Z",
+    read: false,
+  },
+  {
+    id: "msg-3",
+    conversationId: "conv-2",
+    senderId: "admin-1",
+    content: "Bonjour Marie, j'ai une question sur vos produits.",
+    timestamp: "2024-06-23T15:45:00Z",
+    read: true,
   },
 ]

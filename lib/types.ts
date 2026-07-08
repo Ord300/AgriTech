@@ -146,3 +146,21 @@ export interface SupportTicket {
   createdAt: string
   updatedAt: string
 }
+
+export interface ChatMessage {
+  id: string
+  conversationId: string
+  senderId: string
+  content: string
+  timestamp: string
+  read: boolean
+}
+
+export interface Conversation {
+  id: string
+  participantIds: string[]
+  participantNames: string[]
+  lastMessage?: string
+  lastMessageAt: string
+  unreadCount: number
+}

@@ -42,6 +42,7 @@ export default function AdminDashboard() {
   const [showSecurityPasswordField, setShowSecurityPasswordField] = useState(false)
   const [isSecurityUnlocked, setIsSecurityUnlocked] = useState(false)
   const [securityPasswordAttempt, setSecurityPasswordAttempt] = useState("")
+  const [isContactProDialogOpen, setIsContactProDialogOpen] = useState(false)
 
   const [newFarmerData, setNewFarmerData] = useState({
     name: "",
@@ -379,6 +380,16 @@ export default function AdminDashboard() {
     toast({ title: "Article supprimé", description: `L'article "${title}" a été retiré.` })
   }
 
+  const { startConversation } = useData()
+
+  const handleStartConversation = (otherUser: User) => {
+    if (!user) return
+    const convId = startConversation([user.id, otherUser.id], [user.name, otherUser.name])
+    router.push(`/admin/messages`)
+    // Note: To jump to specific conversation, I'd need to pass the ID, 
+    // but for now, simple redirect is good.
+  }
+
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar - Desktop */}
@@ -479,6 +490,24 @@ export default function AdminDashboard() {
             <MessageSquare className="h-5 w-5" />
             <span className="text-sm font-medium">Support</span>
           </button>
+
+          <Link
+            href="/admin/messages"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-muted-foreground hover:bg-muted"
+          >
+            <MessageSquare className="h-5 w-5" />
+            <span className="text-sm font-medium">Messages</span>
+          </Link>
+
+          <Button 
+            variant="outline" 
+            className="w-full justify-start gap-3 mt-4"
+            onClick={() => setIsContactProDialogOpen(true)}
+          >
+            <MessageSquare className="h-5 w-5" />
+            <span className="text-sm font-medium">Contacter un Pro</span>
+          </Button>
+
 
           <button
             onClick={() => setActiveMenu("security")}
@@ -586,6 +615,22 @@ export default function AdminDashboard() {
                 <MessageSquare className="h-5 w-5" />
                 <span className="text-sm font-medium">Support</span>
               </button>
+
+              <Link
+                href="/admin/messages"
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-muted-foreground hover:bg-muted"
+              >
+                <MessageSquare className="h-5 w-5" />
+                <span className="text-sm font-medium">Messages</span>
+              </Link>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3 mt-4"
+                onClick={() => { setIsContactProDialogOpen(true); setMobileMenuOpen(false); }}
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span className="text-sm font-medium">Contacter un Pro</span>
+              </Button>
               <button
                 onClick={() => { setActiveMenu("security"); setMobileMenuOpen(false); }}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
@@ -1852,6 +1897,50 @@ export default function AdminDashboard() {
             </Button>
             <Button onClick={handleVerifyAdminPassword}>Vérifier</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isContactProDialogOpen} onOpenChange={setIsContactProDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contacter un Agriculteur</DialogTitle>
+            <DialogDescription>
+              Sélectionnez un agriculteur pour démarrer une conversation.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto py-4">
+            {farmers.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">Aucun agriculteur inscrit</p>
+            ) : (
+              <div className="space-y-3">
+                {farmers.map((farmer) => (
+                  <div key={farmer.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-medium text-xs">
+                        {farmer.name.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{farmer.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{farmer.location}</p>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="gap-2"
+                      onClick={() => {
+                        handleStartConversation(farmer)
+                        setIsContactProDialogOpen(false)
+                      }}
+                    >
+                      <MessageSquare className="h-4 w-4 text-primary" />
+                      Message
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
