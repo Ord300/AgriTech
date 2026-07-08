@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
 import { useRouter } from "next/navigation"
@@ -70,12 +70,17 @@ export default function AdminDashboard() {
     authorName: user?.name || "Administrateur",
   })
 
+  useEffect(() => {
+    if (!isLoading && (!user || user.role !== "admin")) {
+      router.replace("/connexion")
+    }
+  }, [isLoading, user, router])
+
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
   }
 
   if (!user || user.role !== "admin") {
-    router.push("/connexion")
     return null
   }
 
@@ -603,7 +608,6 @@ export default function AdminDashboard() {
                             <p className="text-xs text-muted-foreground">{farmer.location}</p>
                             {farmer.rating && (
                               <div className="flex items-center gap-1 mt-1">
-                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
                                 <span className="text-xs font-medium">{farmer.rating} ({farmer.reviewCount})</span>
                               </div>
                             )}
