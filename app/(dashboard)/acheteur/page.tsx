@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ORDER_STATUS_LABELS } from "@/lib/types"
-import { Leaf, ShoppingCart, Package, TrendingUp, LogOut, Home, ArrowRight, Menu } from "lucide-react"
+import { Leaf, ShoppingCart, Package, TrendingUp, LogOut, Home, ArrowRight, Menu, MessageSquare } from "lucide-react"
 
 export default function BuyerDashboard() {
   const { user, logout, isLoading } = useAuth()
@@ -112,6 +112,12 @@ export default function BuyerDashboard() {
                   Mes commandes
                 </Link>
               </Button>
+              <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/acheteur/support">
+                  <MessageSquare className="h-4 w-4" />
+                  Support
+                </Link>
+              </Button>
               <Button variant="ghost" className="justify-start gap-2 text-destructive hover:text-destructive" onClick={() => { logout(); setMobileMenuOpen(false); }}>
                 <LogOut className="h-4 w-4" />
                 Déconnexion
@@ -127,12 +133,20 @@ export default function BuyerDashboard() {
             <h1 className="text-3xl font-bold text-foreground">Mon Espace</h1>
             <p className="text-muted-foreground">Bienvenue, {user.name}</p>
           </div>
-          <Button asChild className="gap-2">
-            <Link href="/marche">
-              <ShoppingCart className="h-4 w-4" />
-              Explorer le marché
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" className="gap-2">
+              <Link href="/acheteur/support">
+                <MessageSquare className="h-4 w-4" />
+                Support
+              </Link>
+            </Button>
+            <Button asChild className="gap-2">
+              <Link href="/marche">
+                <ShoppingCart className="h-4 w-4" />
+                Explorer le marché
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}

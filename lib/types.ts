@@ -99,3 +99,50 @@ export interface Article {
   authorName: string
   createdAt: string
 }
+
+export type NotificationType = 
+  | "user_registered" 
+  | "product_added" 
+  | "product_deleted"
+  | "order_created" 
+  | "order_status_changed"
+  | "user_role_changed"
+  | "article_published"
+  | "article_deleted"
+
+export interface Notification {
+  id: string
+  type: NotificationType
+  title: string
+  message: string
+  actionUser: string
+  targetUser?: string
+  timestamp: string
+  read: boolean
+  actionUrl?: string
+}
+
+export type SupportTicketType = "complaint" | "question" | "feedback" | "bug_report"
+export type SupportTicketStatus = "open" | "in_progress" | "closed"
+
+export interface SupportMessage {
+  id: string
+  senderName: string
+  senderId: string
+  content: string
+  timestamp: string
+}
+
+export interface SupportTicket {
+  id: string
+  buyerId: string
+  buyerName: string
+  buyerEmail: string
+  type: SupportTicketType
+  subject: string
+  description: string
+  status: SupportTicketStatus
+  messages: SupportMessage[]
+  createdAt: string
+  updatedAt: string
+}
