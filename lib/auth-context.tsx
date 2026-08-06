@@ -12,6 +12,7 @@ interface AuthContextType {
   logout: () => void
   updateUser: (updates: Partial<User>) => void
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>
+  checkEmailExists: (email: string) => boolean
 }
 
 interface RegisterData {
@@ -112,6 +113,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const checkEmailExists = (email: string): boolean => {
+    const storedUsers = localStorage.getItem("agrimarche_users")
+    const baseUsers: User[] = mockUsers.map((u) => ({ ...u, password: u.password ?? "password" }))
+    const users: User[] = storedUsers ? JSON.parse(storedUsers) : baseUsers
+    return users.some((u) => u.email.toLowerCase() === email.toLowerCase())
+  }
+
   const changePassword = async (
     currentPassword: string,
     newPassword: string
@@ -143,7 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { success: true }
   }
 
-  return <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUser, changePassword }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateUser, changePassword, checkEmailExists }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

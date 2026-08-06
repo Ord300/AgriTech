@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ORDER_STATUS_LABELS } from "@/lib/types"
 import { Leaf, ShoppingCart, Package, TrendingUp, LogOut, Home, ArrowRight, Menu, MessageSquare } from "lucide-react"
+import { MessageNotifications } from "@/components/message-notifications"
 
 export default function BuyerDashboard() {
   const { user, logout, isLoading } = useAuth()
@@ -59,6 +60,7 @@ export default function BuyerDashboard() {
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm text-muted-foreground sm:inline">{user.name}</span>
+            <MessageNotifications role="buyer" />
             <div className="hidden items-center gap-1 sm:flex">
               <Button variant="ghost" size="icon" asChild>
                 <Link href="/">

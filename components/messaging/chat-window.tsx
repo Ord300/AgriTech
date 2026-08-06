@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, type ReactNode } from "react"
 import { ChatMessage, User } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Send, User as UserIcon } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -16,6 +15,7 @@ interface ChatWindowProps {
   otherParticipant: User | undefined
   currentUserId: string
   onSendMessage: (content: string) => void
+  headerAction?: ReactNode
 }
 
 export function ChatWindow({
@@ -23,6 +23,7 @@ export function ChatWindow({
   otherParticipant,
   currentUserId,
   onSendMessage,
+  headerAction,
 }: ChatWindowProps) {
   const [inputValue, setInputValue] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -59,14 +60,15 @@ export function ChatWindow({
           <AvatarImage src={otherParticipant.avatar} />
           <AvatarFallback>{otherParticipant.name.charAt(0)}</AvatarFallback>
         </Avatar>
-        <div>
+        <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground">{otherParticipant.name}</h3>
           <p className="text-xs text-muted-foreground">En ligne</p>
         </div>
+        {headerAction}
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4" viewportRef={scrollRef}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col gap-4">
           {messages.map((msg) => {
             const isMe = msg.senderId === currentUserId
@@ -95,7 +97,7 @@ export function ChatWindow({
             )
           })}
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Input */}
       <div className="p-4 border-t bg-card">

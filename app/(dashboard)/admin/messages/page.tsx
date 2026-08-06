@@ -1,17 +1,37 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
+import { useRouter } from "next/navigation"
 import { ConversationList } from "@/components/messaging/conversation-list"
 import { ChatWindow } from "@/components/messaging/chat-window"
 
 export default function AdminMessagesPage() {
+  const { user, isLoading } = useAuth()
   const { conversations, messages, sendMessage, users } = useData()
-  const [selectedConvId, setSelectedConvId] = useState<string | undefined>(
-    conversations.find(c => c.participantIds.includes("admin-1"))?.id
-  )
+  const router = useRouter()
+  const [selectedConvId, setSelectedConvId] = useState<string | undefined>(undefined)
 
-  const currentUserId = "admin-1" // Simulate logged in admin
+  useEffect(() => {
+    if (user && conversations.length > 0) {
+      const firstConv = conversations.find(c => c.participantIds.includes(user.id))
+      if (firstConv) {
+        setSelectedConvId(firstConv.id)
+      }
+    }
+  }, [user, conversations])
+
+  if (isLoading) {
+    return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
+  }
+
+  if (!user || user.role !== "admin") {
+    router.push("/connexion")
+    return null
+  }
+
+  const currentUserId = user.id
   
   const adminConversations = conversations.filter(c => 
     c.participantIds.includes(currentUserId)

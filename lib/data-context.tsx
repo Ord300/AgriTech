@@ -193,6 +193,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
       return conv
     })
     saveConversations(updatedConversations)
+
+    // Créer une notification pour le destinataire du message
+    const conversation = conversations.find((c) => c.id === conversationId)
+    if (conversation) {
+      const sender = users.find((u) => u.id === senderId)
+      const recipientId = conversation.participantIds.find((id) => id !== senderId)
+      const recipient = users.find((u) => u.id === recipientId)
+      
+      if (recipient) {
+        addNotification({
+          type: "user_registered",
+          title: "Nouveau message",
+          message: `${sender?.name || "Un utilisateur"} vous a envoyé un message : "${content.slice(0, 50)}${content.length > 50 ? "..." : ""}"`,
+          actionUser: sender?.name || "Utilisateur",
+          targetUser: recipient.name,
+          read: false,
+          actionUrl: `/messages`,
+        })
+      }
+    }
   }
 
   const startConversation = (participantIds: string[], participantNames: string[]) => {

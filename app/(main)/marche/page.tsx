@@ -19,13 +19,12 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { CATEGORIES, type Product } from "@/lib/types"
 import { Search, SlidersHorizontal, X } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { GuestCheckoutDialog } from "@/components/guest-checkout-dialog"
 
 export default function MarketPage() {
   const { products, addOrder } = useData()
   const { user } = useAuth()
   const { toast } = useToast()
-  const router = useRouter()
 
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>("all")
@@ -78,17 +77,7 @@ export default function MarketPage() {
   }, [products, search, category, location, sortBy])
 
   const handleOrder = (product: Product) => {
-    if (!user) {
-      toast({
-        title: "Connexion requise",
-        description: "Veuillez vous connecter pour passer une commande.",
-        variant: "destructive",
-      })
-      router.push("/connexion")
-      return
-    }
-
-    if (user.role === "farmer") {
+    if (user?.role === "farmer") {
       toast({
         title: "Action non autorisée",
         description: "Les agriculteurs ne peuvent pas passer de commandes.",
@@ -247,61 +236,73 @@ export default function MarketPage() {
         </div>
       )}
 
-      {/* Order Dialog */}
-      <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Passer une commande</DialogTitle>
-            <DialogDescription>
-              {selectedProduct?.name} - {selectedProduct?.farmerName}
-            </DialogDescription>
-          </DialogHeader>
+      {/* Order Dialog - Guest or Connected */}
+      {user ? (
+        <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Passer une commande</DialogTitle>
+              <DialogDescription>
+                {selectedProduct?.name} - {selectedProduct?.farmerName}
+              </DialogDescription>
+            </DialogHeader>
 
-          {selectedProduct && (
-            <div className="space-y-4 py-4">
-              <div className="flex items-center justify-between rounded-lg bg-muted p-4">
-                <div>
-                  <p className="font-medium">{selectedProduct.name}</p>
+            {selectedProduct && (
+              <div className="space-y-4 py-4">
+                <div className="flex items-center justify-between rounded-lg bg-muted p-4">
+                  <div>
+                    <p className="font-medium">{selectedProduct.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedProduct.price.toFixed(2)} € / {selectedProduct.unit}
+                    </p>
+                  </div>
                   <p className="text-sm text-muted-foreground">
-                    {selectedProduct.price.toFixed(2)} € / {selectedProduct.unit}
+                    Stock: {selectedProduct.quantity} {selectedProduct.unit}
                   </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Stock: {selectedProduct.quantity} {selectedProduct.unit}
-                </p>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="quantity">Quantité ({selectedProduct.unit})</Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min={1}
-                  max={selectedProduct.quantity}
-                  value={orderQuantity}
-                  onChange={(e) => setOrderQuantity(Math.min(Number(e.target.value), selectedProduct.quantity))}
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="quantity">Quantité ({selectedProduct.unit})</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    min={1}
+                    max={selectedProduct.quantity}
+                    value={orderQuantity}
+                    onChange={(e) => setOrderQuantity(Math.min(Number(e.target.value), selectedProduct.quantity))}
+                  />
+                </div>
 
-              <div className="rounded-lg bg-primary/10 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Total</span>
-                  <span className="text-xl font-bold text-primary">
-                    {(selectedProduct.price * orderQuantity).toFixed(2)} €
-                  </span>
+                <div className="rounded-lg bg-primary/10 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Total</span>
+                    <span className="text-xl font-bold text-primary">
+                      {(selectedProduct.price * orderQuantity).toFixed(2)} €
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedProduct(null)}>
-              Annuler
-            </Button>
-            <Button onClick={confirmOrder}>Confirmer la commande</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setSelectedProduct(null)}>
+                Annuler
+              </Button>
+              <Button onClick={confirmOrder}>Confirmer la commande</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <GuestCheckoutDialog
+          open={!!selectedProduct}
+          onOpenChange={(open) => {
+            if (!open) setSelectedProduct(null)
+          }}
+          product={selectedProduct}
+          quantity={orderQuantity}
+          onQuantityChange={setOrderQuantity}
+        />
+      )}
     </div>
   )
 }

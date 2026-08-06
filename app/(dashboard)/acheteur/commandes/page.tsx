@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Home, LogOut } from "lucide-react"
+import { ArrowLeft, Home, LogOut, MessageSquare } from "lucide-react"
 import { ORDER_STATUS_LABELS, type Order } from "@/lib/types"
 
 import { useState } from "react"
@@ -23,6 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { StarRating } from "@/components/star-rating"
 import { toast } from "sonner"
+import { OrderChatDialog } from "@/components/order-chat-dialog"
 
 export default function MesCommandesPage() {
   const { user, logout, isLoading } = useAuth()
@@ -31,6 +32,8 @@ export default function MesCommandesPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [stars, setStars] = useState(5)
   const [comment, setComment] = useState("")
+  const [chatOrder, setChatOrder] = useState<Order | null>(null)
+  const [isChatOpen, setIsChatOpen] = useState(false)
   const router = useRouter()
 
   if (isLoading) {
@@ -77,6 +80,11 @@ export default function MesCommandesPage() {
 
     toast.success("Votre avis a été enregistré !")
     setIsRatingOpen(false)
+  }
+
+  const handleOpenChat = (order: Order) => {
+    setChatOrder(order)
+    setIsChatOpen(true)
   }
 
   const hasRated = (farmerId: string) => {
@@ -153,6 +161,12 @@ export default function MesCommandesPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                      {order.status === "confirmed" && (
+                        <Button size="sm" variant="outline" onClick={() => handleOpenChat(order)} className="gap-1.5">
+                          <MessageSquare className="h-4 w-4" />
+                          Chatter
+                        </Button>
+                      )}
                       {order.status === "delivered" && !hasRated(order.farmerId) && (
                         <Button size="sm" variant="outline" onClick={() => handleRate(order)}>
                           Noter
@@ -198,6 +212,13 @@ export default function MesCommandesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Order Chat Dialog */}
+      <OrderChatDialog
+        open={isChatOpen}
+        onOpenChange={setIsChatOpen}
+        order={chatOrder}
+      />
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { ConversationList } from "@/components/messaging/conversation-list"
 import { ChatWindow } from "@/components/messaging/chat-window"
 
-export default function FarmerMessagesPage() {
+export default function BuyerMessagesPage() {
   const { user, isLoading } = useAuth()
   const { conversations, messages, sendMessage, users } = useData()
   const router = useRouter()
@@ -26,14 +26,14 @@ export default function FarmerMessagesPage() {
     return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
   }
 
-  if (!user || user.role !== "farmer") {
+  if (!user || user.role !== "buyer") {
     router.push("/connexion")
     return null
   }
 
   const currentUserId = user.id
   
-  const farmerConversations = conversations.filter(c => 
+  const buyerConversations = conversations.filter(c => 
     c.participantIds.includes(currentUserId)
   )
 
@@ -53,7 +53,7 @@ export default function FarmerMessagesPage() {
     <div className="flex h-[calc(100vh-140px)] rounded-xl border bg-card overflow-hidden">
       <div className="w-80 flex-shrink-0">
         <ConversationList
-          conversations={farmerConversations}
+          conversations={buyerConversations}
           selectedId={selectedConvId}
           onSelect={setSelectedConvId}
           currentUserId={currentUserId}

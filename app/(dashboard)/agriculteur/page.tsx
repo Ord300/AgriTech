@@ -22,13 +22,15 @@ import {
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
-import { CATEGORIES, ORDER_STATUS_LABELS, type ProductCategory } from "@/lib/types"
+import { CATEGORIES, ORDER_STATUS_LABELS, type ProductCategory, type Order } from "@/lib/types"
 import { Package, Plus, Settings, LogOut, Leaf, Home, Upload, X, User as UserIcon, Check, Trash2, ShoppingCart, Truck, TrendingUp, Menu, KeyRound, Eye, EyeOff, MessageSquare } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { OrderChatDialog } from "@/components/order-chat-dialog"
+import { MessageNotifications } from "@/components/message-notifications"
 
 export default function FarmerDashboard() {
   const { user, logout, isLoading: authLoading, updateUser: updateAuthUser, changePassword } = useAuth()
-  const { products, orders, addProduct, updateProduct, deleteProduct, updateOrderStatus, updateUser: updateDataUser } = useData()
+  const { products, orders, users, addProduct, updateProduct, deleteProduct, updateOrderStatus, updateUser: updateDataUser } = useData()
   const router = useRouter()
   const { toast } = useToast()
 
@@ -64,6 +66,8 @@ export default function FarmerDashboard() {
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null)
+  const [chatOrder, setChatOrder] = useState<Order | null>(null)
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   if (authLoading) {
     return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
@@ -209,20 +213,32 @@ export default function FarmerDashboard() {
   }
 
   const handleOrderAction = (orderId: string, status: "confirmed" | "delivered" | "cancelled") => {
+    const order = orders.find((o) => o.id === orderId)
     updateOrderStatus(orderId, status)
     toast({
       title: "Commande mise à jour",
       description: `La commande a été marquée comme "${ORDER_STATUS_LABELS[status]}".`,
     })
+
+    // Ouvrir le chat automatiquement quand la commande est confirmée
+    if (status === "confirmed" && order) {
+      setChatOrder({ ...order, status: "confirmed" })
+      setIsChatOpen(true)
+    }
   }
 
   const { startConversation } = useData()
 
+  const handleOpenChat = (order: Order) => {
+    setChatOrder(order)
+    setIsChatOpen(true)
+  }
+
   const handleContactAdmin = () => {
     if (!user) return
-    const admin = users.find(u => u.role === "admin")
-    if (admin) {
-      startConversation([user.id, admin.id], [user.name, admin.name])
+    const adminUser = users.find((u) => u.role === "admin")
+    if (adminUser) {
+      startConversation([user.id, adminUser.id], [user.name, adminUser.name])
       router.push("/agriculteur/messages")
     }
   }
@@ -321,6 +337,7 @@ export default function FarmerDashboard() {
             </div>
             <div className="flex items-center gap-4">
               <span className="hidden sm:inline text-sm text-muted-foreground">{user.name}</span>
+              <MessageNotifications role="farmer" />
             </div>
           </div>
         </header>
@@ -850,7 +867,7 @@ export default function FarmerDashboard() {
                         </div>
                       )}
                       {order.status === "confirmed" && (
-                        <div className="mt-3">
+                        <div className="mt-3 flex gap-2">
                           <Button
                             size="sm"
                             variant="secondary"
@@ -858,6 +875,15 @@ export default function FarmerDashboard() {
                           >
                             <Truck className="mr-1 h-4 w-4" />
                             Marquer livrée
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenChat(order)}
+                            className="gap-1.5"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                            Chatter
                           </Button>
                         </div>
                       )}
@@ -870,6 +896,13 @@ export default function FarmerDashboard() {
         </div>
       </main>
     </div>
+
+    {/* Order Chat Dialog */}
+    <OrderChatDialog
+      open={isChatOpen}
+      onOpenChange={setIsChatOpen}
+      order={chatOrder}
+    />
   </div>
 )
 }
