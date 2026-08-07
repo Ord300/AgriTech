@@ -119,3 +119,146 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Animations personnalisées */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(-3deg);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-y {
+  animation: float-y 5s ease-in-out infinite;
+}
+
+/* Apparition au scroll */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.from-left {
+  transform: translateX(-32px);
+}
+
+.scroll-reveal.from-right {
+  transform: translateX(32px);
+}
+
+.scroll-reveal.from-zoom {
+  transform: scale(0.92);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Liens de navigation avec soulignement animé */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 2px;
+  width: 100%;
+  border-radius: 9999px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.nav-link-active::after {
+  transform: scaleX(1);
+}
+
+/* Menu mobile */
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-menu-in {
+  animation: menu-in 0.25s ease-out;
+}
+
+/* Pulsation douce (cercles décoratifs) */
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-slow,
+  .animate-float-y,
+  .animate-menu-in,
+  .animate-pulse-soft {
+    animation: none;
+  }
+
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

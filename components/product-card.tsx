@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
+
 import Image from "next/image"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, User, Phone, Mail, Calendar, ExternalLink } from "lucide-react"
+import { MapPin, User, Phone, Mail, Calendar, ExternalLink, MessageSquare } from "lucide-react"
 import type { Product } from "@/lib/types"
 import { CATEGORIES } from "@/lib/types"
 import { useData } from "@/lib/data-context"
@@ -22,7 +24,7 @@ import { StarRating } from "./star-rating"
 import { FarmerRatings } from "./farmer-ratings"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Star } from "lucide-react"
-
+import { ContactFarmerDialog } from "./contact-farmer-dialog"
 interface ProductCardProps {
   product: Product
   onOrder?: () => void
@@ -30,6 +32,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onOrder, showOrderButton = true }: ProductCardProps) {
+  const [contactDialogOpen, setContactDialogOpen] = useState(false)
   const { users, products } = useData()
   const categoryLabel = CATEGORIES.find((c) => c.value === product.category)?.label || product.category
 
@@ -85,13 +88,18 @@ export function ProductCard({ product, onOrder, showOrderButton = true }: Produc
             Commander
           </Button>
 
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="w-full gap-2">
-                <ExternalLink className="h-4 w-4" />
-                Voir vendeur
-              </Button>
-            </DialogTrigger>
+          <div className="grid grid-cols-2 gap-2 w-full">
+            <Button variant="outline" className="w-full gap-2" onClick={() => setContactDialogOpen(true)}>
+              <MessageSquare className="h-4 w-4" />
+              Contacter
+            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  Voir vendeur
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
               <DialogHeader className="p-6 pb-0">
                 <DialogTitle className="text-2xl">Informations du Vendeur</DialogTitle>
@@ -194,6 +202,13 @@ export function ProductCard({ product, onOrder, showOrderButton = true }: Produc
               </div>
             </DialogContent>
           </Dialog>
+          </div>
+          <ContactFarmerDialog
+            open={contactDialogOpen}
+            onOpenChange={setContactDialogOpen}
+            farmerId={product.farmerId}
+            farmerName={product.farmerName}
+          />
         </CardFooter>
       )}
     </Card>

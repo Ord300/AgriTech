@@ -9,9 +9,8 @@ import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { Leaf, Loader2, Eye, EyeOff } from "lucide-react"
+import { Loader2, Eye, EyeOff, Mail, Lock } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -31,7 +30,7 @@ export default function LoginPage() {
     if (result.success) {
       toast({
         title: "Connexion réussie",
-        description: "Bienvenue sur AgriMarché !",
+        description: "Bienvenue sur TerraFrais !",
       })
       router.push("/")
       router.refresh()
@@ -47,18 +46,17 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
-          <Leaf className="h-6 w-6 text-primary-foreground" />
-        </div>
-        <CardTitle className="text-2xl">Connexion</CardTitle>
-        <CardDescription>Accédez à votre espace AgriMarché</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Adresse email</Label>
+    <div className="animate-menu-in w-full max-w-md">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground">Bon retour !</h1>
+        <p className="mt-2 text-muted-foreground">Connectez-vous à votre espace TerraFrais</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="email">Adresse email</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="email"
               type="email"
@@ -66,54 +64,61 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="h-11 pl-10"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
+        </div>
 
-          <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-            <p className="font-medium">Comptes de démonstration :</p>
-            <ul className="mt-1 space-y-1">
-              <li>Agriculteur : jean.dupont@email.com</li>
-              <li>Acheteur : pierre.bernard@email.com</li>
-              <li>Admin : admin@agrimarche.fr</li>
-            </ul>
-            <p className="mt-1 text-xs">(Entrez n&apos;importe quel mot de passe)</p>
+        <div className="space-y-2">
+          <Label htmlFor="password">Mot de passe</Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="h-11 pl-10 pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
           </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Se connecter
-          </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            Pas encore de compte ?{" "}
-            <Link href="/inscription" className="font-medium text-primary hover:underline">
-              Inscrivez-vous
-            </Link>
-          </p>
-        </CardFooter>
+        </div>
+
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
+          <p className="font-medium text-foreground">Comptes de démonstration :</p>
+          <ul className="mt-1 space-y-1">
+            <li>Agriculteur : jean.dupont@email.com</li>
+            <li>Acheteur : pierre.bernard@email.com</li>
+            <li>Admin : admin@agrimarche.fr</li>
+          </ul>
+          <p className="mt-1 text-xs">(Entrez n&apos;importe quel mot de passe)</p>
+        </div>
+
+        <Button
+          type="submit"
+          className="h-11 w-full shadow-md shadow-primary/20 transition-shadow hover:shadow-lg"
+          disabled={isLoading}
+        >
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Se connecter
+        </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Pas encore de compte ?{" "}
+          <Link href="/inscription" className="font-medium text-primary hover:underline">
+            Inscrivez-vous
+          </Link>
+        </p>
       </form>
-    </Card>
+    </div>
   )
 }

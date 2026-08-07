@@ -8,15 +8,19 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ORDER_STATUS_LABELS } from "@/lib/types"
 import { Leaf, ShoppingCart, Package, TrendingUp, LogOut, Home, ArrowRight, Menu, MessageSquare } from "lucide-react"
 import { MessageNotifications } from "@/components/message-notifications"
+import { BuyerOrdersPanel } from "@/components/buyer/orders-panel"
+import { BuyerMessagesPanel } from "@/components/buyer/messages-panel"
 
 export default function BuyerDashboard() {
   const { user, logout, isLoading } = useAuth()
-  const { orders, products } = useData()
+  const { orders } = useData()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("overview")
 
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
@@ -28,6 +32,7 @@ export default function BuyerDashboard() {
   }
 
   const buyerOrders = orders.filter((o) => o.buyerId === user.id)
+  const recentOrders = buyerOrders.slice(0, 3)
   const totalSpent = buyerOrders.filter((o) => o.status !== "cancelled").reduce((sum, o) => sum + o.totalPrice, 0)
   const pendingOrders = buyerOrders.filter((o) => o.status === "pending")
 
@@ -44,6 +49,11 @@ export default function BuyerDashboard() {
     }
   }
 
+  const openTab = (tab: string) => {
+    setActiveTab(tab)
+    setMobileMenuOpen(false)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -54,7 +64,7 @@ export default function BuyerDashboard() {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
                 <Leaf className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">AgriMarché</span>
+              <span className="text-xl font-bold">TerraFrais</span>
             </Link>
             <Badge variant="secondary" className="max-[374px]:hidden">Acheteur</Badge>
           </div>
@@ -102,16 +112,18 @@ export default function BuyerDashboard() {
                   Explorer le marché
                 </Link>
               </Button>
+              <Button variant="ghost" className="justify-start gap-2" onClick={() => openTab("orders")}>
+                <Package className="h-4 w-4" />
+                Mes commandes
+              </Button>
+              <Button variant="ghost" className="justify-start gap-2" onClick={() => openTab("messages")}>
+                <MessageSquare className="h-4 w-4" />
+                Messages
+              </Button>
               <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
                 <Link href="/">
                   <Home className="h-4 w-4" />
                   Accueil
-                </Link>
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
-                <Link href="/acheteur/commandes">
-                  <Package className="h-4 w-4" />
-                  Mes commandes
                 </Link>
               </Button>
               <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
@@ -188,45 +200,71 @@ export default function BuyerDashboard() {
           </Card>
         </div>
 
-        {/* Orders Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Mes Commandes</CardTitle>
-            <CardDescription>Historique de toutes vos commandes</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {buyerOrders.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-8 text-center">
-                <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground" />
-                <p className="mt-4 text-muted-foreground">Vous n&apos;avez pas encore passé de commande.</p>
-                <Button asChild variant="outline" className="mt-4 bg-transparent">
-                  <Link href="/marche">
-                    Découvrir les produits
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {buyerOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between rounded-lg border p-4">
-                    <div>
-                      <p className="font-medium">{order.productName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {order.quantity} unités · {order.totalPrice.toFixed(2)} €
-                      </p>
-                      <p className="text-sm text-muted-foreground">Vendeur: {order.farmerName}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Commandé le {new Date(order.createdAt).toLocaleDateString("fr-FR")}
-                      </p>
-                    </div>
-                    <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid h-auto w-full grid-cols-3 sm:w-fit">
+            <TabsTrigger value="overview">Vue d&apos;ensemble</TabsTrigger>
+            <TabsTrigger value="orders">Mes commandes</TabsTrigger>
+            <TabsTrigger value="messages">Messages</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview">
+            <Card>
+              <CardHeader>
+                <CardTitle>Commandes récentes</CardTitle>
+                <CardDescription>Un aperçu rapide de vos dernières commandes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {recentOrders.length === 0 ? (
+                  <div className="rounded-lg border border-dashed p-8 text-center">
+                    <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <p className="mt-4 text-muted-foreground">Vous n&apos;avez pas encore passé de commande.</p>
+                    <Button asChild variant="outline" className="mt-4 bg-transparent">
+                      <Link href="/marche">
+                        Découvrir les produits
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                ) : (
+                  <div className="space-y-3">
+                    {recentOrders.map((order) => (
+                      <div key={order.id} className="flex items-center justify-between rounded-lg border p-4">
+                        <div>
+                          <p className="font-medium">{order.productName}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {order.quantity} unités · {order.totalPrice.toFixed(2)} €
+                          </p>
+                          <p className="text-sm text-muted-foreground">Vendeur: {order.farmerName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Commandé le {new Date(order.createdAt).toLocaleDateString("fr-FR")}
+                          </p>
+                        </div>
+                        <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                      </div>
+                    ))}
+                    <div className="pt-2">
+                      <Button variant="ghost" className="gap-2 px-0" onClick={() => setActiveTab("orders")}>
+                        Gérer toutes mes commandes
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="orders">
+            <BuyerOrdersPanel
+              title="Mes commandes"
+              description="Historique, suivi, chat et notation de vos achats"
+            />
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <BuyerMessagesPanel className="h-[650px]" />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   )

@@ -4,8 +4,10 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
+import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { ScrollReveal } from "@/components/scroll-reveal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Leaf, Users, TrendingUp, ShieldCheck, ArrowRight, Sprout, Handshake, Truck } from "lucide-react"
@@ -31,6 +33,7 @@ export default function HomePage() {
       </div>
     )
   }
+
   const features = [
     {
       icon: Users,
@@ -75,37 +78,129 @@ export default function HomePage() {
     },
   ]
 
+  const showcaseProducts = [
+    { src: "/fresh-red-tomatoes-on-vine.jpg", name: "Tomates du jardin", category: "Légumes" },
+    { src: "/red-gala-apples-fresh.jpg", name: "Pommes Gala", category: "Fruits" },
+    { src: "/farm-fresh-eggs-basket.jpg", name: "Œufs fermiers", category: "Oeufs" },
+    { src: "/fresh-milk-bottle-farm.jpg", name: "Lait fermier", category: "Produits Laitiers" },
+    { src: "/honey-jar-lavender.jpg", name: "Miel de lavande", category: "Miel" },
+    { src: "/fresh-green-zucchini-vegetables.jpg", name: "Courgettes vertes", category: "Légumes" },
+  ]
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background py-20 lg:py-32">
+        <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background py-16 lg:py-24">
           <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl text-center">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
-                <Leaf className="h-4 w-4" />
-                Plateforme Agricole Moderne
+            <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+              {/* Texte */}
+              <div className="text-center lg:text-left">
+                <ScrollReveal>
+                  <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                    <Leaf className="h-4 w-4" />
+                    Plateforme Agricole Moderne
+                  </div>
+                </ScrollReveal>
+                <ScrollReveal delay={100}>
+                  <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                    Du Champ à Votre Table, <span className="text-primary">Sans Intermédiaires</span>
+                  </h1>
+                </ScrollReveal>
+                <ScrollReveal delay={200}>
+                  <p className="mt-6 text-pretty text-lg text-muted-foreground lg:text-xl">
+                    TerraFrais connecte directement les agriculteurs aux consommateurs. Achetez des produits frais,
+                    locaux et de qualité tout en soutenant l&apos;agriculture locale.
+                  </p>
+                </ScrollReveal>
+                <ScrollReveal delay={300}>
+                  <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
+                    <Button size="lg" asChild className="text-base">
+                      <Link href="/marche">
+                        Explorer le Marché
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Link>
+                    </Button>
+                    <Button size="lg" variant="outline" asChild className="text-base bg-transparent">
+                      <Link href="/inscription">Créer un Compte</Link>
+                    </Button>
+                  </div>
+                </ScrollReveal>
+                <ScrollReveal delay={400}>
+                  <div className="mt-10 flex items-center justify-center gap-8 lg:justify-start">
+                    <div>
+                      <p className="text-2xl font-bold text-primary">100%</p>
+                      <p className="text-sm text-muted-foreground">Produits locaux</p>
+                    </div>
+                    <div className="h-10 w-px bg-border" />
+                    <div>
+                      <p className="text-2xl font-bold text-primary">0</p>
+                      <p className="text-sm text-muted-foreground">Intermédiaire</p>
+                    </div>
+                    <div className="h-10 w-px bg-border" />
+                    <div>
+                      <p className="text-2xl font-bold text-primary">24h</p>
+                      <p className="text-sm text-muted-foreground">Du champ à l&apos;assiette</p>
+                    </div>
+                  </div>
+                </ScrollReveal>
               </div>
-              <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                Du Champ à Votre Table, <span className="text-primary">Sans Intermédiaires</span>
-              </h1>
-              <p className="mt-6 text-pretty text-lg text-muted-foreground lg:text-xl">
-                AgriMarché connecte directement les agriculteurs aux consommateurs. Achetez des produits frais, locaux
-                et de qualité tout en soutenant l&apos;agriculture locale.
-              </p>
-              <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-                <Button size="lg" asChild className="text-base">
-                  <Link href="/marche">
-                    Explorer le Marché
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild className="text-base bg-transparent">
-                  <Link href="/inscription">Créer un Compte</Link>
-                </Button>
-              </div>
+
+              {/* Collage d'images animé */}
+              <ScrollReveal delay={200} className="relative mx-auto w-full max-w-md lg:max-w-none">
+                <div className="relative mb-10 lg:mb-0">
+                  {/* Image principale */}
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border-4 border-card shadow-2xl">
+                    <Image
+                      src="/fresh-red-tomatoes-on-vine.jpg"
+                      alt="Tomates fraîches issues des exploitations locales"
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+
+                  {/* Image flottante : pommes */}
+                  <div className="absolute -left-4 -top-6 w-28 animate-float overflow-hidden rounded-2xl border-4 border-card shadow-xl sm:-left-8 sm:w-36">
+                    <div className="relative aspect-[4/3]">
+                      <Image
+                        src="/red-gala-apples-fresh.jpg"
+                        alt="Pommes Gala fraîches"
+                        fill
+                        sizes="150px"
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Image flottante : miel */}
+                  <div className="absolute -bottom-8 -right-4 w-28 animate-float-slow overflow-hidden rounded-2xl border-4 border-card shadow-xl sm:-right-8 sm:w-36">
+                    <div className="relative aspect-[4/3]">
+                      <Image
+                        src="/honey-jar-lavender.jpg"
+                        alt="Miel artisanal à la lavande"
+                        fill
+                        sizes="150px"
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Badge flottant */}
+                  <div className="absolute -bottom-5 left-6 flex animate-float-y items-center gap-3 rounded-2xl border bg-card/95 px-4 py-3 shadow-xl backdrop-blur">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                      <Leaf className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">100% Local</p>
+                      <p className="text-xs text-muted-foreground">Direct du producteur</p>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
             </div>
           </div>
 
@@ -114,76 +209,137 @@ export default function HomePage() {
           <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
         </section>
 
-        {/* Features Section */}
+        {/* Products Gallery Section */}
         <section className="py-20">
           <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Pourquoi Choisir AgriMarché ?</h2>
-              <p className="mt-4 text-muted-foreground">
-                Une plateforme conçue pour simplifier le commerce agricole et créer de la valeur pour tous les acteurs.
-              </p>
+            <ScrollReveal>
+              <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+                <div>
+                  <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Nos Produits du Moment</h2>
+                  <p className="mt-2 text-muted-foreground">
+                    Une sélection de produits frais proposés par nos agriculteurs partenaires.
+                  </p>
+                </div>
+                <Button variant="outline" asChild className="gap-2 bg-transparent">
+                  <Link href="/marche">
+                    Voir tout le marché
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </ScrollReveal>
+
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {showcaseProducts.map((product, index) => (
+                <ScrollReveal key={product.name} delay={index * 100}>
+                  <Link href="/marche" className="group relative block overflow-hidden rounded-2xl shadow-md transition-shadow duration-300 hover:shadow-xl">
+                    <div className="relative aspect-[4/3]">
+                      <Image
+                        src={product.src}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <p className="text-lg font-semibold text-white">{product.name}</p>
+                      <p className="text-sm text-white/80">{product.category}</p>
+                    </div>
+                    <div className="absolute right-4 top-4 flex h-9 w-9 translate-y-2 items-center justify-center rounded-full bg-card/90 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                      <ArrowRight className="h-4 w-4 text-foreground" />
+                    </div>
+                  </Link>
+                </ScrollReveal>
+              ))}
             </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="bg-muted/30 py-20">
+          <div className="container mx-auto px-4">
+            <ScrollReveal>
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Pourquoi Choisir TerraFrais ?</h2>
+                <p className="mt-4 text-muted-foreground">
+                  Une plateforme conçue pour simplifier le commerce agricole et créer de la valeur pour tous les
+                  acteurs.
+                </p>
+              </div>
+            </ScrollReveal>
 
             <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {features.map((feature) => (
-                <Card key={feature.title} className="border-0 bg-muted/50">
-                  <CardContent className="p-6">
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                      <feature.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
+              {features.map((feature, index) => (
+                <ScrollReveal key={feature.title} delay={index * 100} variant="zoom">
+                  <Card className="group relative h-full overflow-hidden border-0 bg-card shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                    <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <CardContent className="p-6">
+                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/25 transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110">
+                        <feature.icon className="h-6 w-6 text-primary-foreground" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
+                      <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
+                    </CardContent>
+                  </Card>
+                </ScrollReveal>
               ))}
             </div>
           </div>
         </section>
 
         {/* How it Works Section */}
-        <section className="bg-muted/30 py-20">
+        <section className="py-20">
           <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Comment Ça Marche ?</h2>
-              <p className="mt-4 text-muted-foreground">
-                Commencez à vendre ou acheter des produits agricoles en trois étapes simples.
-              </p>
-            </div>
+            <ScrollReveal>
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Comment Ça Marche ?</h2>
+                <p className="mt-4 text-muted-foreground">
+                  Commencez à vendre ou acheter des produits agricoles en trois étapes simples.
+                </p>
+              </div>
+            </ScrollReveal>
 
             <div className="mt-16 grid gap-8 md:grid-cols-3">
-              {steps.map((item) => (
-                <div key={item.step} className="relative text-center">
-                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
-                    {item.step}
+              {steps.map((item, index) => (
+                <ScrollReveal key={item.step} delay={index * 150}>
+                  <div className="group relative text-center">
+                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-transform duration-300 group-hover:scale-110">
+                      {item.step}
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
+                    <p className="mt-2 text-muted-foreground">{item.description}</p>
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground">{item.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{item.description}</p>
-                </div>
+                </ScrollReveal>
               ))}
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-20">
+        <section className="pb-20">
           <div className="container mx-auto px-4">
-            <Card className="overflow-hidden bg-primary">
-              <CardContent className="flex flex-col items-center justify-between gap-6 p-8 text-center md:flex-row md:text-left lg:p-12">
-                <div>
-                  <h2 className="text-2xl font-bold text-primary-foreground lg:text-3xl">
-                    Prêt à Rejoindre la Communauté ?
-                  </h2>
-                  <p className="mt-2 text-primary-foreground/80">
-                    Inscrivez-vous gratuitement en tant qu&apos;acheteur. Les comptes agriculteurs sont créés par l&apos;administrateur.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Button size="lg" variant="secondary" asChild>
-                    <Link href="/inscription">Créer un compte Acheteur</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <ScrollReveal>
+              <Card className="overflow-hidden bg-primary">
+                <CardContent className="flex flex-col items-center justify-between gap-6 p-8 text-center md:flex-row md:text-left lg:p-12">
+                  <div>
+                    <h2 className="text-2xl font-bold text-primary-foreground lg:text-3xl">
+                      Prêt à Rejoindre la Communauté ?
+                    </h2>
+                    <p className="mt-2 text-primary-foreground/80">
+                      Inscrivez-vous gratuitement en tant qu&apos;acheteur. Les comptes agriculteurs sont créés par
+                      l&apos;administrateur.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <Button size="lg" variant="secondary" asChild>
+                      <Link href="/inscription">Créer un compte Acheteur</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
           </div>
         </section>
       </main>

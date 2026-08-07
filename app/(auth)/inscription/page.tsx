@@ -9,9 +9,8 @@ import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { Leaf, Loader2, ShoppingCart, Eye, EyeOff } from "lucide-react"
+import { Loader2, ShoppingCart, Eye, EyeOff, User, Phone, Mail, MapPin, Lock } from "lucide-react"
 
 export default function RegisterPage() {
   const searchParams = useSearchParams()
@@ -51,7 +50,7 @@ export default function RegisterPage() {
     if (result.success) {
       toast({
         title: "Inscription réussie",
-        description: "Bienvenue sur AgriMarché !",
+        description: "Bienvenue sur TerraFrais !",
       })
       router.push("/acheteur")
     } else {
@@ -66,51 +65,58 @@ export default function RegisterPage() {
   }
 
   return (
-    <Card className="w-full max-w-lg">
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
-          <Leaf className="h-6 w-6 text-primary-foreground" />
-        </div>
-        <CardTitle className="text-2xl">Créer un compte</CardTitle>
-        <CardDescription>Rejoignez la communauté AgriMarché</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="rounded-lg bg-blue-50 p-4 border border-blue-200">
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5 text-blue-600" />
-              <span className="font-medium text-blue-900">Inscription Acheteur</span>
-            </div>
-            <p className="text-sm text-blue-700 mt-1">
-              Créez votre compte acheteur. Les comptes agriculteurs sont créés par l'administrateur.
-            </p>
-          </div>
+    <div className="animate-menu-in w-full max-w-lg">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground">Créez votre compte</h1>
+        <p className="mt-2 text-muted-foreground">Rejoignez la communauté TerraFrais en quelques clics</p>
+      </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nom complet</Label>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div className="flex items-center gap-2">
+            <ShoppingCart className="h-5 w-5 text-primary" />
+            <span className="font-medium text-foreground">Inscription Acheteur</span>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Créez votre compte acheteur. Les comptes agriculteurs sont créés par l&apos;administrateur.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nom complet</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="name"
                 placeholder="Jean Dupont"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
+                className="h-11 pl-10"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Téléphone</Label>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Téléphone</Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="phone"
                 type="tel"
                 placeholder="+33 6 12 34 56 78"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="h-11 pl-10"
               />
             </div>
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Adresse email</Label>
+        <div className="space-y-2">
+          <Label htmlFor="email">Adresse email</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="email"
               type="email"
@@ -118,81 +124,92 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
+              className="h-11 pl-10"
             />
           </div>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="location">Localisation / Région</Label>
+        <div className="space-y-2">
+          <Label htmlFor="location">Localisation / Région</Label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="location"
               placeholder="Provence-Alpes-Côte d'Azur"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              className="h-11 pl-10"
             />
           </div>
+        </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  minLength={6}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmer</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  required
-                  minLength={6}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  tabIndex={-1}
-                >
-                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="password">Mot de passe</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+                minLength={6}
+                className="h-11 pl-10 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Créer mon compte
-          </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            Déjà inscrit ?{" "}
-            <Link href="/connexion" className="font-medium text-primary hover:underline">
-              Connectez-vous
-            </Link>
-          </p>
-        </CardFooter>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmer</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                required
+                minLength={6}
+                className="h-11 pl-10 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                tabIndex={-1}
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          className="h-11 w-full shadow-md shadow-primary/20 transition-shadow hover:shadow-lg"
+          disabled={isLoading}
+        >
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Créer mon compte
+        </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Déjà inscrit ?{" "}
+          <Link href="/connexion" className="font-medium text-primary hover:underline">
+            Connectez-vous
+          </Link>
+        </p>
       </form>
-    </Card>
+    </div>
   )
 }

@@ -10,7 +10,7 @@ const _inter = Inter({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "AgriMarché - Plateforme Agricole",
+  title: "TerraFrais - Plateforme Agricole",
   description:
     "Connectez agriculteurs et acheteurs directement. Achetez des produits frais, locaux et de qualité sans intermédiaires.",
   generator: "v0.app",
