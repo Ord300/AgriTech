@@ -40,15 +40,16 @@ export function ProductCard({ product, onOrder, showOrderButton = true }: Produc
   const farmerProducts = products.filter((p) => p.farmerId === product.farmerId && p.id !== product.id)
 
   return (
-    <Card className="group overflow-hidden transition-shadow hover:shadow-lg">
+    <Card className="group h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
           src={product.image || "/placeholder.svg"}
           alt={product.name}
           fill
-          className="object-cover transition-transform group-hover:scale-105"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        <Badge className="absolute left-3 top-3 bg-primary/90">{categoryLabel}</Badge>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <Badge className="absolute left-3 top-3 border-0 bg-card/90 text-foreground shadow-sm backdrop-blur">{categoryLabel}</Badge>
         {!product.isAvailable && (
           <div className="absolute inset-0 flex items-center justify-center bg-foreground/60">
             <span className="rounded-md bg-card px-3 py-1 text-sm font-medium">Indisponible</span>

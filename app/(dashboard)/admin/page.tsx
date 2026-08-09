@@ -13,19 +13,22 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ORDER_STATUS_LABELS, CATEGORIES, type User, type ArticleCategory } from "@/lib/types"
-import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff, Newspaper, Star, X, BarChart3, DollarSign, Clock, Bell, CheckCircle2, AlertCircle, MessageSquare } from "lucide-react"
+import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff, Newspaper, Star, X, BarChart3, DollarSign, Clock, Bell, CheckCircle2, AlertCircle, MessageSquare, ShieldCheck, LifeBuoy, MessagesSquare, UserPlus, UserCog, Save, type LucideIcon } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { ConversationList } from "@/components/messaging/conversation-list"
+import { ChatWindow } from "@/components/messaging/chat-window"
 import { useToast } from "@/hooks/use-toast"
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer, Tooltip } from "recharts"
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, AreaChart, Area } from "recharts"
 
 export default function AdminDashboard() {
   const { user, logout, isLoading, updateUser: updateAuthUser, changePassword } = useAuth()
-  const { products, orders, users, articles, deleteProduct, deleteUser, updateOrderStatus, updateUser, addArticle, deleteArticle, notifications, unreadNotifications, markNotificationAsRead, clearNotifications, supportTickets, addMessageToTicket, updateTicketStatus } = useData()
+  const { products, orders, users, articles, deleteProduct, deleteUser, updateOrderStatus, updateUser, addArticle, deleteArticle, notifications, unreadNotifications, markNotificationAsRead, clearNotifications, supportTickets, addMessageToTicket, updateTicketStatus, conversations, messages, sendMessage, startConversation } = useData()
   const router = useRouter()
   const { toast } = useToast()
 
   const [isAddFarmerDialogOpen, setIsAddFarmerDialogOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeMenu, setActiveMenu] = useState<"overview" | "users" | "products" | "orders" | "news" | "support" | "security">("overview")
+  const [activeMenu, setActiveMenu] = useState<"overview" | "users" | "products" | "orders" | "news" | "support" | "security" | "messages" | "contact" | "profile">("overview")
   const [showNotifications, setShowNotifications] = useState(false)
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
   const [ticketReplyText, setTicketReplyText] = useState("")
@@ -42,7 +45,19 @@ export default function AdminDashboard() {
   const [showSecurityPasswordField, setShowSecurityPasswordField] = useState(false)
   const [isSecurityUnlocked, setIsSecurityUnlocked] = useState(false)
   const [securityPasswordAttempt, setSecurityPasswordAttempt] = useState("")
-  const [isContactProDialogOpen, setIsContactProDialogOpen] = useState(false)
+
+  // Messaging state
+  const [selectedConvId, setSelectedConvId] = useState<string | undefined>(undefined)
+
+  // Profile state
+  const [profileData, setProfileData] = useState({
+    name: "",
+    phone: "",
+    location: "",
+    description: "",
+    avatar: "",
+  })
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   const [newFarmerData, setNewFarmerData] = useState({
     name: "",
@@ -86,6 +101,39 @@ export default function AdminDashboard() {
     }
   }, [isLoading, user, router])
 
+  // Ouvrir directement une section via ?section= (ex: /admin?section=messages)
+  useEffect(() => {
+    const section = new URLSearchParams(window.location.search).get("section")
+    const validSections = ["overview", "users", "products", "orders", "news", "support", "security", "messages", "contact", "profile"] as const
+    if (section && (validSections as readonly string[]).includes(section)) {
+      setActiveMenu(section as typeof activeMenu)
+    }
+  }, [])
+
+  // Synchroniser le formulaire de profil avec l'utilisateur connecté
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name || "",
+        phone: user.phone || "",
+        location: user.location || "",
+        description: user.description || "",
+        avatar: user.avatar || "",
+      })
+      setAvatarPreview(user.avatar || null)
+    }
+  }, [user])
+
+  // Sélectionner automatiquement la première conversation de l'admin
+  useEffect(() => {
+    if (user && !selectedConvId) {
+      const firstConv = conversations.find(c => c.participantIds.includes(user.id))
+      if (firstConv) {
+        setSelectedConvId(firstConv.id)
+      }
+    }
+  }, [user, conversations, selectedConvId])
+
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
   }
@@ -99,6 +147,95 @@ export default function AdminDashboard() {
   const admins = users.filter((u) => u.role === "admin")
   const userCount = users.length
   const totalRevenue = orders.filter((o) => o.status !== "cancelled").reduce((sum, o) => sum + o.totalPrice, 0)
+  const openTicketsCount = supportTickets.filter((t) => t.status === "open").length
+
+  const sectionLabels: Record<typeof activeMenu, string> = {
+    overview: "Tableau de bord",
+    users: "Gestion des utilisateurs",
+    products: "Gestion des produits",
+    orders: "Suivi des commandes",
+    news: "Actualités",
+    support: "Support client",
+    security: "Sécurité du compte",
+    messages: "Messages",
+    contact: "Contacter un Pro",
+    profile: "Mon profil",
+  }
+
+  const mainMenuItems: { key: typeof activeMenu; label: string; icon: LucideIcon }[] = [
+    { key: "overview", label: "Tableau de bord", icon: BarChart3 },
+    { key: "users", label: "Utilisateurs", icon: Users },
+    { key: "products", label: "Produits", icon: Package },
+    { key: "orders", label: "Commandes", icon: ShoppingCart },
+    { key: "news", label: "Actualités", icon: Newspaper },
+    { key: "support", label: "Support", icon: LifeBuoy },
+  ]
+
+  const communicationMenuItems: { key: typeof activeMenu; label: string; icon: LucideIcon }[] = [
+    { key: "messages", label: "Messages", icon: MessagesSquare },
+    { key: "contact", label: "Contacter un Pro", icon: UserPlus },
+  ]
+
+  const accountMenuItems: { key: typeof activeMenu; label: string; icon: LucideIcon }[] = [
+    { key: "profile", label: "Mon Profil", icon: UserCog },
+    { key: "security", label: "Sécurité", icon: ShieldCheck },
+  ]
+
+  const renderMenuButton = (
+    item: { key: typeof activeMenu; label: string; icon: LucideIcon },
+    onNavigate?: () => void,
+  ) => (
+    <button
+      key={item.key}
+      onClick={() => {
+        setActiveMenu(item.key)
+        onNavigate?.()
+      }}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+        activeMenu === item.key
+          ? "bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-[0_0_15px_rgba(192,38,211,0.4)] font-semibold border-l-4 border-white/20"
+          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:translate-x-1"
+      }`}
+    >
+      <item.icon className={`h-5 w-5 shrink-0 ${activeMenu === item.key ? 'text-white' : ''}`} />
+      <span className="text-sm">{item.label}</span>
+      {item.key === "support" && openTicketsCount > 0 && (
+        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white shadow-[0_0_10px_rgba(239,68,68,0.5)]">
+          {openTicketsCount}
+        </span>
+      )}
+    </button>
+  )
+
+  // Label personnalisé pour les camemberts : texte blanc lisible sur thème sombre
+  const renderPieLabel = ({ cx, cy, midAngle, outerRadius, name, value }: any) => {
+    const RADIAN = Math.PI / 180
+    const radius = outerRadius + 16
+    const x = cx + radius * Math.cos(-midAngle * RADIAN)
+    const y = cy + radius * Math.sin(-midAngle * RADIAN)
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="rgba(255,255,255,0.85)"
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+        fontSize={11}
+        fontWeight={500}
+      >
+        {`${name}: ${value}`}
+      </text>
+    )
+  }
+
+  const chartTooltipStyle = {
+    backgroundColor: 'rgba(24, 24, 40, 0.95)',
+    borderColor: 'rgba(255,255,255,0.08)',
+    borderRadius: '10px',
+    color: '#fff',
+    fontSize: '12px',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+  } as const
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
@@ -380,157 +517,122 @@ export default function AdminDashboard() {
     toast({ title: "Article supprimé", description: `L'article "${title}" a été retiré.` })
   }
 
-  const { startConversation } = useData()
+  const adminConversations = conversations.filter(c => c.participantIds.includes(user.id))
+  const selectedConv = conversations.find(c => c.id === selectedConvId)
+  const otherParticipantId = selectedConv?.participantIds.find(id => id !== user.id)
+  const otherParticipant = users.find(u => u.id === otherParticipantId)
+  const currentMessages = messages.filter(m => m.conversationId === selectedConvId)
 
   const handleStartConversation = (otherUser: User) => {
     if (!user) return
     const convId = startConversation([user.id, otherUser.id], [user.name, otherUser.name])
-    router.push(`/admin/messages`)
-    // Note: To jump to specific conversation, I'd need to pass the ID, 
-    // but for now, simple redirect is good.
+    setSelectedConvId(convId)
+    setActiveMenu("messages")
+  }
+
+  const handleSendMessage = (content: string) => {
+    if (selectedConvId && user) {
+      sendMessage(selectedConvId, user.id, content)
+    }
+  }
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: "Fichier trop volumineux",
+          description: "L'image ne doit pas dépasser 2 Mo.",
+          variant: "destructive",
+        })
+        return
+      }
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64String = reader.result as string
+        setAvatarPreview(base64String)
+        setProfileData({ ...profileData, avatar: base64String })
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleUpdateProfile = () => {
+    if (!user) return
+    if (!profileData.name.trim()) {
+      toast({ title: "Erreur", description: "Le nom est obligatoire.", variant: "destructive" })
+      return
+    }
+    updateAuthUser(profileData)
+    updateUser(user.id, profileData)
+    toast({ title: "Profil mis à jour", description: "Vos informations ont été enregistrées avec succès." })
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="admin-theme min-h-screen bg-background text-foreground flex">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex flex-col w-64 border-r bg-card fixed left-0 top-0 h-screen">
+      <aside className="hidden md:flex flex-col w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground fixed left-0 top-0 h-screen">
         {/* Logo */}
-        <div className="p-6 border-b">
+        <div className="p-6 border-b border-sidebar-border">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Leaf className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary">
+              <Leaf className="h-5 w-5 text-sidebar-primary-foreground" />
             </div>
             <span className="text-lg font-bold">TerraFrais</span>
+            <span className="rounded bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sidebar-accent-foreground">
+              Admin
+            </span>
           </Link>
         </div>
 
         {/* User Info */}
-        <div className="p-4 border-b">
+        <div className="p-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-medium">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground font-medium">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm truncate">{user.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">Administrateur</p>
+              <p className="text-xs text-sidebar-foreground/60 capitalize">Administrateur</p>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-          <button
-            onClick={() => setActiveMenu("overview")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-              activeMenu === "overview"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            <BarChart3 className="h-5 w-5" />
-            <span className="text-sm font-medium">Tableau de bord</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveMenu("users")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-              activeMenu === "users"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            <Users className="h-5 w-5" />
-            <span className="text-sm font-medium">Utilisateurs</span>
-          </button>
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            Menu
+          </p>
+          {mainMenuItems.map((item) => renderMenuButton(item))}
 
-          <button
-            onClick={() => setActiveMenu("products")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-              activeMenu === "products"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            <Package className="h-5 w-5" />
-            <span className="text-sm font-medium">Produits</span>
-          </button>
+          <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            Communication
+          </p>
+          {communicationMenuItems.map((item) => renderMenuButton(item))}
 
-          <button
-            onClick={() => setActiveMenu("orders")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-              activeMenu === "orders"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            <ShoppingCart className="h-5 w-5" />
-            <span className="text-sm font-medium">Commandes</span>
-          </button>
-
-          <button
-            onClick={() => setActiveMenu("news")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-              activeMenu === "news"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            <Newspaper className="h-5 w-5" />
-            <span className="text-sm font-medium">Actualités</span>
-          </button>
-
-          <button
-            onClick={() => setActiveMenu("support")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-              activeMenu === "support"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            <MessageSquare className="h-5 w-5" />
-            <span className="text-sm font-medium">Support</span>
-          </button>
-
-          <Link
-            href="/admin/messages"
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-muted-foreground hover:bg-muted"
-          >
-            <MessageSquare className="h-5 w-5" />
-            <span className="text-sm font-medium">Messages</span>
-          </Link>
-
-          <Button 
-            variant="outline" 
-            className="w-full justify-start gap-3 mt-4"
-            onClick={() => setIsContactProDialogOpen(true)}
-          >
-            <MessageSquare className="h-5 w-5" />
-            <span className="text-sm font-medium">Contacter un Pro</span>
-          </Button>
-
-
-          <button
-            onClick={() => setActiveMenu("security")}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-              activeMenu === "security"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            <TrendingUp className="h-5 w-5" />
-            <span className="text-sm font-medium">Sécurité</span>
-          </button>
+          <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            Compte
+          </p>
+          {accountMenuItems.map((item) => renderMenuButton(item))}
         </nav>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t space-y-2">
-          <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground" asChild>
+        <div className="p-4 border-t border-sidebar-border space-y-1">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            asChild
+          >
             <Link href="/">
               <Home className="h-4 w-4" />
               <span className="text-sm">Accueil</span>
             </Link>
           </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10" onClick={() => { logout(); }}>
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-red-400 hover:bg-sidebar-accent hover:text-red-300"
+            onClick={() => { logout(); }}
+          >
             <LogOut className="h-4 w-4" />
             <span className="text-sm">Déconnexion</span>
           </Button>
@@ -541,107 +643,33 @@ export default function AdminDashboard() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed left-0 top-0 w-64 h-screen bg-card border-r flex flex-col z-50">
-            <div className="flex items-center justify-between p-4 border-b">
+          <aside className="fixed left-0 top-0 w-64 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col z-50">
+            <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
               <span className="font-bold">Menu</span>
-              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-              <button
-                onClick={() => { setActiveMenu("overview"); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                  activeMenu === "overview"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <BarChart3 className="h-5 w-5" />
-                <span className="text-sm font-medium">Tableau de bord</span>
-              </button>
-              <button
-                onClick={() => { setActiveMenu("users"); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                  activeMenu === "users"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <Users className="h-5 w-5" />
-                <span className="text-sm font-medium">Utilisateurs</span>
-              </button>
-              <button
-                onClick={() => { setActiveMenu("products"); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                  activeMenu === "products"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <Package className="h-5 w-5" />
-                <span className="text-sm font-medium">Produits</span>
-              </button>
-              <button
-                onClick={() => { setActiveMenu("orders"); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                  activeMenu === "orders"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span className="text-sm font-medium">Commandes</span>
-              </button>
-              <button
-                onClick={() => { setActiveMenu("news"); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                  activeMenu === "news"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <Newspaper className="h-5 w-5" />
-                <span className="text-sm font-medium">Actualités</span>
-              </button>
-              <button
-                onClick={() => { setActiveMenu("support"); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                  activeMenu === "support"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <MessageSquare className="h-5 w-5" />
-                <span className="text-sm font-medium">Support</span>
-              </button>
+            <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+              <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                Menu
+              </p>
+              {mainMenuItems.map((item) => renderMenuButton(item, () => setMobileMenuOpen(false)))}
 
-              <Link
-                href="/admin/messages"
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-muted-foreground hover:bg-muted"
-              >
-                <MessageSquare className="h-5 w-5" />
-                <span className="text-sm font-medium">Messages</span>
-              </Link>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start gap-3 mt-4"
-                onClick={() => { setIsContactProDialogOpen(true); setMobileMenuOpen(false); }}
-              >
-                <MessageSquare className="h-4 w-4" />
-                <span className="text-sm font-medium">Contacter un Pro</span>
-              </Button>
-              <button
-                onClick={() => { setActiveMenu("security"); setMobileMenuOpen(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
-                  activeMenu === "security"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <TrendingUp className="h-5 w-5" />
-                <span className="text-sm font-medium">Sécurité</span>
-              </button>
+              <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                Communication
+              </p>
+              {communicationMenuItems.map((item) => renderMenuButton(item, () => setMobileMenuOpen(false)))}
+
+              <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                Compte
+              </p>
+              {accountMenuItems.map((item) => renderMenuButton(item, () => setMobileMenuOpen(false)))}
             </nav>
           </aside>
         </div>
@@ -663,7 +691,8 @@ export default function AdminDashboard() {
               </Link>
             </div>
             <div className="hidden md:block">
-              <h1 className="text-xl font-semibold">Administration</h1>
+              <p className="text-xs text-muted-foreground">Administration</p>
+              <h1 className="text-lg font-semibold leading-tight text-foreground">{sectionLabels[activeMenu]}</h1>
             </div>
             <div className="flex items-center gap-4">
               <span className="hidden sm:inline text-sm text-muted-foreground">{user.name}</span>
@@ -769,73 +798,82 @@ export default function AdminDashboard() {
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6">
         {/* Overview Section */}
         {activeMenu === "overview" && (
           <div>
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-foreground">Tableau de bord</h2>
-              <p className="text-muted-foreground">Vue d'ensemble de la plateforme</p>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-foreground">Tableau de bord</h2>
+              <p className="text-sm text-muted-foreground">Vue d'ensemble de la plateforme</p>
             </div>
 
             {/* Stats Cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardContent className="flex items-center gap-4 p-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <Users className="h-6 w-6 text-primary" />
+              {/* Card 1: Users (Pink/Purple Gradient) */}
+              <Card className="border-0 bg-gradient-to-br from-fuchsia-500 via-purple-600 to-indigo-600 text-white shadow-[0_8px_30px_rgba(192,38,211,0.3)]">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
+                    <Users className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{userCount}</p>
-                    <p className="text-sm text-muted-foreground">Utilisateurs</p>
+                    <p className="text-2xl font-extrabold tracking-tight">{userCount}</p>
+                    <p className="text-xs font-medium text-white/80 uppercase tracking-wider">Utilisateurs</p>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="flex items-center gap-4 p-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/50">
-                    <Package className="h-6 w-6 text-accent-foreground" />
+
+              {/* Card 2: Revenue (Cyan/Blue Gradient) */}
+              <Card className="border-0 bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-700 text-white shadow-[0_8px_30px_rgba(6,182,212,0.3)]">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
+                    <TrendingUp className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{products.length}</p>
-                    <p className="text-sm text-muted-foreground">Produits</p>
+                    <p className="text-2xl font-extrabold tracking-tight">{totalRevenue.toFixed(0)} €</p>
+                    <p className="text-xs font-medium text-white/80 uppercase tracking-wider">Volume total</p>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="flex items-center gap-4 p-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
-                    <ShoppingCart className="h-6 w-6 text-secondary-foreground" />
+
+              {/* Card 3: Products (Dark with glowing cyan) */}
+              <Card className="border border-white/5 bg-card/80 backdrop-blur-xl shadow-lg relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardContent className="flex items-center gap-3 p-4 relative z-10">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/10 border border-sky-500/20 shadow-[0_0_15px_rgba(14,165,233,0.3)]">
+                    <Package className="h-5 w-5 text-sky-400" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{orders.length}</p>
-                    <p className="text-sm text-muted-foreground">Commandes</p>
+                    <p className="text-2xl font-extrabold tracking-tight text-foreground">{products.length}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Produits</p>
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="flex items-center gap-4 p-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    <TrendingUp className="h-6 w-6 text-primary" />
+
+              {/* Card 4: Orders (Dark with glowing amber/orange) */}
+              <Card className="border border-white/5 bg-card/80 backdrop-blur-xl shadow-lg relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardContent className="flex items-center gap-3 p-4 relative z-10">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                    <ShoppingCart className="h-5 w-5 text-amber-400" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{totalRevenue.toFixed(0)} €</p>
-                    <p className="text-sm text-muted-foreground">Volume total</p>
+                    <p className="text-2xl font-extrabold tracking-tight text-foreground">{orders.length}</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Commandes</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Charts Row 1 */}
-            <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
               {/* Products by Category */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Produits par Catégorie</CardTitle>
-                  <CardDescription>Répartition des produits</CardDescription>
+              <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base text-foreground">Produits par Catégorie</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground">Répartition des produits</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={230}>
                     <PieChart>
                       <Pie
                         data={Object.entries(
@@ -850,29 +888,35 @@ export default function AdminDashboard() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={80}
-                        fill="#8884d8"
+                        label={renderPieLabel}
+                        innerRadius={55}
+                        outerRadius={72}
+                        paddingAngle={4}
                         dataKey="value"
+                        stroke="none"
                       >
-                        {['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'].map((color, index) => (
+                        {/* Neon color palette */}
+                        {['#00f2fe', '#4facfe', '#f093fb', '#f5576c', '#8b5cf6', '#e81cff', '#06b6d4', '#eab308'].map((color, index) => (
                           <Cell key={`cell-${index}`} fill={color} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip
+                        contentStyle={chartTooltipStyle}
+                        itemStyle={{ color: '#fff' }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
               {/* Orders by Status */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Commandes par Statut</CardTitle>
-                  <CardDescription>Distribution des statuts</CardDescription>
+              <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base text-foreground">Commandes par Statut</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground">Distribution des statuts</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={230}>
                     <PieChart>
                       <Pie
                         data={Object.entries(
@@ -887,16 +931,22 @@ export default function AdminDashboard() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={80}
-                        fill="#8884d8"
+                        label={renderPieLabel}
+                        innerRadius={55}
+                        outerRadius={72}
+                        paddingAngle={4}
                         dataKey="value"
+                        stroke="none"
                       >
-                        {['#10b981', '#3b82f6', '#ef4444', '#f59e0b'].map((color, index) => (
+                        {/* Neon status colors */}
+                        {['#eab308', '#00f2fe', '#4ade80', '#f43f5e'].map((color, index) => (
                           <Cell key={`cell-${index}`} fill={color} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip
+                        contentStyle={chartTooltipStyle}
+                        itemStyle={{ color: '#fff' }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -904,15 +954,15 @@ export default function AdminDashboard() {
             </div>
 
             {/* Charts Row 2 */}
-            <div className="mt-8 grid gap-6">
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
               {/* Revenue Trend */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tendance des revenus</CardTitle>
-                  <CardDescription>Chiffre d'affaires par catégorie</CardDescription>
+              <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base text-foreground">Tendance des revenus</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground">Chiffre d'affaires par catégorie</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
+                  <ResponsiveContainer width="100%" height={240}>
                     <BarChart
                       data={Object.entries(
                         products.reduce((acc, p) => {
@@ -924,27 +974,39 @@ export default function AdminDashboard() {
                         name,
                         revenue: Math.round(revenue)
                       }))}
+                      margin={{ top: 8, right: 8, left: -12, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="revenue" fill="#0ea5e9" name="Revenu (€)" />
+                      <defs>
+                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#00f2fe" stopOpacity={1}/>
+                          <stop offset="100%" stopColor="#4facfe" stopOpacity={0.55}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11 }} axisLine={false} tickLine={false} dy={6} />
+                      <YAxis tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} €`} />
+                      <Tooltip
+                        contentStyle={chartTooltipStyle}
+                        itemStyle={{ color: '#fff' }}
+                        labelStyle={{ color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}
+                        cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                        formatter={(value: any) => [`${value} €`, 'Revenu']}
+                      />
+                      <Bar dataKey="revenue" fill="url(#colorRevenue)" name="Revenu (€)" radius={[5, 5, 0, 0]} barSize={28} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
               {/* Orders Trend */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tendances des commandes</CardTitle>
-                  <CardDescription>Nombre de commandes par semaine</CardDescription>
+              <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base text-foreground">Tendances des commandes</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground">Nombre de commandes par semaine</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart
+                  <ResponsiveContainer width="100%" height={240}>
+                    <AreaChart
                       data={(() => {
                         const data: { week: string; count: number }[] = []
                         for (let i = 3; i >= 0; i--) {
@@ -959,27 +1021,49 @@ export default function AdminDashboard() {
                         }
                         return data
                       })()}
+                      margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="week" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="count" stroke="#10b981" name="Commandes" strokeWidth={2} dot={{ r: 6 }} />
-                    </LineChart>
+                      <defs>
+                        <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#e14eca" stopOpacity={0.45}/>
+                          <stop offset="100%" stopColor="#e14eca" stopOpacity={0.02}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="week" tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11 }} axisLine={false} tickLine={false} dy={6} />
+                      <YAxis tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                      <Tooltip
+                        contentStyle={chartTooltipStyle}
+                        itemStyle={{ color: '#fff' }}
+                        labelStyle={{ color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}
+                        cursor={{ stroke: 'rgba(225,78,202,0.4)', strokeWidth: 1 }}
+                        formatter={(value: any) => [`${value}`, 'Commandes']}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="count"
+                        stroke="#e14eca"
+                        strokeWidth={2.5}
+                        fillOpacity={1}
+                        fill="url(#colorOrders)"
+                        name="Commandes"
+                        dot={{ r: 3, fill: '#e14eca', strokeWidth: 0 }}
+                        activeDot={{ r: 5, fill: '#e14eca', stroke: 'rgba(255,255,255,0.3)', strokeWidth: 2 }}
+                      />
+                    </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
             </div>
 
             {/* Stats Details */}
-            <div className="mt-8 grid gap-6 sm:grid-cols-3">
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Commande moyenne</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Commande moyenne</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : '0'} €
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">Par commande</p>
@@ -987,11 +1071,11 @@ export default function AdminDashboard() {
               </Card>
 
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Taux de conversion</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Taux de conversion</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {buyers.length > 0 ? ((orders.length / buyers.length) * 100).toFixed(1) : '0'}%
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">Acheteurs actifs</p>
@@ -999,11 +1083,11 @@ export default function AdminDashboard() {
               </Card>
 
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">Produits disponibles</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Produits disponibles</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl font-bold">
                     {products.filter(p => p.isAvailable).length}/{products.length}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">En stock</p>
@@ -1012,13 +1096,13 @@ export default function AdminDashboard() {
             </div>
 
             {/* Recent Notifications */}
-            <div className="mt-8">
+            <div className="mt-6">
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Activité récente</CardTitle>
-                      <CardDescription>Notifications en temps réel des actions</CardDescription>
+                      <CardTitle className="text-base">Activité récente</CardTitle>
+                      <CardDescription className="text-xs">Notifications en temps réel des actions</CardDescription>
                     </div>
                     {unreadNotifications > 0 && (
                       <Badge variant="destructive">{unreadNotifications} nouvelle(s)</Badge>
@@ -1029,7 +1113,7 @@ export default function AdminDashboard() {
                   {notifications.length === 0 ? (
                     <p className="text-muted-foreground text-center py-8">Aucune activité pour le moment</p>
                   ) : (
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                    <div className="space-y-2.5 max-h-80 overflow-y-auto">
                       {notifications.slice(0, 8).map((notification) => (
                         <div 
                           key={notification.id}
@@ -1080,6 +1164,11 @@ export default function AdminDashboard() {
 
         {/* Users Section */}
         {activeMenu === "users" && (
+          <div>
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-foreground">Utilisateurs</h2>
+              <p className="text-muted-foreground">Gérez les comptes de la plateforme</p>
+            </div>
             <div className="grid gap-6 lg:grid-cols-2">
               <Card>
                 <CardHeader>
@@ -1095,7 +1184,7 @@ export default function AdminDashboard() {
                           Ajouter Agriculteur
                         </Button>
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className="admin-theme">
                         <DialogHeader>
                           <DialogTitle>Ajouter un nouvel agriculteur</DialogTitle>
                           <DialogDescription>
@@ -1233,7 +1322,7 @@ export default function AdminDashboard() {
                               <SelectTrigger className="w-32">
                                 <SelectValue placeholder="Rôle" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="admin-theme">
                                 <SelectItem value="farmer">Agriculteur</SelectItem>
                                 <SelectItem value="buyer">Acheteur</SelectItem>
                                 <SelectItem value="admin">Admin</SelectItem>
@@ -1295,7 +1384,7 @@ export default function AdminDashboard() {
                               <SelectTrigger className="w-32">
                                 <SelectValue placeholder="Rôle" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="admin-theme">
                                 <SelectItem value="farmer">Agriculteur</SelectItem>
                                 <SelectItem value="buyer">Acheteur</SelectItem>
                                 <SelectItem value="admin">Admin</SelectItem>
@@ -1317,6 +1406,7 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </div>
         )}
 
         {/* Products Section */}
@@ -1435,7 +1525,7 @@ export default function AdminDashboard() {
                         Ajouter un article
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="admin-theme max-w-2xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Créer un nouvel article</DialogTitle>
                         <DialogDescription>
@@ -1471,7 +1561,7 @@ export default function AdminDashboard() {
                               <SelectTrigger>
                                 <SelectValue placeholder="Catégorie" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="admin-theme">
                                 <SelectItem value="agriculteurs">Agriculteurs</SelectItem>
                                 <SelectItem value="produits">Produits en Vogue</SelectItem>
                                 <SelectItem value="monde">Monde Agricole</SelectItem>
@@ -1598,7 +1688,7 @@ export default function AdminDashboard() {
                             <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="admin-theme">
                               <SelectItem value="open">Ouvert</SelectItem>
                               <SelectItem value="in_progress">En cours</SelectItem>
                               <SelectItem value="closed">Fermé</SelectItem>
@@ -1733,6 +1823,166 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* Messages Section */}
+        {activeMenu === "messages" && (
+          <div>
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-foreground">Messages</h2>
+              <p className="text-muted-foreground">Échangez avec les agriculteurs et les acheteurs</p>
+            </div>
+            <div className="flex h-[calc(100vh-16rem)] min-h-[400px] rounded-xl border bg-card overflow-hidden shadow-sm">
+              <div className="w-80 flex-shrink-0 hidden sm:block">
+                <ConversationList
+                  conversations={adminConversations}
+                  selectedId={selectedConvId}
+                  onSelect={setSelectedConvId}
+                  currentUserId={user.id}
+                />
+              </div>
+              <div className="flex-1">
+                <ChatWindow
+                  messages={currentMessages}
+                  otherParticipant={otherParticipant}
+                  currentUserId={user.id}
+                  onSendMessage={handleSendMessage}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Contact Pro Section */}
+        {activeMenu === "contact" && (
+          <div>
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-foreground">Contacter un Pro</h2>
+              <p className="text-muted-foreground">Sélectionnez un agriculteur pour démarrer une conversation</p>
+            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Agriculteurs ({farmers.length})</CardTitle>
+                <CardDescription>Cliquez sur "Message" pour ouvrir une conversation directe</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {farmers.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">Aucun agriculteur inscrit</p>
+                ) : (
+                  <div className="space-y-3">
+                    {farmers.map((farmer) => (
+                      <div key={farmer.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Avatar>
+                            <AvatarImage src={farmer.avatar} />
+                            <AvatarFallback>{farmer.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate">{farmer.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{farmer.location || farmer.email}</p>
+                          </div>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="gap-2"
+                          onClick={() => handleStartConversation(farmer)}
+                        >
+                          <MessageSquare className="h-4 w-4 text-primary" />
+                          Message
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Profile Section */}
+        {activeMenu === "profile" && (
+          <div>
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-foreground">Mon Profil</h2>
+              <p className="text-muted-foreground">Modifiez vos informations personnelles</p>
+            </div>
+            <div className="grid gap-6 lg:grid-cols-3">
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <CardTitle>Photo de profil</CardTitle>
+                  <CardDescription>Votre avatar visible sur la plateforme</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center gap-4">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={avatarPreview || undefined} />
+                    <AvatarFallback className="text-2xl">{profileData.name.charAt(0).toUpperCase() || "A"}</AvatarFallback>
+                  </Avatar>
+                  <div className="w-full">
+                    <Label htmlFor="admin-avatar" className="sr-only">Changer la photo</Label>
+                    <Input id="admin-avatar" type="file" accept="image/*" onChange={handleAvatarChange} />
+                    <p className="text-xs text-muted-foreground mt-2 text-center">Max. 2 Mo</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>Informations personnelles</CardTitle>
+                  <CardDescription>Mettez à jour vos coordonnées et votre description</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="profile-name">Nom complet</Label>
+                    <Input
+                      id="profile-name"
+                      value={profileData.name}
+                      onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="profile-email">Adresse email</Label>
+                    <Input id="profile-email" value={user.email} disabled />
+                    <p className="text-xs text-muted-foreground">L'email de connexion ne peut pas être modifié.</p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-2">
+                      <Label htmlFor="profile-phone">Téléphone</Label>
+                      <Input
+                        id="profile-phone"
+                        placeholder="+33 6 12 34 56 78"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="profile-location">Localisation</Label>
+                      <Input
+                        id="profile-location"
+                        placeholder="Région, Ville"
+                        value={profileData.location}
+                        onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="profile-description">Bio / Description</Label>
+                    <textarea
+                      id="profile-description"
+                      className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="Quelques mots à propos de vous..."
+                      value={profileData.description}
+                      onChange={(e) => setProfileData({ ...profileData, description: e.target.value })}
+                    />
+                  </div>
+                  <Button onClick={handleUpdateProfile} className="gap-2">
+                    <Save className="h-4 w-4" />
+                    Enregistrer les modifications
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
         {/* Security Section */}
         {activeMenu === "security" && (
           <div>
@@ -1742,7 +1992,7 @@ export default function AdminDashboard() {
             </div>
             {!isSecurityUnlocked ? (
               <Dialog open={!isSecurityUnlocked} onOpenChange={() => {}}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="admin-theme sm:max-w-md">
                   <DialogHeader>
                     <DialogTitle>Accès à la section sécurité</DialogTitle>
                     <DialogDescription>
@@ -1858,7 +2108,7 @@ export default function AdminDashboard() {
 
       {/* Password Verification Dialog */}
       <Dialog open={!!passwordTargetUser} onOpenChange={(open) => !open && setPasswordTargetUser(null)}>
-        <DialogContent>
+        <DialogContent className="admin-theme">
           <DialogHeader>
             <DialogTitle>Vérification de sécurité</DialogTitle>
             <DialogDescription>
@@ -1900,49 +2150,6 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isContactProDialogOpen} onOpenChange={setIsContactProDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Contacter un Agriculteur</DialogTitle>
-            <DialogDescription>
-              Sélectionnez un agriculteur pour démarrer une conversation.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto py-4">
-            {farmers.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">Aucun agriculteur inscrit</p>
-            ) : (
-              <div className="space-y-3">
-                {farmers.map((farmer) => (
-                  <div key={farmer.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-medium text-xs">
-                        {farmer.name.charAt(0)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">{farmer.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{farmer.location}</p>
-                      </div>
-                    </div>
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="gap-2"
-                      onClick={() => {
-                        handleStartConversation(farmer)
-                        setIsContactProDialogOpen(false)
-                      }}
-                    >
-                      <MessageSquare className="h-4 w-4 text-primary" />
-                      Message
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

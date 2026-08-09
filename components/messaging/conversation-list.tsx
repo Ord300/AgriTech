@@ -24,7 +24,7 @@ export function ConversationList({
   return (
     <div className="flex flex-col h-full border-r">
       <div className="p-4 border-b">
-        <h2 className="text-xl font-semibold">Messages</h2>
+        <h2 className="text-xl font-semibold text-foreground">Messages</h2>
       </div>
       <ScrollArea className="flex-1">
         <div className="flex flex-col">
@@ -48,7 +48,7 @@ export function ConversationList({
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
-                    <span className="font-medium truncate">{otherParticipantName}</span>
+                    <span className="font-medium truncate text-foreground">{otherParticipantName}</span>
                     <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
                       {format(new Date(conv.lastMessageAt), "HH:mm", { locale: fr })}
                     </span>

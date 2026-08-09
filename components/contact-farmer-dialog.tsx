@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
 import { useToast } from "@/hooks/use-toast"
@@ -26,6 +27,7 @@ export function ContactFarmerDialog({ open, onOpenChange, farmerId, farmerName }
   const { user } = useAuth()
   const { users, messages, sendMessage, startConversation } = useData()
   const { toast } = useToast()
+  const router = useRouter()
 
   const [conversationId, setConversationId] = useState<string | null>(null)
 
@@ -71,7 +73,13 @@ export function ContactFarmerDialog({ open, onOpenChange, farmerId, farmerName }
             <p className="text-muted-foreground">
               Vous devez être connecté pour contacter cet agriculteur.
             </p>
-            <Button onClick={() => window.location.href = "/connexion"}>
+            <Button
+              onClick={() => {
+                onOpenChange(false)
+                const target = `/acheteur/messages?contact=${farmerId}`
+                router.push(`/connexion?redirect=${encodeURIComponent(target)}`)
+              }}
+            >
               Se connecter
             </Button>
           </div>
