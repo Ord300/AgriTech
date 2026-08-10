@@ -6,10 +6,13 @@ import Image from "next/image"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, User, Phone, Mail, Calendar, ExternalLink, MessageSquare } from "lucide-react"
+import { MapPin, User, Phone, Mail, Calendar, ExternalLink, MessageSquare, ShoppingCart } from "lucide-react"
 import type { Product } from "@/lib/types"
 import { CATEGORIES } from "@/lib/types"
 import { useData } from "@/lib/data-context"
+import { useCart } from "@/lib/cart-context"
+import { useAuth } from "@/lib/auth-context"
+import { useToast } from "@/hooks/use-toast"
 import {
   Dialog,
   DialogContent,
@@ -27,17 +30,40 @@ import { Star } from "lucide-react"
 import { ContactFarmerDialog } from "./contact-farmer-dialog"
 interface ProductCardProps {
   product: Product
-  onOrder?: () => void
   showOrderButton?: boolean
 }
 
-export function ProductCard({ product, onOrder, showOrderButton = true }: ProductCardProps) {
+export function ProductCard({ product, showOrderButton = true }: ProductCardProps) {
   const [contactDialogOpen, setContactDialogOpen] = useState(false)
   const { users, products } = useData()
+  const { addToCart, setCartOpen } = useCart()
+  const { user } = useAuth()
+  const { toast } = useToast()
   const categoryLabel = CATEGORIES.find((c) => c.value === product.category)?.label || product.category
 
   const farmer = users.find((u) => u.id === product.farmerId)
   const farmerProducts = products.filter((p) => p.farmerId === product.farmerId && p.id !== product.id)
+
+  const handleAddToCart = () => {
+    if (user?.role === "farmer") {
+      toast({
+        title: "Action non autorisée",
+        description: "Les agriculteurs ne peuvent pas passer de commandes.",
+        variant: "destructive",
+      })
+      return
+    }
+    addToCart(product)
+    toast({
+      title: "Produit ajouté au panier",
+      description: `${product.name} a été ajouté à votre panier.`,
+      action: (
+        <Button variant="outline" size="sm" onClick={() => setCartOpen(true)}>
+          Voir
+        </Button>
+      ),
+    })
+  }
 
   return (
     <Card className="group h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
@@ -85,8 +111,9 @@ export function ProductCard({ product, onOrder, showOrderButton = true }: Produc
       </CardContent>
       {showOrderButton && (
         <CardFooter className="flex flex-col gap-2 p-4 pt-0">
-          <Button className="w-full" onClick={onOrder} disabled={!product.isAvailable || product.quantity === 0}>
-            Commander
+          <Button className="w-full gap-2" onClick={handleAddToCart} disabled={!product.isAvailable || product.quantity === 0}>
+            <ShoppingCart className="h-4 w-4" />
+            Ajouter au panier
           </Button>
 
           <div className="grid grid-cols-2 gap-2 w-full">

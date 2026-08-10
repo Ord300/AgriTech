@@ -87,8 +87,73 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   cancelled: "Annulée",
 }
 
-export type ArticleCategory = "agriculteurs" | "produits" | "monde"
+// ============ Panier ============
 
+export interface CartItem {
+  productId: string
+  productName: string
+  farmerId: string
+  farmerName: string
+  price: number
+  unit: string
+  quantity: number
+  image: string
+  location: string
+  maxQuantity: number
+}
+
+export interface SavedCart {
+  id: string
+  name: string
+  items: CartItem[]
+  createdAt: string
+}
+
+// ============ Paiements Mobile Money ============
+
+export type PaymentMethod = "mpesa" | "orange_money"
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  mpesa: "M-Pesa",
+  orange_money: "Orange Money",
+}
+
+export type TransactionStatus = "completed" | "pending" | "failed"
+
+export const TRANSACTION_STATUS_LABELS: Record<TransactionStatus, string> = {
+  completed: "Complété",
+  pending: "En cours",
+  failed: "Échoué",
+}
+
+/** Commission prélevée par la plateforme sur chaque transaction (revenu admin) */
+export const PLATFORM_COMMISSION_RATE = 0.05
+
+export interface PaymentTransaction {
+  id: string
+  /** Référence unique retournée par l'opérateur Mobile Money */
+  reference: string
+  orderIds: string[]
+  buyerId: string
+  buyerName: string
+  /** Numéro Mobile Money utilisé par l'acheteur pour payer */
+  buyerPhone: string
+  farmerId: string
+  farmerName: string
+  /** Numéro Mobile Money enregistré de l'agriculteur (bénéficiaire) */
+  farmerPhone: string
+  method: PaymentMethod
+  /** Montant total payé par l'acheteur pour cet agriculteur */
+  amount: number
+  /** Part de l'administrateur (5%) */
+  commission: number
+  /** Part reversée à l'agriculteur (95%) */
+  farmerAmount: number
+  status: TransactionStatus
+  createdAt: string
+}
+
+export type ArticleCategory = "agriculteurs" | "produits" | "monde"
 export interface Article {
   id: string
   title: string
@@ -100,15 +165,27 @@ export interface Article {
   createdAt: string
 }
 
-export type NotificationType = 
-  | "user_registered" 
-  | "product_added" 
+// ============ Vitrine "Nos Produits du Moment" (accueil) ============
+
+/** Produit mis en avant sur la page d'accueil, géré par l'administrateur */
+export interface ShowcaseProduct {
+  id: string
+  name: string
+  category: string
+  image: string
+  createdAt: string
+}
+
+export type NotificationType =
+  | "user_registered"
+  | "product_added"
   | "product_deleted"
-  | "order_created" 
+  | "order_created"
   | "order_status_changed"
   | "user_role_changed"
   | "article_published"
   | "article_deleted"
+  | "payment_received"
 
 export interface Notification {
   id: string

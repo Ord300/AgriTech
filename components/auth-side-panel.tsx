@@ -34,18 +34,7 @@ export function AuthSidePanel() {
 
       {/* Message + images flottantes */}
       <div className="relative space-y-10">
-        <div>
-          <h2 className="text-3xl font-bold leading-tight text-primary-foreground xl:text-4xl">
-            Du champ à votre table,
-            <br />
-            sans intermédiaires
-          </h2>
-          <p className="mt-4 max-w-md text-primary-foreground/80">
-            Rejoignez une communauté qui valorise le travail des agriculteurs et vous garantit des produits frais,
-            locaux et de qualité.
-          </p>
-        </div>
-
+        
         <div className="relative flex items-end gap-5">
           <div className="animate-float relative h-40 w-40 overflow-hidden rounded-2xl border-4 border-primary-foreground/20 shadow-2xl xl:h-44 xl:w-44">
             <Image

@@ -93,16 +93,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">Comptes de démonstration :</p>
-          <ul className="mt-1 space-y-1">
-            <li>Agriculteur : jean.dupont@email.com</li>
-            <li>Acheteur : pierre.bernard@email.com</li>
-            <li>Admin : admin@agrimarche.fr</li>
-          </ul>
-          <p className="mt-1 text-xs">(Entrez n&apos;importe quel mot de passe)</p>
-        </div>
-
         <Button
           type="submit"
           className="h-11 w-full shadow-md shadow-primary/20 transition-shadow hover:shadow-lg"

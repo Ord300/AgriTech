@@ -116,9 +116,7 @@ export function Footer() {
                     <MapPin className="h-4 w-4" />
                   </span>
                   <span>
-                    123 Rue de l&apos;Agriculture
-                    <br />
-                    0001 Kinshasa, RDC
+                    République décoratique du congo
                   </span>
                 </li>
               </ul>

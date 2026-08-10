@@ -1,8 +1,8 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { Product, Order, User, Article, Rating, Notification, SupportTicket, SupportMessage, Conversation, ChatMessage } from "./types"
-import { mockProducts, mockOrders, mockUsers, mockArticles, mockRatings, mockConversations, mockMessages } from "./mock-data"
+import type { Product, Order, User, Article, Rating, Notification, SupportTicket, SupportMessage, Conversation, ChatMessage, PaymentTransaction, ShowcaseProduct } from "./types"
+import { mockProducts, mockOrders, mockUsers, mockArticles, mockRatings, mockConversations, mockMessages, mockShowcaseProducts } from "./mock-data"
 
 interface DataContextType {
   products: Product[]
@@ -17,11 +17,17 @@ interface DataContextType {
   updateProduct: (id: string, updates: Partial<Product>) => void
   deleteProduct: (id: string) => void
   addOrder: (order: Omit<Order, "id" | "createdAt">) => void
+  addOrders: (orders: Omit<Order, "id" | "createdAt">[]) => Order[]
   updateOrderStatus: (id: string, status: Order["status"]) => void
+  transactions: PaymentTransaction[]
+  addTransactions: (transactions: Omit<PaymentTransaction, "id" | "createdAt">[]) => void
   updateUser: (id: string, updates: Partial<User>) => void
   addArticle: (article: Omit<Article, "id" | "createdAt">) => void
   updateArticle: (id: string, updates: Partial<Article>) => void
   deleteArticle: (id: string) => void
+  showcaseProducts: ShowcaseProduct[]
+  addShowcaseProduct: (item: Omit<ShowcaseProduct, "id" | "createdAt">) => void
+  deleteShowcaseProduct: (id: string) => void
   ratings: Rating[]
   addRating: (rating: Omit<Rating, "id" | "createdAt">) => void
   markNotificationAsRead: (id: string) => void
@@ -47,6 +53,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [transactions, setTransactions] = useState<PaymentTransaction[]>([])
+  const [showcaseProducts, setShowcaseProducts] = useState<ShowcaseProduct[]>([])
 
   useEffect(() => {
     const storedProducts = localStorage.getItem("agrimarche_products")
@@ -58,6 +66,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const storedTickets = localStorage.getItem("agrimarche_support_tickets")
     const storedConversations = localStorage.getItem("agrimarche_conversations")
     const storedMessages = localStorage.getItem("agrimarche_messages")
+    const storedTransactions = localStorage.getItem("agrimarche_transactions")
+    const storedShowcase = localStorage.getItem("agrimarche_showcase")
 
     setProducts(storedProducts ? JSON.parse(storedProducts) : mockProducts)
     setOrders(storedOrders ? JSON.parse(storedOrders) : mockOrders)
@@ -68,6 +78,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setSupportTickets(storedTickets ? JSON.parse(storedTickets) : [])
     setConversations(storedConversations ? JSON.parse(storedConversations) : mockConversations)
     setMessages(storedMessages ? JSON.parse(storedMessages) : mockMessages)
+    setTransactions(storedTransactions ? JSON.parse(storedTransactions) : [])
+    setShowcaseProducts(storedShowcase ? JSON.parse(storedShowcase) : mockShowcaseProducts)
   }, [])
 
   const saveProducts = (newProducts: Product[]) => {
@@ -310,6 +322,65 @@ export function DataProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  const addOrders = (newOrdersInput: Omit<Order, "id" | "createdAt">[]): Order[] => {
+    const createdAt = new Date().toISOString().split("T")[0]
+    const created: Order[] = newOrdersInput.map((order, index) => ({
+      ...order,
+      id: `order-${Date.now()}-${index}`,
+      createdAt,
+    }))
+
+    saveOrders([...orders, ...created])
+
+    // Décrémenter les stocks de tous les produits commandés
+    const updatedProducts = products.map((p) => {
+      const totalOrdered = created
+        .filter((o) => o.productId === p.id)
+        .reduce((sum, o) => sum + o.quantity, 0)
+      return totalOrdered > 0 ? { ...p, quantity: p.quantity - totalOrdered } : p
+    })
+    saveProducts(updatedProducts)
+
+    for (const order of created) {
+      addNotification({
+        type: "order_created",
+        title: "Nouvelle commande",
+        message: `${order.buyerName} a commandé ${order.quantity} unité(s) de ${order.productName}`,
+        actionUser: order.buyerName,
+        targetUser: order.farmerName,
+        read: false,
+      })
+    }
+
+    return created
+  }
+
+  const saveTransactions = (newTransactions: PaymentTransaction[]) => {
+    setTransactions(newTransactions)
+    localStorage.setItem("agrimarche_transactions", JSON.stringify(newTransactions))
+  }
+
+  const addTransactions = (txns: Omit<PaymentTransaction, "id" | "createdAt">[]) => {
+    const createdAt = new Date().toISOString()
+    const created: PaymentTransaction[] = txns.map((txn, index) => ({
+      ...txn,
+      id: `txn-${Date.now()}-${index}`,
+      createdAt,
+    }))
+    saveTransactions([...created, ...transactions])
+
+    for (const txn of created) {
+      addNotification({
+        type: "payment_received",
+        title: "Paiement Mobile Money reçu",
+        message: `${txn.buyerName} a payé ${txn.amount.toFixed(2)} € à ${txn.farmerName} (${txn.farmerAmount.toFixed(2)} € net, commission plateforme : ${txn.commission.toFixed(2)} €)`,
+        actionUser: txn.buyerName,
+        targetUser: txn.farmerName,
+        read: false,
+      })
+    }
+  }
+
   const updateOrderStatus = (id: string, status: Order["status"]) => {
     const order = orders.find((o) => o.id === id)
     saveOrders(orders.map((o) => (o.id === id ? { ...o, status } : o)))
@@ -392,6 +463,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
     saveArticles(articles.filter((a) => a.id !== id))
   }
 
+  const saveShowcaseProducts = (items: ShowcaseProduct[]) => {
+    setShowcaseProducts(items)
+    localStorage.setItem("agrimarche_showcase", JSON.stringify(items))
+  }
+
+  const addShowcaseProduct = (item: Omit<ShowcaseProduct, "id" | "createdAt">) => {
+    const newItem: ShowcaseProduct = {
+      ...item,
+      id: `showcase-${Date.now()}`,
+      createdAt: new Date().toISOString().split("T")[0],
+    }
+    saveShowcaseProducts([...showcaseProducts, newItem])
+  }
+
+  const deleteShowcaseProduct = (id: string) => {
+    saveShowcaseProducts(showcaseProducts.filter((item) => item.id !== id))
+  }
+
   const markNotificationAsRead = (id: string) => {
     saveNotifications(
       notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
@@ -413,12 +502,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
         updateProduct,
         deleteProduct,
         addOrder,
+        addOrders,
         updateOrderStatus,
+        transactions,
+        addTransactions,
         updateUser,
         articles,
         addArticle,
         updateArticle,
         deleteArticle,
+        showcaseProducts,
+        addShowcaseProduct,
+        deleteShowcaseProduct,
         ratings,
         notifications,
         unreadNotifications,

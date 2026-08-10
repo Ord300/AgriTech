@@ -1,4 +1,4 @@
-import type { User, Product, Order, Article, Rating, Conversation, ChatMessage } from "./types"
+import type { User, Product, Order, Article, Rating, Conversation, ChatMessage, ShowcaseProduct } from "./types"
 
 export const mockUsers: User[] = [
   {
@@ -7,7 +7,7 @@ export const mockUsers: User[] = [
     name: "Jean Dupont",
     role: "farmer",
     phone: "+33 6 12 34 56 78",
-    location: "Provence-Alpes-Côte d'Azur",
+    location: "Kinshasa / Gombe",
     createdAt: "2024-01-15",
     rating: 4.5,
     reviewCount: 1,
@@ -18,7 +18,7 @@ export const mockUsers: User[] = [
     name: "Marie Martin",
     role: "farmer",
     phone: "+33 6 98 76 54 32",
-    location: "Bretagne",
+    location: "Kinshasa / Matadi kibala",
     createdAt: "2024-02-20",
     rating: 4.8,
     reviewCount: 2,
@@ -29,7 +29,7 @@ export const mockUsers: User[] = [
     name: "Pierre Bernard",
     role: "buyer",
     phone: "+33 6 11 22 33 44",
-    location: "Paris",
+    location: "Kinshasa / Ngaliema",
     createdAt: "2024-03-10",
   },
   {
@@ -225,6 +225,15 @@ export const mockRatings: Rating[] = [
     comment: "Producteur sérieux et régulier.",
     createdAt: "2024-06-20",
   },
+]
+
+export const mockShowcaseProducts: ShowcaseProduct[] = [
+  { id: "showcase-1", name: "Tomates du jardin", category: "Légumes", image: "/fresh-red-tomatoes-on-vine.jpg", createdAt: "2024-06-01" },
+  { id: "showcase-2", name: "Pommes Gala", category: "Fruits", image: "/red-gala-apples-fresh.jpg", createdAt: "2024-06-02" },
+  { id: "showcase-3", name: "Œufs fermiers", category: "Oeufs", image: "/farm-fresh-eggs-basket.jpg", createdAt: "2024-06-03" },
+  { id: "showcase-4", name: "Lait fermier", category: "Produits Laitiers", image: "/fresh-milk-bottle-farm.jpg", createdAt: "2024-06-04" },
+  { id: "showcase-5", name: "Miel de lavande", category: "Miel", image: "/honey-jar-lavender.jpg", createdAt: "2024-06-05" },
+  { id: "showcase-6", name: "Courgettes vertes", category: "Légumes", image: "/fresh-green-zucchini-vegetables.jpg", createdAt: "2024-06-06" },
 ]
 
 export const mockConversations: Conversation[] = [

@@ -2,22 +2,12 @@
 
 import { useState, useMemo } from "react"
 import { useData } from "@/lib/data-context"
-import { useAuth } from "@/lib/auth-context"
 import { ProductCard } from "@/components/product-card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { useToast } from "@/hooks/use-toast"
-import { CATEGORIES, type Product, type ProductCategory } from "@/lib/types"
+import { CATEGORIES, type ProductCategory } from "@/lib/types"
 import {
   Search,
   SlidersHorizontal,
@@ -37,7 +27,6 @@ import {
   SearchX,
   type LucideIcon,
 } from "lucide-react"
-import { GuestCheckoutDialog } from "@/components/guest-checkout-dialog"
 import { cn } from "@/lib/utils"
 
 const CATEGORY_ICONS: Record<ProductCategory, LucideIcon> = {
@@ -52,18 +41,13 @@ const CATEGORY_ICONS: Record<ProductCategory, LucideIcon> = {
 }
 
 export default function MarketPage() {
-  const { products, addOrder } = useData()
-  const { user } = useAuth()
-  const { toast } = useToast()
+  const { products } = useData()
 
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>("all")
   const [location, setLocation] = useState<string>("all")
   const [sortBy, setSortBy] = useState<string>("recent")
   const [showFilters, setShowFilters] = useState(false)
-
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [orderQuantity, setOrderQuantity] = useState(1)
 
   const availableProducts = useMemo(() => products.filter((p) => p.isAvailable && p.quantity > 0), [products])
 
@@ -117,44 +101,6 @@ export default function MarketPage() {
 
     return result
   }, [availableProducts, search, category, location, sortBy])
-
-  const handleOrder = (product: Product) => {
-    if (user?.role === "farmer") {
-      toast({
-        title: "Action non autorisée",
-        description: "Les agriculteurs ne peuvent pas passer de commandes.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setSelectedProduct(product)
-    setOrderQuantity(1)
-  }
-
-  const confirmOrder = () => {
-    if (!selectedProduct || !user) return
-
-    addOrder({
-      buyerId: user.id,
-      buyerName: user.name,
-      buyerPhone: user.phone,
-      productId: selectedProduct.id,
-      productName: selectedProduct.name,
-      farmerId: selectedProduct.farmerId,
-      farmerName: selectedProduct.farmerName,
-      quantity: orderQuantity,
-      totalPrice: selectedProduct.price * orderQuantity,
-      status: "pending",
-    })
-
-    toast({
-      title: "Commande passée",
-      description: `Votre commande de ${orderQuantity} ${selectedProduct.unit} de ${selectedProduct.name} a été envoyée à ${selectedProduct.farmerName}.`,
-    })
-
-    setSelectedProduct(null)
-  }
 
   const clearFilters = () => {
     setSearch("")
@@ -423,80 +369,12 @@ export default function MarketPage() {
                 className="animate-fade-up"
                 style={{ animationDelay: `${Math.min(index, 11) * 50}ms` }}
               >
-                <ProductCard product={product} onOrder={() => handleOrder(product)} />
+                <ProductCard product={product} />
               </div>
             ))}
           </div>
         )}
       </div>
-
-      {/* Order Dialog - Guest or Connected */}
-      {user ? (
-        <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Passer une commande</DialogTitle>
-              <DialogDescription>
-                {selectedProduct?.name} - {selectedProduct?.farmerName}
-              </DialogDescription>
-            </DialogHeader>
-
-            {selectedProduct && (
-              <div className="space-y-4 py-4">
-                <div className="flex items-center justify-between rounded-lg bg-muted p-4">
-                  <div>
-                    <p className="font-medium">{selectedProduct.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedProduct.price.toFixed(2)} € / {selectedProduct.unit}
-                    </p>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Stock: {selectedProduct.quantity} {selectedProduct.unit}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="quantity">Quantité ({selectedProduct.unit})</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    min={1}
-                    max={selectedProduct.quantity}
-                    value={orderQuantity}
-                    onChange={(e) => setOrderQuantity(Math.min(Number(e.target.value), selectedProduct.quantity))}
-                  />
-                </div>
-
-                <div className="rounded-lg bg-primary/10 p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Total</span>
-                    <span className="text-xl font-bold text-primary">
-                      {(selectedProduct.price * orderQuantity).toFixed(2)} €
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedProduct(null)}>
-                Annuler
-              </Button>
-              <Button onClick={confirmOrder}>Confirmer la commande</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      ) : (
-        <GuestCheckoutDialog
-          open={!!selectedProduct}
-          onOpenChange={(open) => {
-            if (!open) setSelectedProduct(null)
-          }}
-          product={selectedProduct}
-          quantity={orderQuantity}
-          onQuantityChange={setOrderQuantity}
-        />
-      )}
     </div>
   )
 }

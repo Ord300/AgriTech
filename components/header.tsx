@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { useCart } from "@/lib/cart-context"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -11,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Menu, X, User, LogOut, LayoutDashboard, ShoppingBag, Leaf } from "lucide-react"
+import { Menu, X, User, LogOut, LayoutDashboard, ShoppingBag, ShoppingCart, Leaf } from "lucide-react"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -24,6 +25,7 @@ const navLinks = [
 
 export function Header() {
   const { user, logout } = useAuth()
+  const { totalItems, setCartOpen } = useCart()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
@@ -87,6 +89,22 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          {user?.role !== "farmer" && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="relative bg-transparent"
+              onClick={() => setCartOpen(true)}
+              aria-label="Ouvrir le panier"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {totalItems > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
+                  {totalItems}
+                </span>
+              )}
+            </Button>
+          )}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -72,16 +72,7 @@ export default function RegisterPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5 text-primary" />
-            <span className="font-medium text-foreground">Inscription Acheteur</span>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Créez votre compte acheteur. Les comptes agriculteurs sont créés par l&apos;administrateur.
-          </p>
-        </div>
-
+        
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="name">Nom complet</Label>
@@ -89,7 +80,7 @@ export default function RegisterPage() {
               <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="name"
-                placeholder="Jean Dupont"
+                placeholder="Nom Postnom"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -104,7 +95,7 @@ export default function RegisterPage() {
               <Input
                 id="phone"
                 type="tel"
-                placeholder="+33 6 12 34 56 78"
+                placeholder="+243 830 854 244"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 className="h-11 pl-10"
@@ -135,7 +126,7 @@ export default function RegisterPage() {
             <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="location"
-              placeholder="Provence-Alpes-Côte d'Azur"
+              placeholder="Kinshasa / Gombe"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               className="h-11 pl-10"

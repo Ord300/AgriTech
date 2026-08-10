@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
+import { DataProvider, useData } from "@/lib/data-context"
 import Link from "next/link"
 import Image from "next/image"
 import { Header } from "@/components/header"
@@ -10,10 +11,20 @@ import { Footer } from "@/components/footer"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Leaf, Users, TrendingUp, ShieldCheck, ArrowRight, Sprout, Handshake, Truck } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Leaf, Users, TrendingUp, ShieldCheck, ArrowRight, Sprout, Handshake, Truck, Trophy, Star, MapPin } from "lucide-react"
 
 export default function HomePage() {
+  return (
+    <DataProvider>
+      <HomeContent />
+    </DataProvider>
+  )
+}
+
+function HomeContent() {
   const { user, isLoading } = useAuth()
+  const { showcaseProducts, orders, users, ratings } = useData()
   const router = useRouter()
 
   useEffect(() => {
@@ -22,6 +33,46 @@ export default function HomePage() {
       router.replace(dashboardLink)
     }
   }, [user, isLoading, router])
+
+  // Meilleur vendeur du mois : fenêtre glissante de 30 jours ancrée sur la
+  // commande la plus récente (robuste aux jeux de données de démonstration).
+  const topSeller = useMemo(() => {
+    const validOrders = orders.filter((o) => o.status !== "cancelled")
+    if (validOrders.length === 0) return null
+    const referenceTime = Math.max(...validOrders.map((o) => new Date(o.createdAt).getTime()))
+    const windowMs = 30 * 24 * 60 * 60 * 1000
+    const byFarmer = new Map<string, { name: string; quantity: number; revenue: number }>()
+    for (const order of validOrders) {
+      if (referenceTime - new Date(order.createdAt).getTime() > windowMs) continue
+      const entry = byFarmer.get(order.farmerId) ?? { name: order.farmerName, quantity: 0, revenue: 0 }
+      entry.quantity += order.quantity
+      entry.revenue += order.totalPrice
+      byFarmer.set(order.farmerId, entry)
+    }
+    if (byFarmer.size === 0) return null
+    const [farmerId, stats] = Array.from(byFarmer.entries()).sort(
+      (a, b) => b[1].quantity - a[1].quantity || b[1].revenue - a[1].revenue,
+    )[0]
+    const farmer = users.find((u) => u.id === farmerId)
+    return { farmerId, ...stats, name: farmer?.name ?? stats.name, location: farmer?.location, avatar: farmer?.avatar }
+  }, [orders, users])
+
+  // Agriculteur le mieux noté : moyenne des étoiles, départagée par le nombre d'avis
+  const bestRated = useMemo(() => {
+    if (ratings.length === 0) return null
+    const byFarmer = new Map<string, { total: number; count: number }>()
+    for (const rating of ratings) {
+      const entry = byFarmer.get(rating.farmerId) ?? { total: 0, count: 0 }
+      entry.total += rating.stars
+      entry.count += 1
+      byFarmer.set(rating.farmerId, entry)
+    }
+    const [farmerId, stats] = Array.from(byFarmer.entries())
+      .map(([id, s]) => [id, { ...s, avg: s.total / s.count }] as const)
+      .sort((a, b) => b[1].avg - a[1].avg || b[1].count - a[1].count)[0]
+    const farmer = users.find((u) => u.id === farmerId)
+    return { farmerId, ...stats, name: farmer?.name ?? "Agriculteur", location: farmer?.location, avatar: farmer?.avatar }
+  }, [ratings, users])
 
   if (isLoading || user) {
     return (
@@ -78,14 +129,7 @@ export default function HomePage() {
     },
   ]
 
-  const showcaseProducts = [
-    { src: "/fresh-red-tomatoes-on-vine.jpg", name: "Tomates du jardin", category: "Légumes" },
-    { src: "/red-gala-apples-fresh.jpg", name: "Pommes Gala", category: "Fruits" },
-    { src: "/farm-fresh-eggs-basket.jpg", name: "Œufs fermiers", category: "Oeufs" },
-    { src: "/fresh-milk-bottle-farm.jpg", name: "Lait fermier", category: "Produits Laitiers" },
-    { src: "/honey-jar-lavender.jpg", name: "Miel de lavande", category: "Miel" },
-    { src: "/fresh-green-zucchini-vegetables.jpg", name: "Courgettes vertes", category: "Légumes" },
-  ]
+  const showcaseList = showcaseProducts
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -151,11 +195,11 @@ export default function HomePage() {
               {/* Collage d'images animé */}
               <ScrollReveal delay={200} className="relative mx-auto w-full max-w-md lg:max-w-none">
                 <div className="relative mb-10 lg:mb-0">
-                  {/* Image principale */}
+                  {/* Image principale : nos agriculteurs au travail */}
                   <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border-4 border-card shadow-2xl">
                     <Image
-                      src="/fresh-red-tomatoes-on-vine.jpg"
-                      alt="Tomates fraîches issues des exploitations locales"
+                      src="/farmers-hero.jpg"
+                      alt="Agriculteurs récoltant dans les champs"
                       fill
                       priority
                       sizes="(max-width: 1024px) 100vw, 50vw"
@@ -230,12 +274,12 @@ export default function HomePage() {
             </ScrollReveal>
 
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {showcaseProducts.map((product, index) => (
-                <ScrollReveal key={product.name} delay={index * 100}>
+              {showcaseList.map((product, index) => (
+                <ScrollReveal key={product.id} delay={index * 100}>
                   <Link href="/marche" className="group relative block overflow-hidden rounded-2xl shadow-md transition-shadow duration-300 hover:shadow-xl">
                     <div className="relative aspect-[4/3]">
                       <Image
-                        src={product.src}
+                        src={product.image}
                         alt={product.name}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -256,6 +300,109 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Farmers of the Month Section */}
+        {(topSeller || bestRated) && (
+          <section className="bg-muted/30 py-20">
+            <div className="container mx-auto px-4">
+              <ScrollReveal>
+                <div className="mx-auto max-w-2xl text-center">
+                  <h2 className="text-3xl font-bold text-foreground sm:text-4xl">Nos Agriculteurs à l&apos;Honneur</h2>
+                  <p className="mt-4 text-muted-foreground">
+                    Découvrez les producteurs qui se distinguent ce mois-ci par leurs ventes et la satisfaction de leurs clients.
+                  </p>
+                </div>
+              </ScrollReveal>
+
+              <div className="mx-auto mt-16 grid max-w-4xl gap-8 md:grid-cols-2">
+                {/* Meilleur vendeur du mois */}
+                {topSeller && (
+                  <ScrollReveal delay={100} variant="zoom">
+                    <Card className="group relative h-full overflow-hidden border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-card to-card shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500/10 blur-2xl" />
+                      <CardContent className="relative p-8 text-center">
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/30 transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110">
+                          <Trophy className="h-7 w-7 text-white" />
+                        </div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                          Meilleur vendeur du mois
+                        </p>
+                        <Avatar className="mx-auto mt-5 h-20 w-20 border-4 border-amber-500/30 shadow-lg">
+                          <AvatarImage src={topSeller.avatar} />
+                          <AvatarFallback className="bg-amber-500/20 text-2xl font-bold text-amber-600 dark:text-amber-400">
+                            {topSeller.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <h3 className="mt-4 text-xl font-bold text-foreground">{topSeller.name}</h3>
+                        {topSeller.location && (
+                          <p className="mt-1 flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                            <MapPin className="h-3.5 w-3.5" />
+                            {topSeller.location}
+                          </p>
+                        )}
+                        <div className="mt-5 flex items-center justify-center gap-6 border-t border-border pt-5">
+                          <div>
+                            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{topSeller.quantity}</p>
+                            <p className="text-xs text-muted-foreground">unités vendues</p>
+                          </div>
+                          <div className="h-8 w-px bg-border" />
+                          <div>
+                            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{topSeller.revenue.toFixed(0)} €</p>
+                            <p className="text-xs text-muted-foreground">de ventes ce mois-ci</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </ScrollReveal>
+                )}
+
+                {/* Agriculteur le mieux noté */}
+                {bestRated && (
+                  <ScrollReveal delay={200} variant="zoom">
+                    <Card className="group relative h-full overflow-hidden border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                      <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
+                      <CardContent className="relative p-8 text-center">
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-primary/30 transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110">
+                          <Star className="h-7 w-7 text-primary-foreground" />
+                        </div>
+                        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+                          Agriculteur le mieux noté
+                        </p>
+                        <Avatar className="mx-auto mt-5 h-20 w-20 border-4 border-primary/30 shadow-lg">
+                          <AvatarImage src={bestRated.avatar} />
+                          <AvatarFallback className="bg-primary/15 text-2xl font-bold text-primary">
+                            {bestRated.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <h3 className="mt-4 text-xl font-bold text-foreground">{bestRated.name}</h3>
+                        {bestRated.location && (
+                          <p className="mt-1 flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                            <MapPin className="h-3.5 w-3.5" />
+                            {bestRated.location}
+                          </p>
+                        )}
+                        <div className="mt-5 border-t border-border pt-5">
+                          <div className="flex items-center justify-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-5 w-5 ${star <= Math.round(bestRated.avg) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+                              />
+                            ))}
+                          </div>
+                          <p className="mt-2 text-2xl font-bold text-primary">{bestRated.avg.toFixed(1)} / 5</p>
+                          <p className="text-xs text-muted-foreground">
+                            basé sur {bestRated.count} avis client{bestRated.count !== 1 ? "s" : ""}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </ScrollReveal>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Features Section */}
         <section className="bg-muted/30 py-20">
