@@ -7,6 +7,7 @@ const navigationLinks = [
   { href: "/marche", label: "Marché" },
   { href: "/a-propos", label: "À Propos" },
   { href: "/actualites", label: "Actualités" },
+  { href: "/contact", label: "Contact" },
 ]
 
 const userLinks = [

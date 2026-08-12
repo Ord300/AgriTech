@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
+import { useCart } from "@/lib/cart-context"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -12,8 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ORDER_STATUS_LABELS, CATEGORIES, type User, type ArticleCategory } from "@/lib/types"
-import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff, Newspaper, Star, X, BarChart3, DollarSign, Clock, Bell, CheckCircle2, AlertCircle, MessageSquare, ShieldCheck, LifeBuoy, MessagesSquare, UserPlus, UserCog, Save, Plus, Upload, type LucideIcon } from "lucide-react"
+import { ORDER_STATUS_LABELS, CATEGORIES, ACCOUNT_REQUEST_STATUS_LABELS, FARMER_ACCOUNT_FEE, type User, type ArticleCategory, type AccountRequestStatus } from "@/lib/types"
+import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff, Newspaper, Star, X, BarChart3, DollarSign, Clock, Bell, CheckCircle2, AlertCircle, MessageSquare, ShieldCheck, LifeBuoy, MessagesSquare, UserPlus, UserCog, Save, Plus, Upload, ClipboardList, Check, Ban, type LucideIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ConversationList } from "@/components/messaging/conversation-list"
 import { ChatWindow } from "@/components/messaging/chat-window"
@@ -22,17 +23,19 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Respon
 
 export default function AdminDashboard() {
   const { user, logout, isLoading, updateUser: updateAuthUser, changePassword } = useAuth()
-  const { products, orders, users, articles, deleteProduct, deleteUser, updateOrderStatus, updateUser, addArticle, deleteArticle, notifications, unreadNotifications, markNotificationAsRead, clearNotifications, supportTickets, addMessageToTicket, updateTicketStatus, conversations, messages, sendMessage, startConversation, transactions, showcaseProducts, addShowcaseProduct, deleteShowcaseProduct } = useData()
+  const { products, orders, users, articles, deleteProduct, deleteUser, updateOrderStatus, updateUser, addArticle, deleteArticle, notifications, unreadNotifications, markNotificationAsRead, clearNotifications, supportTickets, addMessageToTicket, updateTicketStatus, conversations, messages, sendMessage, startConversation, transactions, showcaseProducts, addShowcaseProduct, deleteShowcaseProduct, accountRequests, updateAccountRequestStatus } = useData()
+  const { totalItems, setCartOpen } = useCart()
   const router = useRouter()
   const { toast } = useToast()
 
   const [isAddFarmerDialogOpen, setIsAddFarmerDialogOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeMenu, setActiveMenu] = useState<"overview" | "users" | "products" | "orders" | "payments" | "news" | "showcase" | "support" | "security" | "messages" | "contact" | "profile">("overview")
+  const [activeMenu, setActiveMenu] = useState<"overview" | "users" | "products" | "orders" | "payments" | "news" | "showcase" | "support" | "requests" | "security" | "messages" | "contact" | "profile">("overview")
   const [showNotifications, setShowNotifications] = useState(false)
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
   const [ticketReplyText, setTicketReplyText] = useState("")
   const [ticketStatusFilter, setTicketStatusFilter] = useState<"all" | "open" | "in_progress" | "closed">("all")
+  const [requestStatusFilter, setRequestStatusFilter] = useState<"all" | AccountRequestStatus>("all")
   const [showFarmerPassword, setShowFarmerPassword] = useState(false)
   const [showFarmerConfirmPassword, setShowFarmerConfirmPassword] = useState(false)
 
@@ -113,7 +116,7 @@ export default function AdminDashboard() {
   // Ouvrir directement une section via ?section= (ex: /admin?section=messages)
   useEffect(() => {
     const section = new URLSearchParams(window.location.search).get("section")
-    const validSections = ["overview", "users", "products", "orders", "payments", "news", "showcase", "support", "security", "messages", "contact", "profile"] as const
+    const validSections = ["overview", "users", "products", "orders", "payments", "news", "showcase", "support", "requests", "security", "messages", "contact", "profile"] as const
     if (section && (validSections as readonly string[]).includes(section)) {
       setActiveMenu(section as typeof activeMenu)
     }
@@ -157,6 +160,7 @@ export default function AdminDashboard() {
   const userCount = users.length
   const totalRevenue = orders.filter((o) => o.status !== "cancelled").reduce((sum, o) => sum + o.totalPrice, 0)
   const openTicketsCount = supportTickets.filter((t) => t.status === "open").length
+  const pendingRequestsCount = accountRequests.filter((r) => r.status === "pending").length
   const totalCommissions = transactions
     .filter((t) => t.status === "completed")
     .reduce((sum, t) => sum + t.commission, 0)
@@ -173,6 +177,7 @@ export default function AdminDashboard() {
     news: "Actualités",
     showcase: "Produits du moment",
     support: "Support client",
+    requests: "Demandes de comptes agriculteurs",
     security: "Sécurité du compte",
     messages: "Messages",
     contact: "Contacter un Pro",
@@ -188,6 +193,7 @@ export default function AdminDashboard() {
     { key: "news", label: "Actualités", icon: Newspaper },
     { key: "showcase", label: "Produits du moment", icon: Star },
     { key: "support", label: "Support", icon: LifeBuoy },
+    { key: "requests", label: "Demandes", icon: ClipboardList },
   ]
 
   const communicationMenuItems: { key: typeof activeMenu; label: string; icon: LucideIcon }[] = [
@@ -220,6 +226,11 @@ export default function AdminDashboard() {
       {item.key === "support" && openTicketsCount > 0 && (
         <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white shadow-[0_0_10px_rgba(239,68,68,0.5)]">
           {openTicketsCount}
+        </span>
+      )}
+      {item.key === "requests" && pendingRequestsCount > 0 && (
+        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+          {pendingRequestsCount}
         </span>
       )}
     </button>
@@ -589,6 +600,22 @@ export default function AdminDashboard() {
     toast({ title: "Article supprimé", description: `L'article "${title}" a été retiré.` })
   }
 
+  const handleApproveRequest = (id: string, name: string) => {
+    updateAccountRequestStatus(id, "approved")
+    toast({
+      title: "Demande confirmée",
+      description: `La demande de ${name} est confirmée. Le paiement des frais de création (${FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} $) est maintenant attendu.`,
+    })
+  }
+
+  const handleRejectRequest = (id: string, name: string) => {
+    updateAccountRequestStatus(id, "rejected")
+    toast({
+      title: "Demande rejetée",
+      description: `La demande de ${name} a été rejetée.`,
+    })
+  }
+
   const adminConversations = conversations.filter(c => c.participantIds.includes(user.id))
   const selectedConv = conversations.find(c => c.id === selectedConvId)
   const otherParticipantId = selectedConv?.participantIds.find(id => id !== user.id)
@@ -768,6 +795,20 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center gap-4">
               <span className="hidden sm:inline text-sm text-muted-foreground">{user.name}</span>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative bg-transparent"
+                onClick={() => setCartOpen(true)}
+                aria-label="Ouvrir le panier"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                {totalItems > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
+                    {totalItems}
+                  </span>
+                )}
+              </Button>
               <div className="relative">
                 <Button
                   variant="ghost"
@@ -2122,6 +2163,163 @@ export default function AdminDashboard() {
                   </Card>
                 </>
               )}
+            </div>
+          )}
+
+          {/* Account Requests Section */}
+          {activeMenu === "requests" && (
+            <div>
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-foreground">Demandes de comptes agriculteurs</h2>
+                <p className="text-muted-foreground">
+                  Confirmez les demandes reçues via la page Contact. Une fois confirmée, l&apos;utilisateur paie les frais de création de {FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} $ pour activer son compte.
+                </p>
+              </div>
+
+              {/* Stats rapides */}
+              <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card className="border-amber-500/20 bg-amber-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium text-amber-500 uppercase tracking-wider">En attente</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-amber-500">
+                      {accountRequests.filter((r) => r.status === "pending").length}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-sky-500/20 bg-sky-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium text-sky-500 uppercase tracking-wider">Confirmées (paiement attendu)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-sky-500">
+                      {accountRequests.filter((r) => r.status === "approved").length}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-emerald-500/20 bg-emerald-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium text-emerald-500 uppercase tracking-wider">Comptes créés (payés)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-emerald-500">
+                      {accountRequests.filter((r) => r.status === "paid").length}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-emerald-500/20 bg-emerald-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium text-emerald-500 uppercase tracking-wider">Frais de création perçus</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-emerald-500">
+                      {(accountRequests.filter((r) => r.status === "paid").length * FARMER_ACCOUNT_FEE).toFixed(2).replace(".", ",")} $
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    Demandes ({accountRequests.length})
+                    <Badge variant="secondary">
+                      {pendingRequestsCount} en attente
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription>Filtrer par statut</CardDescription>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {(["all", "pending", "approved", "paid", "rejected"] as const).map((status) => (
+                      <Button
+                        key={status}
+                        variant={requestStatusFilter === status ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setRequestStatusFilter(status)}
+                      >
+                        {status === "all" ? "Toutes" : ACCOUNT_REQUEST_STATUS_LABELS[status]}
+                      </Button>
+                    ))}
+                  </div>
+
+                  {accountRequests.filter((r) => requestStatusFilter === "all" || r.status === requestStatusFilter).length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">Aucune demande</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {accountRequests
+                        .filter((r) => requestStatusFilter === "all" || r.status === requestStatusFilter)
+                        .map((request) => (
+                          <div key={request.id} className="p-4 rounded-lg border hover:bg-muted/50 transition-colors">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                  <span className="font-medium">{request.name}</span>
+                                  <Badge
+                                    variant={
+                                      request.status === "pending"
+                                        ? "outline"
+                                        : request.status === "approved"
+                                          ? "default"
+                                          : request.status === "paid"
+                                            ? "secondary"
+                                            : "destructive"
+                                    }
+                                  >
+                                    {ACCOUNT_REQUEST_STATUS_LABELS[request.status]}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{request.email} • {request.phone}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {request.location} • Envoyée le {new Date(request.createdAt).toLocaleDateString("fr-FR")}
+                                </p>
+                                {request.message && (
+                                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2 italic">&quot;{request.message}&quot;</p>
+                                )}
+                                {request.status === "paid" && request.paymentReference && (
+                                  <p className="text-xs text-emerald-500 mt-2">
+                                    Payé le {request.paidAt ? new Date(request.paidAt).toLocaleDateString("fr-FR") : "-"} • Réf. <span className="font-mono">{request.paymentReference}</span>
+                                  </p>
+                                )}
+                              </div>
+
+                              {request.status === "pending" && (
+                                <div className="flex shrink-0 gap-2">
+                                  <Button
+                                    size="sm"
+                                    className="gap-1"
+                                    onClick={() => handleApproveRequest(request.id, request.name)}
+                                  >
+                                    <Check className="h-4 w-4" />
+                                    Confirmer
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="gap-1"
+                                    onClick={() => handleRejectRequest(request.id, request.name)}
+                                  >
+                                    <Ban className="h-4 w-4" />
+                                    Rejeter
+                                  </Button>
+                                </div>
+                              )}
+
+                              {request.status === "approved" && (
+                                <Badge variant="outline" className="shrink-0 gap-1 border-amber-500/40 text-amber-500">
+                                  <Clock className="h-3 w-3" />
+                                  Paiement de {FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} $ attendu
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           )}
 

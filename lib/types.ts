@@ -224,6 +224,37 @@ export interface SupportTicket {
   updatedAt: string
 }
 
+// ============ Demandes de création de compte agriculteur ============
+
+export type AccountRequestStatus = "pending" | "approved" | "rejected" | "paid"
+
+export const ACCOUNT_REQUEST_STATUS_LABELS: Record<AccountRequestStatus, string> = {
+  pending: "En attente de confirmation",
+  approved: "Confirmée - Paiement requis",
+  rejected: "Rejetée",
+  paid: "Compte créé",
+}
+
+/** Frais de création d'un compte agriculteur (en USD) */
+export const FARMER_ACCOUNT_FEE = 19.99
+
+export interface AccountRequest {
+  id: string
+  name: string
+  email: string
+  phone: string
+  location: string
+  /** Mot de passe choisi par le demandeur pour son futur compte */
+  password: string
+  message?: string
+  status: AccountRequestStatus
+  paymentMethod?: PaymentMethod
+  paymentReference?: string
+  paidAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
 export interface ChatMessage {
   id: string
   conversationId: string

@@ -1,15 +1,17 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
+import { useCart } from "@/lib/cart-context"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Home, LogOut } from "lucide-react"
+import { ArrowLeft, Home, LogOut, ShoppingCart } from "lucide-react"
 import { BuyerOrdersPanel } from "@/components/buyer/orders-panel"
 
 export default function MesCommandesPage() {
   const { user, logout, isLoading } = useAuth()
+  const { totalItems, setCartOpen } = useCart()
   const router = useRouter()
 
   if (isLoading) {
@@ -34,6 +36,20 @@ export default function MesCommandesPage() {
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm text-muted-foreground sm:inline">{user.name}</span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="relative bg-transparent"
+              onClick={() => setCartOpen(true)}
+              aria-label="Ouvrir le panier"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {totalItems > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
+                  {totalItems}
+                </span>
+              )}
+            </Button>
             <Button variant="ghost" size="icon" asChild>
               <Link href="/acheteur">
                 <Home className="h-5 w-5" />

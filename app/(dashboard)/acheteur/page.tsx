@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
+import { useCart } from "@/lib/cart-context"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,7 @@ import { BuyerMessagesPanel } from "@/components/buyer/messages-panel"
 export default function BuyerDashboard() {
   const { user, logout, isLoading } = useAuth()
   const { orders } = useData()
+  const { totalItems, setCartOpen } = useCart()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
@@ -70,6 +72,20 @@ export default function BuyerDashboard() {
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm text-muted-foreground sm:inline">{user.name}</span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="relative bg-transparent"
+              onClick={() => setCartOpen(true)}
+              aria-label="Ouvrir le panier"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {totalItems > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
+                  {totalItems}
+                </span>
+              )}
+            </Button>
             <MessageNotifications role="buyer" />
             <div className="hidden items-center gap-1 sm:flex">
               <Button variant="ghost" size="icon" asChild>

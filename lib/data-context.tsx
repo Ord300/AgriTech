@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { Product, Order, User, Article, Rating, Notification, SupportTicket, SupportMessage, Conversation, ChatMessage, PaymentTransaction, ShowcaseProduct } from "./types"
+import type { Product, Order, User, Article, Rating, Notification, SupportTicket, SupportMessage, Conversation, ChatMessage, PaymentTransaction, ShowcaseProduct, AccountRequest, AccountRequestStatus, PaymentMethod } from "./types"
 import { mockProducts, mockOrders, mockUsers, mockArticles, mockRatings, mockConversations, mockMessages, mockShowcaseProducts } from "./mock-data"
 
 interface DataContextType {
@@ -39,6 +39,11 @@ interface DataContextType {
   messages: ChatMessage[]
   sendMessage: (conversationId: string, senderId: string, content: string) => void
   startConversation: (participantIds: string[], participantNames: string[]) => string
+  accountRequests: AccountRequest[]
+  createAccountRequest: (request: Omit<AccountRequest, "id" | "status" | "createdAt" | "updatedAt">) => void
+  updateAccountRequestStatus: (id: string, status: AccountRequestStatus) => void
+  /** Marque la demande comme payée et crée le compte agriculteur correspondant */
+  payAccountRequest: (id: string, method: PaymentMethod, reference: string) => void
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined)
@@ -55,6 +60,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([])
   const [showcaseProducts, setShowcaseProducts] = useState<ShowcaseProduct[]>([])
+  const [accountRequests, setAccountRequests] = useState<AccountRequest[]>([])
 
   useEffect(() => {
     const storedProducts = localStorage.getItem("agrimarche_products")
@@ -68,6 +74,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const storedMessages = localStorage.getItem("agrimarche_messages")
     const storedTransactions = localStorage.getItem("agrimarche_transactions")
     const storedShowcase = localStorage.getItem("agrimarche_showcase")
+    const storedAccountRequests = localStorage.getItem("agrimarche_account_requests")
 
     setProducts(storedProducts ? JSON.parse(storedProducts) : mockProducts)
     setOrders(storedOrders ? JSON.parse(storedOrders) : mockOrders)
@@ -80,6 +87,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setMessages(storedMessages ? JSON.parse(storedMessages) : mockMessages)
     setTransactions(storedTransactions ? JSON.parse(storedTransactions) : [])
     setShowcaseProducts(storedShowcase ? JSON.parse(storedShowcase) : mockShowcaseProducts)
+    setAccountRequests(storedAccountRequests ? JSON.parse(storedAccountRequests) : [])
   }, [])
 
   const saveProducts = (newProducts: Product[]) => {
@@ -481,6 +489,80 @@ export function DataProvider({ children }: { children: ReactNode }) {
     saveShowcaseProducts(showcaseProducts.filter((item) => item.id !== id))
   }
 
+  const saveAccountRequests = (newRequests: AccountRequest[]) => {
+    setAccountRequests(newRequests)
+    localStorage.setItem("agrimarche_account_requests", JSON.stringify(newRequests))
+  }
+
+  const createAccountRequest = (request: Omit<AccountRequest, "id" | "status" | "createdAt" | "updatedAt">) => {
+    const now = new Date().toISOString()
+    const newRequest: AccountRequest = {
+      ...request,
+      id: `request-${Date.now()}`,
+      status: "pending",
+      createdAt: now,
+      updatedAt: now,
+    }
+    saveAccountRequests([newRequest, ...accountRequests])
+    addNotification({
+      type: "user_registered",
+      title: "Nouvelle demande de compte agriculteur",
+      message: `${request.name} (${request.email}) demande la création d'un compte agriculteur`,
+      actionUser: request.name,
+      read: false,
+      actionUrl: "/admin?section=requests",
+    })
+  }
+
+  const updateAccountRequestStatus = (id: string, status: AccountRequestStatus) => {
+    saveAccountRequests(
+      accountRequests.map((r) =>
+        r.id === id ? { ...r, status, updatedAt: new Date().toISOString() } : r
+      )
+    )
+  }
+
+  const payAccountRequest = (id: string, method: PaymentMethod, reference: string) => {
+    const request = accountRequests.find((r) => r.id === id)
+    if (!request || request.status !== "approved") return
+
+    const now = new Date().toISOString()
+
+    // Créer le compte agriculteur une fois les frais de création payés
+    const newFarmer: User = {
+      id: `user-${Date.now()}`,
+      email: request.email,
+      name: request.name,
+      role: "farmer",
+      password: request.password,
+      phone: request.phone,
+      location: request.location,
+      description: request.message,
+      createdAt: now.split("T")[0],
+    }
+
+    if (!users.some((u) => u.email.toLowerCase() === request.email.toLowerCase())) {
+      saveUsers([...users, newFarmer])
+    }
+
+    saveAccountRequests(
+      accountRequests.map((r) =>
+        r.id === id
+          ? { ...r, status: "paid" as const, paymentMethod: method, paymentReference: reference, paidAt: now, updatedAt: now }
+          : r
+      )
+    )
+
+    addNotification({
+      type: "payment_received",
+      title: "Frais de création payés",
+      message: `${request.name} a payé les frais de création de son compte agriculteur (réf. ${reference}). Le compte est maintenant actif.`,
+      actionUser: request.name,
+      read: false,
+      actionUrl: "/admin?section=requests",
+    })
+  }
+
   const markNotificationAsRead = (id: string) => {
     saveNotifications(
       notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
@@ -527,6 +609,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         messages,
         sendMessage,
         startConversation,
+        accountRequests,
+        createAccountRequest,
+        updateAccountRequestStatus,
+        payAccountRequest,
         addRating: (rating: Omit<Rating, "id" | "createdAt">) => {
           const newRating: Rating = {
             ...rating,

@@ -4,6 +4,10 @@ import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/lib/auth-context"
+import { DataProvider } from "@/lib/data-context"
+import { CartProvider } from "@/lib/cart-context"
+import { CartSheet } from "@/components/cart-sheet"
+import { CheckoutDialog } from "@/components/checkout-dialog"
 import "./globals.css"
 
 const _inter = Inter({ subsets: ["latin"] })
@@ -42,8 +46,14 @@ export default function RootLayout({
     <html lang="fr">
       <body className="font-sans antialiased">
         <AuthProvider>
-          {children}
-          <Toaster />
+          <DataProvider>
+            <CartProvider>
+              {children}
+              <CartSheet />
+              <CheckoutDialog />
+              <Toaster />
+            </CartProvider>
+          </DataProvider>
         </AuthProvider>
         <Analytics />
       </body>
