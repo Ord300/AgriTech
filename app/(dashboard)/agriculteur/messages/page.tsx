@@ -17,6 +17,12 @@ export default function FarmerMessagesPage() {
   const [selectedConvId, setSelectedConvId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
+    if (!isLoading && (!user || user.role !== "farmer")) {
+      router.push("/connexion")
+    }
+  }, [isLoading, user, router])
+
+  useEffect(() => {
     if (user && conversations.length > 0) {
       const firstConv = conversations.find(c => c.participantIds.includes(user.id))
       if (firstConv) {
@@ -30,7 +36,6 @@ export default function FarmerMessagesPage() {
   }
 
   if (!user || user.role !== "farmer") {
-    router.push("/connexion")
     return null
   }
 

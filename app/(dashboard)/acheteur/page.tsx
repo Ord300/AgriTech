@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
 import { useCart } from "@/lib/cart-context"
@@ -15,6 +15,7 @@ import { Leaf, ShoppingCart, Package, TrendingUp, LogOut, Home, ArrowRight, Menu
 import { MessageNotifications } from "@/components/message-notifications"
 import { BuyerOrdersPanel } from "@/components/buyer/orders-panel"
 import { BuyerMessagesPanel } from "@/components/buyer/messages-panel"
+import { BuyerSidebar, BuyerMobileMenu } from "@/components/buyer/buyer-sidebar"
 
 export default function BuyerDashboard() {
   const { user, logout, isLoading } = useAuth()
@@ -24,12 +25,17 @@ export default function BuyerDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
 
+  useEffect(() => {
+    if (!isLoading && (!user || user.role !== "buyer")) {
+      router.push("/connexion")
+    }
+  }, [isLoading, user, router])
+
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
   }
 
   if (!user || user.role !== "buyer") {
-    router.push("/connexion")
     return null
   }
 
@@ -58,17 +64,30 @@ export default function BuyerDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Sidebar - Desktop */}
+      <BuyerSidebar />
+
+      {/* Mobile Menu */}
+      <BuyerMobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+
+      {/* Main Content */}
+      <div className="relative md:ml-64 flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+      <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Menu</span>
+            </Button>
+            <Link href="/" className="flex items-center gap-2 md:hidden">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
                 <Leaf className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="text-xl font-bold">TerraFrais</span>
             </Link>
-            <Badge variant="secondary" className="max-[374px]:hidden">Acheteur</Badge>
+            <Badge variant="secondary" className="hidden md:inline-flex">Acheteur</Badge>
+            <h1 className="hidden text-xl font-semibold md:block">Mon Espace</h1>
           </div>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm text-muted-foreground sm:inline">{user.name}</span>
@@ -99,68 +118,14 @@ export default function BuyerDashboard() {
                 <span className="sr-only">Déconnexion</span>
               </Button>
             </div>
-            <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Menu</span>
-            </Button>
           </div>
         </div>
       </header>
 
-      {mobileMenuOpen && (
-        <div className="sticky top-16 z-40 border-t border-b bg-card p-4 sm:hidden">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3 pb-3 border-b">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary">
-                <span className="text-sm font-medium text-primary-foreground">
-                  {user.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <p className="font-medium text-sm">{user.name}</p>
-                <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
-              </div>
-            </div>
-            <nav className="flex flex-col gap-2">
-              <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
-                <Link href="/marche">
-                  <ShoppingCart className="h-4 w-4" />
-                  Explorer le marché
-                </Link>
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2" onClick={() => openTab("orders")}>
-                <Package className="h-4 w-4" />
-                Mes commandes
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2" onClick={() => openTab("messages")}>
-                <MessageSquare className="h-4 w-4" />
-                Messages
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
-                <Link href="/">
-                  <Home className="h-4 w-4" />
-                  Accueil
-                </Link>
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2" asChild onClick={() => setMobileMenuOpen(false)}>
-                <Link href="/acheteur/support">
-                  <MessageSquare className="h-4 w-4" />
-                  Support
-                </Link>
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2 text-destructive hover:text-destructive" onClick={() => { logout(); setMobileMenuOpen(false); }}>
-                <LogOut className="h-4 w-4" />
-                Déconnexion
-              </Button>
-            </nav>
-          </div>
-        </div>
-      )}
-
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Mon Espace</h1>
+            <h1 className="text-3xl font-bold text-foreground md:hidden">Mon Espace</h1>
             <p className="text-muted-foreground">Bienvenue, {user.name}</p>
           </div>
           <div className="flex gap-2">
@@ -282,6 +247,7 @@ export default function BuyerDashboard() {
           </TabsContent>
         </Tabs>
       </main>
+      </div>
     </div>
   )
 }

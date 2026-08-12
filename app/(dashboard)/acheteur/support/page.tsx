@@ -1,12 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
+import { BuyerSidebar, BuyerMobileMenu } from "@/components/buyer/buyer-sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -35,13 +34,19 @@ export default function SupportPage() {
     subject: "",
     description: "",
   })
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (!isLoading && (!user || user.role !== "buyer")) {
+      router.push("/connexion")
+    }
+  }, [isLoading, user, router])
 
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
   }
 
   if (!user || user.role !== "buyer") {
-    router.push("/connexion")
     return null
   }
 
@@ -159,9 +164,10 @@ export default function SupportPage() {
 
   if (selectedTicket) {
     return (
-      <>
-        <Header />
-        <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+      <div className="min-h-screen bg-background">
+        <BuyerSidebar />
+        <BuyerMobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+        <div className="relative md:ml-64 flex flex-col bg-gradient-to-b from-background to-muted/30">
           <div className="container mx-auto px-4 py-6">
           <Button
             variant="ghost"
@@ -314,14 +320,15 @@ export default function SupportPage() {
           )}
         </div>
         </div>
-      </>
+      </div>
     )
   }
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-background">
+      <BuyerSidebar />
+      <BuyerMobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+      <div className="relative md:ml-64 flex flex-col bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4 py-6">
         {/* Header Section */}
         <div className="mb-8">
@@ -563,6 +570,6 @@ export default function SupportPage() {
         </Card>
       </div>
       </div>
-    </>
+    </div>
   )
 }

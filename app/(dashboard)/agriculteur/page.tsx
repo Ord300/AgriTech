@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
 import { useRouter } from "next/navigation"
@@ -96,12 +96,17 @@ export default function FarmerDashboard() {
   const [detailsOrder, setDetailsOrder] = useState<Order | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
+  useEffect(() => {
+    if (!authLoading && (!user || user.role !== "farmer")) {
+      router.push("/connexion")
+    }
+  }, [authLoading, user, router])
+
   if (authLoading) {
     return <div className="flex min-h-screen items-center justify-center">Chargement...</div>
   }
 
   if (!user || user.role !== "farmer") {
-    router.push("/connexion")
     return null
   }
 
