@@ -67,7 +67,7 @@ export default function RegisterPage() {
   return (
     <div className="animate-menu-in w-full max-w-lg">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Créez votre compte</h1>
+        <h1 className="text-3xl font-bold text-foreground">Crée votre compte</h1>
         <p className="mt-2 text-muted-foreground">Rejoignez la communauté TerraFrais en quelques clics</p>
       </div>
 

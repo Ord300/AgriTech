@@ -130,23 +130,6 @@ export default function MarketPage() {
             <p className="mt-4 max-w-2xl text-pretty text-lg text-muted-foreground">
               Découvrez les produits frais de nos agriculteurs locaux, directement du champ à votre table.
             </p>
-
-            <div className="mt-8 flex items-center justify-center gap-6 sm:gap-8">
-              <div>
-                <p className="text-2xl font-bold text-primary">{stats.products}</p>
-                <p className="text-sm text-muted-foreground">Produit{stats.products !== 1 ? "s" : ""}</p>
-              </div>
-              <div className="h-10 w-px bg-border" />
-              <div>
-                <p className="text-2xl font-bold text-primary">{stats.farmers}</p>
-                <p className="text-sm text-muted-foreground">Agriculteur{stats.farmers !== 1 ? "s" : ""}</p>
-              </div>
-              <div className="h-10 w-px bg-border" />
-              <div>
-                <p className="text-2xl font-bold text-primary">{stats.regions}</p>
-                <p className="text-sm text-muted-foreground">Région{stats.regions !== 1 ? "s" : ""}</p>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -154,43 +137,6 @@ export default function MarketPage() {
         <div className="pointer-events-none absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
       </section>
-
-      {/* Category chips */}
-      <div className="container mx-auto px-4 pt-8">
-        <div className="flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <Button
-            variant={category === "all" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setCategory("all")}
-            className={cn(
-              "shrink-0 gap-2 rounded-full",
-              category !== "all" && "bg-card hover:bg-primary/10 hover:text-primary",
-            )}
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Tous
-          </Button>
-          {CATEGORIES.map((cat) => {
-            const Icon = CATEGORY_ICONS[cat.value]
-            const isActive = category === cat.value
-            return (
-              <Button
-                key={cat.value}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCategory(isActive ? "all" : cat.value)}
-                className={cn(
-                  "shrink-0 gap-2 rounded-full",
-                  !isActive && "bg-card hover:bg-primary/10 hover:text-primary",
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {cat.label}
-              </Button>
-            )
-          })}
-        </div>
-      </div>
 
       {/* Sticky toolbar : search + sort + filters */}
       <div className="sticky top-16 z-30 mt-6 border-y bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -304,6 +250,7 @@ export default function MarketPage() {
           </div>
         )}
       </div>
+      
 
       <div className="container mx-auto px-4 py-8">
         {/* Results count + active filters */}
@@ -374,6 +321,43 @@ export default function MarketPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Category chips */}
+      <div className="container mx-auto px-4 pt-8">
+        <div className="flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Button
+            variant={category === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setCategory("all")}
+            className={cn(
+              "shrink-0 gap-2 rounded-full",
+              category !== "all" && "bg-card hover:bg-primary/10 hover:text-primary",
+            )}
+          >
+            <LayoutGrid className="h-4 w-4" />
+            Tous
+          </Button>
+          {CATEGORIES.map((cat) => {
+            const Icon = CATEGORY_ICONS[cat.value]
+            const isActive = category === cat.value
+            return (
+              <Button
+                key={cat.value}
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCategory(isActive ? "all" : cat.value)}
+                className={cn(
+                  "shrink-0 gap-2 rounded-full",
+                  !isActive && "bg-card hover:bg-primary/10 hover:text-primary",
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {cat.label}
+              </Button>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

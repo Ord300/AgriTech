@@ -104,7 +104,7 @@ export function Footer() {
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10">
                     <Mail className="h-4 w-4" />
                   </span>
-                  ordidimbi@gmail.fr
+                  ordi@gmail.com
                 </li>
                 <li className="flex items-center gap-3">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10">
@@ -117,7 +117,7 @@ export function Footer() {
                     <MapPin className="h-4 w-4" />
                   </span>
                   <span>
-                    République décoratique du congo
+                    République Démocratique du Congo
                   </span>
                 </li>
               </ul>

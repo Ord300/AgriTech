@@ -604,7 +604,7 @@ export default function AdminDashboard() {
     updateAccountRequestStatus(id, "approved")
     toast({
       title: "Demande confirmée",
-      description: `La demande de ${name} est confirmée. Le paiement des frais de création (${FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} $) est maintenant attendu.`,
+      description: `La demande de ${name} est confirmée. Le paiement des frais de création (${FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} FC) est maintenant attendu.`,
     })
   }
 
@@ -941,7 +941,7 @@ export default function AdminDashboard() {
                       <TrendingUp className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-2xl font-extrabold tracking-tight">{totalRevenue.toFixed(0)} €</p>
+                      <p className="text-2xl font-extrabold tracking-tight">{totalRevenue.toFixed(0)} FC</p>
                       <p className="text-xs font-medium text-white/80 uppercase tracking-wider">Volume total</p>
                     </div>
                   </CardContent>
@@ -1096,15 +1096,15 @@ export default function AdminDashboard() {
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                         <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11 }} axisLine={false} tickLine={false} dy={6} />
-                        <YAxis tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} €`} />
+                        <YAxis tick={{ fill: 'rgba(255,255,255,0.65)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} FC`} />
                         <Tooltip
                           contentStyle={chartTooltipStyle}
                           itemStyle={{ color: '#fff' }}
                           labelStyle={{ color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}
                           cursor={{ fill: 'rgba(255,255,255,0.04)' }}
-                          formatter={(value: any) => [`${value} €`, 'Revenu']}
+                          formatter={(value: any) => [`${value} FC`, 'Revenu']}
                         />
-                        <Bar dataKey="revenue" fill="url(#colorRevenue)" name="Revenu (€)" radius={[5, 5, 0, 0]} barSize={28} />
+                        <Bar dataKey="revenue" fill="url(#colorRevenue)" name="Revenu (FC)" radius={[5, 5, 0, 0]} barSize={28} />
                       </BarChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -1176,7 +1176,7 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-xl font-bold text-emerald-500">
-                      {totalCommissions.toFixed(2)} €
+                      {totalCommissions.toFixed(2)} FC
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {transactions.length} transaction{transactions.length > 1 ? "s" : ""} Mobile Money
@@ -1190,7 +1190,7 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-xl font-bold">
-                      {orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : '0'} €
+                      {orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : '0'} FC
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">Par commande</p>
                   </CardContent>
@@ -1321,7 +1321,7 @@ export default function AdminDashboard() {
                               <Label htmlFor="farmer-name">Nom complet</Label>
                               <Input
                                 id="farmer-name"
-                                placeholder="Jean Dupont"
+                                placeholder="Richard DM"
                                 value={newFarmerData.name}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, name: e.target.value })}
                               />
@@ -1331,7 +1331,7 @@ export default function AdminDashboard() {
                               <Input
                                 id="farmer-email"
                                 type="email"
-                                placeholder="jean.dupont@email.com"
+                                placeholder="exemple@gmail.com"
                                 value={newFarmerData.email}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, email: e.target.value })}
                               />
@@ -1566,7 +1566,7 @@ export default function AdminDashboard() {
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              {product.price.toFixed(2)} € / {product.unit} · Stock: {product.quantity}
+                              {product.price.toFixed(2)} FC / {product.unit} · Stock: {product.quantity}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               Par {product.farmerName} · {product.location}
@@ -1746,7 +1746,7 @@ export default function AdminDashboard() {
                           <div>
                             <p className="font-medium">{order.productName}</p>
                             <p className="text-sm text-muted-foreground">
-                              {order.quantity} unités · {order.totalPrice.toFixed(2)} €
+                              {order.quantity} unités · {order.totalPrice.toFixed(2)} FC
                             </p>
                             <p className="text-xs text-muted-foreground">
                               Acheteur: {order.buyerName} · Vendeur: {order.farmerName}
@@ -1780,7 +1780,7 @@ export default function AdminDashboard() {
                     <CardTitle className="text-xs font-medium text-emerald-500 uppercase tracking-wider">Revenus plateforme (5%)</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-emerald-500">{totalCommissions.toFixed(2)} €</div>
+                    <div className="text-2xl font-bold text-emerald-500">{totalCommissions.toFixed(2)} FC</div>
                     <p className="text-xs text-muted-foreground mt-1">Commission sur chaque transaction</p>
                   </CardContent>
                 </Card>
@@ -1789,7 +1789,7 @@ export default function AdminDashboard() {
                     <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Reversé aux agriculteurs (95%)</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{totalPaidToFarmers.toFixed(2)} €</div>
+                    <div className="text-2xl font-bold">{totalPaidToFarmers.toFixed(2)} FC</div>
                     <p className="text-xs text-muted-foreground mt-1">Versé sur leurs numéros Mobile Money</p>
                   </CardContent>
                 </Card>
@@ -1834,9 +1834,9 @@ export default function AdminDashboard() {
                             </p>
                           </div>
                           <div className="text-right text-sm">
-                            <p className="font-bold">{txn.amount.toFixed(2)} €</p>
-                            <p className="text-xs text-muted-foreground">Agriculteur : {txn.farmerAmount.toFixed(2)} €</p>
-                            <p className="text-xs font-medium text-emerald-500">Commission : +{txn.commission.toFixed(2)} €</p>
+                            <p className="font-bold">{txn.amount.toFixed(2)} FC</p>
+                            <p className="text-xs text-muted-foreground">Agriculteur : {txn.farmerAmount.toFixed(2)} FC</p>
+                            <p className="text-xs font-medium text-emerald-500">Commission : +{txn.commission.toFixed(2)} FC</p>
                           </div>
                         </div>
                       ))}
@@ -2172,7 +2172,7 @@ export default function AdminDashboard() {
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-foreground">Demandes de comptes agriculteurs</h2>
                 <p className="text-muted-foreground">
-                  Confirmez les demandes reçues via la page Contact. Une fois confirmée, l&apos;utilisateur paie les frais de création de {FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} $ pour activer son compte.
+                  Confirmez les demandes reçues via la page Contact. Une fois confirmée, l&apos;utilisateur paie les frais de création de {FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} FC pour activer son compte.
                 </p>
               </div>
 
@@ -2214,7 +2214,7 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-xl font-bold text-emerald-500">
-                      {(accountRequests.filter((r) => r.status === "paid").length * FARMER_ACCOUNT_FEE).toFixed(2).replace(".", ",")} $
+                      {(accountRequests.filter((r) => r.status === "paid").length * FARMER_ACCOUNT_FEE).toFixed(2).replace(".", ",")} FC
                     </div>
                   </CardContent>
                 </Card>
@@ -2310,7 +2310,7 @@ export default function AdminDashboard() {
                               {request.status === "approved" && (
                                 <Badge variant="outline" className="shrink-0 gap-1 border-amber-500/40 text-amber-500">
                                   <Clock className="h-3 w-3" />
-                                  Paiement de {FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} $ attendu
+                                  Paiement de {FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} FC attendu
                                 </Badge>
                               )}
                             </div>

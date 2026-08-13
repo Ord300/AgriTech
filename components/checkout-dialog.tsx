@@ -290,7 +290,7 @@ export function CheckoutDialog() {
       if (!payment.success) {
         setPaymentError(
           payment.error ||
-            `Le paiement de ${group.amount.toFixed(2)} € vers ${group.farmerName} a échoué.`,
+            `Le paiement de ${group.amount.toFixed(2)} FC vers ${group.farmerName} a échoué.`,
         )
         setStep("error")
         return
@@ -368,7 +368,7 @@ export function CheckoutDialog() {
                 </Label>
                 <Input
                   id="checkout-name"
-                  placeholder="Jean Dupont"
+                  placeholder="Roseline DM"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -558,18 +558,18 @@ export function CheckoutDialog() {
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">{item.productName}</p>
                         <p className="text-xs text-muted-foreground">
-                          {item.farmerName} · {item.quantity} {item.unit} × {item.price.toFixed(2)} €
+                          {item.farmerName} · {item.quantity} {item.unit} × {item.price.toFixed(2)} FC
                         </p>
                       </div>
                       <p className="shrink-0 text-sm font-semibold">
-                        {(item.price * item.quantity).toFixed(2)} €
+                        {(item.price * item.quantity).toFixed(2)} FC
                       </p>
                     </div>
                   ))}
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-primary/10 p-4">
                   <span className="font-medium">Total à payer</span>
-                  <span className="text-xl font-bold text-primary">{totalPrice.toFixed(2)} €</span>
+                  <span className="text-xl font-bold text-primary">{totalPrice.toFixed(2)} FC</span>
                 </div>
               </div>
             </div>
@@ -638,28 +638,28 @@ export function CheckoutDialog() {
                     <div key={group.farmerId} className="rounded-lg border p-3 text-sm">
                       <div className="flex items-center justify-between">
                         <p className="font-medium">{group.farmerName}</p>
-                        <p className="font-bold">{group.amount.toFixed(2)} €</p>
+                        <p className="font-bold">{group.amount.toFixed(2)} FC</p>
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {group.items.length} produit{group.items.length > 1 ? "s" : ""} · Versé au {group.farmerPhone}
                       </p>
                       <div className="mt-2 flex items-center justify-between border-t pt-2 text-xs">
                         <span className="text-muted-foreground">Commission plateforme (5%)</span>
-                        <span className="text-muted-foreground">- {group.commission.toFixed(2)} €</span>
+                        <span className="text-muted-foreground">- {group.commission.toFixed(2)} FC</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-medium text-green-700 dark:text-green-400">Net pour l&apos;agriculteur</span>
-                        <span className="font-semibold text-green-700 dark:text-green-400">{group.farmerAmount.toFixed(2)} €</span>
+                        <span className="font-semibold text-green-700 dark:text-green-400">{group.farmerAmount.toFixed(2)} FC</span>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-primary/10 p-3 text-sm">
                   <span className="font-medium">Total débité de votre compte {PAYMENT_METHOD_LABELS[paymentMethod]}</span>
-                  <span className="font-bold text-primary">{totalPrice.toFixed(2)} €</span>
+                  <span className="font-bold text-primary">{totalPrice.toFixed(2)} FC</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Commission totale de la plateforme : {totalCommission.toFixed(2)} € (5% par transaction).
+                  Commission totale de la plateforme : {totalCommission.toFixed(2)} FC (5% par transaction).
                 </p>
               </div>
             </div>
@@ -699,13 +699,13 @@ export function CheckoutDialog() {
                   <div key={transactionRef} className="rounded-lg border p-3 text-sm">
                     <div className="flex items-center justify-between">
                       <p className="font-medium">{group.farmerName}</p>
-                      <p className="font-bold">{group.amount.toFixed(2)} €</p>
+                      <p className="font-bold">{group.amount.toFixed(2)} FC</p>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Référence : <span className="font-mono">{transactionRef}</span>
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Versé au {group.farmerPhone} · Net agriculteur : {group.farmerAmount.toFixed(2)} €
+                      Versé au {group.farmerPhone} · Net agriculteur : {group.farmerAmount.toFixed(2)} FC
                     </p>
                   </div>
                 ))}
@@ -769,7 +769,7 @@ export function CheckoutDialog() {
           {step === "payment" && (
             <Button onClick={handleConfirmPayment} className="gap-2">
               <Smartphone className="h-4 w-4" />
-              Confirmer le paiement de {totalPrice.toFixed(2)} €
+              Confirmer le paiement de {totalPrice.toFixed(2)} FC
             </Button>
           )}
 

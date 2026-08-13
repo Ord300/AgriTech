@@ -61,7 +61,7 @@ export function FarmerAiInsightsPanel({ orders, products, farmerId }: FarmerAiIn
                     Produit le plus vendu : <span className="text-amber-400">{bestSeller.productName}</span>
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {bestSeller.totalQuantity} {bestSeller.unit} vendus · {bestSeller.totalRevenue.toFixed(2)} € de revenus ·
+                    {bestSeller.totalQuantity} {bestSeller.unit} vendus · {bestSeller.totalRevenue.toFixed(2)} FC de revenus ·
                     score de demande {bestSeller.demandScore}/100
                   </p>
                 </div>

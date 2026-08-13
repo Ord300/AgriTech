@@ -347,7 +347,7 @@ function HomeContent() {
                           </div>
                           <div className="h-8 w-px bg-border" />
                           <div>
-                            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{topSeller.revenue.toFixed(0)} €</p>
+                            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{topSeller.revenue.toFixed(0)} FC</p>
                             <p className="text-xs text-muted-foreground">de ventes ce mois-ci</p>
                           </div>
                         </div>

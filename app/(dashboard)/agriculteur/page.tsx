@@ -62,7 +62,10 @@ export default function FarmerDashboard() {
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
+  const [isRestockDialogOpen, setIsRestockDialogOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [restockProductId, setRestockProductId] = useState<string | null>(null)
+  const [restockQuantity, setRestockQuantity] = useState("")
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
@@ -238,6 +241,52 @@ export default function FarmerDashboard() {
     setIsAddDialogOpen(false)
   }
 
+  const handleOpenRestock = (productId: string) => {
+    const product = products.find((item) => item.id === productId)
+    if (!product) return
+
+    setRestockProductId(productId)
+    setRestockQuantity("")
+    setIsRestockDialogOpen(true)
+  }
+
+  const handleRestockProduct = () => {
+    if (!restockProductId) return
+
+    const quantityToAdd = Number.parseInt(restockQuantity, 10)
+    const product = products.find((item) => item.id === restockProductId)
+
+    if (!product) {
+      toast({
+        title: "Produit introuvable",
+        description: "Impossible de renouveler ce stock.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!Number.isFinite(quantityToAdd) || quantityToAdd <= 0) {
+      toast({
+        title: "Quantité invalide",
+        description: "Saisissez un nombre d'unités supérieur à zéro.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const updatedQuantity = product.quantity + quantityToAdd
+    updateProduct(restockProductId, { quantity: updatedQuantity })
+
+    toast({
+      title: "Stock renouvelé",
+      description: `${product.name} a été réapprovisionné de ${quantityToAdd} ${product.unit}. Nouveau stock : ${updatedQuantity}.`,
+    })
+
+    setRestockProductId(null)
+    setRestockQuantity("")
+    setIsRestockDialogOpen(false)
+  }
+
   const handleDeleteProduct = (id: string, name: string) => {
     deleteProduct(id)
     toast({
@@ -309,7 +358,7 @@ export default function FarmerDashboard() {
     { label: "Produits", value: String(farmerProducts.length), icon: Package, chip: "bg-lime-400/15 text-lime-400" },
     { label: "En attente", value: String(pendingOrders.length), icon: ShoppingCart, chip: "bg-amber-400/15 text-amber-400" },
     { label: "Commandes", value: String(farmerOrders.length), icon: TrendingUp, chip: "bg-emerald-400/15 text-emerald-400" },
-    { label: "Revenus", value: `${totalRevenue.toFixed(0)} €`, icon: Wallet, chip: "bg-teal-400/15 text-teal-300" },
+    { label: "Revenus", value: `${totalRevenue.toFixed(0)} FC`, icon: Wallet, chip: "bg-teal-400/15 text-teal-300" },
   ]
 
   return (
@@ -726,7 +775,7 @@ export default function FarmerDashboard() {
                         </div>
                         <div className="grid gap-4 sm:grid-cols-3">
                           <div className="space-y-2">
-                            <Label htmlFor="price">Prix (€) *</Label>
+                            <Label htmlFor="price">Prix (FC) *</Label>
                             <Input
                               id="price"
                               type="number"
@@ -767,7 +816,7 @@ export default function FarmerDashboard() {
                           <Label htmlFor="location">Localisation</Label>
                           <Input
                             id="location"
-                            placeholder="Ex: Provence-Alpes-Côte d'Azur"
+                            placeholder="Ex: Kinshasa / Gombe"
                             value={newProduct.location}
                             onChange={(e) => setNewProduct({ ...newProduct, location: e.target.value })}
                           />
@@ -809,6 +858,42 @@ export default function FarmerDashboard() {
                         Annuler
                       </Button>
                       <Button onClick={handleAddProduct}>Ajouter</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={isRestockDialogOpen} onOpenChange={(open) => {
+                  setIsRestockDialogOpen(open)
+                  if (!open) {
+                    setRestockProductId(null)
+                    setRestockQuantity("")
+                  }
+                }}>
+                  <DialogContent className="farmer-theme text-foreground max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Renouveler le stock</DialogTitle>
+                      <DialogDescription>
+                        Ajoutez des unités à {products.find((item) => item.id === restockProductId)?.name ?? "ce produit"}.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="restock-quantity">Nombre d&apos;unités à ajouter</Label>
+                        <Input
+                          id="restock-quantity"
+                          type="number"
+                          min="1"
+                          placeholder="Ex: 30"
+                          value={restockQuantity}
+                          onChange={(e) => setRestockQuantity(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" className="border-white/10 bg-transparent" onClick={() => setIsRestockDialogOpen(false)}>
+                        Annuler
+                      </Button>
+                      <Button onClick={handleRestockProduct}>Valider le stock</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -886,7 +971,7 @@ export default function FarmerDashboard() {
                             <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_LABELS[order.status]}</Badge>
                           </div>
                           <p className="mt-1 text-sm text-muted-foreground">
-                            {order.quantity} unités · {order.totalPrice.toFixed(2)} € · Client : {order.buyerName}
+                            {order.quantity} unités · {order.totalPrice.toFixed(2)} FC · Client : {order.buyerName}
                             {order.buyerPhone && ` · ${order.buyerPhone}`}
                           </p>
                           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -934,10 +1019,10 @@ export default function FarmerDashboard() {
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {product.price.toFixed(2)} € / {product.unit} · Stock: {product.quantity}
+                            {product.price.toFixed(2)} FC / {product.unit} · Stock: {product.quantity}
                           </p>
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex flex-wrap gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
@@ -948,6 +1033,14 @@ export default function FarmerDashboard() {
                             ) : (
                               <X className="h-4 w-4 text-muted-foreground" />
                             )}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-lime-400/30 bg-lime-400/5 text-lime-200"
+                            onClick={() => handleOpenRestock(product.id)}
+                          >
+                            Renouveler
                           </Button>
                           <Button
                             variant="ghost"
@@ -997,7 +1090,7 @@ export default function FarmerDashboard() {
                       </CardDescription>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-lime-400">{totalPaymentsReceived.toFixed(2)} €</p>
+                      <p className="text-2xl font-bold text-lime-400">{totalPaymentsReceived.toFixed(2)} FC</p>
                       <p className="text-xs text-muted-foreground">Total net reçu</p>
                     </div>
                   </div>
@@ -1025,9 +1118,9 @@ export default function FarmerDashboard() {
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-lime-400">+{txn.farmerAmount.toFixed(2)} €</p>
+                            <p className="font-bold text-lime-400">+{txn.farmerAmount.toFixed(2)} FC</p>
                             <p className="text-xs text-muted-foreground">
-                              sur {txn.amount.toFixed(2)} € (commission : {txn.commission.toFixed(2)} €)
+                              sur {txn.amount.toFixed(2)} FC (commission : {txn.commission.toFixed(2)} FC)
                             </p>
                           </div>
                         </div>

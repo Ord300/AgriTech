@@ -102,7 +102,7 @@ export function ProductCard({ product, showOrderButton = true }: ProductCardProp
           </span>
         </div>
         <div className="mt-3 flex items-baseline justify-between">
-          <span className="text-2xl font-bold text-primary">{product.price.toFixed(2)} €</span>
+          <span className="text-2xl font-bold text-primary">{product.price.toFixed(2)} FC</span>
           <span className="text-sm text-muted-foreground">/ {product.unit}</span>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -213,7 +213,7 @@ export function ProductCard({ product, showOrderButton = true }: ProductCardProp
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="font-medium truncate">{p.name}</p>
-                                  <p className="text-sm text-primary font-bold">{p.price.toFixed(2)} € / {p.unit}</p>
+                                  <p className="text-sm text-primary font-bold">{p.price.toFixed(2)} FC / {p.unit}</p>
                                 </div>
                               </div>
                             ))}

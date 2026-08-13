@@ -89,12 +89,12 @@ export function OrderDetailsDialog({
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Prix unitaire</span>
-                <span className="font-medium">{unitPrice.toFixed(2)} €</span>
+                <span className="font-medium">{unitPrice.toFixed(2)} FC</span>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between">
                 <span className="font-medium">Total</span>
-                <span className="font-bold text-primary">{order.totalPrice.toFixed(2)} €</span>
+                <span className="font-bold text-primary">{order.totalPrice.toFixed(2)} FC</span>
               </div>
             </div>
           </div>
@@ -147,8 +147,8 @@ export function OrderDetailsDialog({
                   Référence : <span className="font-mono">{transaction.reference}</span>
                 </p>
                 <p>
-                  Net perçu : <span className="font-semibold text-primary">{transaction.farmerAmount.toFixed(2)} €</span>
-                  {" "}(commission plateforme : {transaction.commission.toFixed(2)} €)
+                  Net perçu : <span className="font-semibold text-primary">{transaction.farmerAmount.toFixed(2)} FC</span>
+                  {" "}(commission plateforme : {transaction.commission.toFixed(2)} FC)
                 </p>
               </div>
             </div>

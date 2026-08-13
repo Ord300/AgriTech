@@ -89,16 +89,13 @@ export function generateTransactionRef(method: PaymentMethod): string {
 /**
  * Traite un paiement Mobile Money (M-Pesa / Orange Money).
  *
- * NOTE D'INTÉGRATION : en production, cette fonction appelle l'API réelle
- * de l'opérateur (Vodacom M-Pesa OpenAPI / Orange Money Web Payment) via
- * une route serveur sécurisée. Ici, le flux complet est simulé localement
- * (délai réseau + validation + référence de transaction) afin que le
- * comportement de bout en bout soit fonctionnel dans l'application.
+ * Le flux passe désormais par un endpoint serveur Next.js (route API), qui
+ * appelle l'API réelle du fournisseur configurée via les variables d'environnement.
  */
 export async function processMobileMoneyPayment(
   params: MobileMoneyPaymentParams,
 ): Promise<MobileMoneyPaymentResult> {
-  const { method, payerPhone, recipientPhone, amount } = params
+  const { method, payerPhone, recipientPhone, amount, reference } = params
 
   if (!isValidPhoneNumber(payerPhone)) {
     return {
@@ -116,13 +113,42 @@ export async function processMobileMoneyPayment(
     }
   }
 
-  // Simulation de la requête vers l'opérateur (push USSD / validation PIN)
-  await new Promise((resolve) => setTimeout(resolve, 2000))
+  try {
+    const endpoint = method === "mpesa" ? "/api/payments/mpesa" : "/api/payments/orange-money"
 
-  const transactionRef = generateTransactionRef(method)
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        payerPhone,
+        recipientPhone,
+        amount,
+        reference,
+      }),
+    })
 
-  // Paiement accepté : les fonds sont transférés au numéro du bénéficiaire
-  void recipientPhone
+    const payload = (await response.json().catch(() => ({}))) as Partial<MobileMoneyPaymentResult> & { error?: string }
 
-  return { success: true, transactionRef }
+    if (!response.ok || !payload.success) {
+      return {
+        success: false,
+        transactionRef: payload.transactionRef || "",
+        error: payload.error || "Le paiement Mobile Money a échoué. Vérifiez la configuration du fournisseur.",
+      }
+    }
+
+    return {
+      success: true,
+      transactionRef: payload.transactionRef || generateTransactionRef(method),
+    }
+  } catch (error) {
+    console.error("processMobileMoneyPayment error:", error)
+    return {
+      success: false,
+      transactionRef: "",
+      error: "Impossible de joindre l'API Mobile Money. Vérifiez la configuration et les identifiants.",
+    }
+  }
 }

@@ -120,7 +120,7 @@ export function BuyerOrdersPanel({
                   <div>
                     <p className="font-medium">{order.productName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {order.quantity} unités · {order.totalPrice.toFixed(2)} €
+                      {order.quantity} unités · {order.totalPrice.toFixed(2)} FC
                     </p>
                     <p className="text-sm text-muted-foreground">Agriculteur : {order.farmerName}</p>
                     <p className="text-xs text-muted-foreground">

@@ -381,7 +381,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addNotification({
         type: "payment_received",
         title: "Paiement Mobile Money reçu",
-        message: `${txn.buyerName} a payé ${txn.amount.toFixed(2)} € à ${txn.farmerName} (${txn.farmerAmount.toFixed(2)} € net, commission plateforme : ${txn.commission.toFixed(2)} €)`,
+        message: `${txn.buyerName} a payé ${txn.amount.toFixed(2)} FC à ${txn.farmerName} (${txn.farmerAmount.toFixed(2)} FC net, commission plateforme : ${txn.commission.toFixed(2)} FC)`,
         actionUser: txn.buyerName,
         targetUser: txn.farmerName,
         read: false,

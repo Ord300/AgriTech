@@ -235,8 +235,8 @@ export const ACCOUNT_REQUEST_STATUS_LABELS: Record<AccountRequestStatus, string>
   paid: "Compte créé",
 }
 
-/** Frais de création d'un compte agriculteur (en USD) */
-export const FARMER_ACCOUNT_FEE = 19.99
+/** Frais de création d'un compte agriculteur (en Francs Congolais) */
+export const FARMER_ACCOUNT_FEE = 56000
 
 export interface AccountRequest {
   id: string

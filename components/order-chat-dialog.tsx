@@ -138,7 +138,7 @@ export function OrderChatDialog({ open, onOpenChange, order }: OrderChatDialogPr
                   {otherParticipant?.name || order.buyerName}
                 </DialogTitle>
                 <DialogDescription className="text-xs">
-                  {order.productName} · {order.quantity} unités · {order.totalPrice.toFixed(2)} €
+                  {order.productName} · {order.quantity} unités · {order.totalPrice.toFixed(2)} FC
                 </DialogDescription>
               </div>
             </div>

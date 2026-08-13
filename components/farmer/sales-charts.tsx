@@ -133,13 +133,13 @@ export function FarmerSalesCharts({ orders }: FarmerSalesChartsProps) {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis dataKey="day" tick={axisTick} axisLine={false} tickLine={false} dy={6} />
-                <YAxis tick={axisTick} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} €`} />
+                <YAxis tick={axisTick} axisLine={false} tickLine={false} tickFormatter={(v) => `${v} FC`} />
                 <Tooltip
                   contentStyle={tooltipStyle}
                   itemStyle={{ color: "#fff" }}
                   labelStyle={{ color: "rgba(236,253,245,0.7)", marginBottom: 4 }}
                   cursor={{ stroke: "rgba(163,230,53,0.4)", strokeWidth: 1 }}
-                  formatter={(value: any) => [`${value} €`, "Revenu"]}
+                  formatter={(value: any) => [`${value} FC`, "Revenu"]}
                 />
                 <Area
                   type="monotone"
@@ -148,7 +148,7 @@ export function FarmerSalesCharts({ orders }: FarmerSalesChartsProps) {
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#farmerRevenue)"
-                  name="Revenu (€)"
+                  name="Revenu (FC)"
                   dot={{ r: 3, fill: "#a3e635", strokeWidth: 0 }}
                   activeDot={{ r: 5, fill: "#a3e635", stroke: "rgba(255,255,255,0.3)", strokeWidth: 2 }}
                 />

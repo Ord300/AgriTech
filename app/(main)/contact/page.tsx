@@ -41,7 +41,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 
-const FEE_LABEL = `${FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} $`
+const FEE_LABEL = `${FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} FC`
 
 const steps = [
   {
@@ -349,7 +349,7 @@ export default function ContactPage() {
                               <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                               <Input
                                 id="contact-name"
-                                placeholder="Jean Dupont"
+                                placeholder="Richard DM"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required

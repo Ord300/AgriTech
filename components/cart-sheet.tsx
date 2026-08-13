@@ -108,7 +108,7 @@ export function CartSheet() {
                           <p className="truncate font-medium">{item.productName}</p>
                           <p className="text-xs text-muted-foreground">{item.farmerName}</p>
                           <p className="text-sm font-semibold text-primary">
-                            {item.price.toFixed(2)} € / {item.unit}
+                            {item.price.toFixed(2)} FC / {item.unit}
                           </p>
                         </div>
                         <Button
@@ -143,7 +143,7 @@ export function CartSheet() {
                           </Button>
                         </div>
                         <p className="text-sm font-bold">
-                          {(item.price * item.quantity).toFixed(2)} €
+                          {(item.price * item.quantity).toFixed(2)} FC
                         </p>
                       </div>
                     </div>
@@ -178,7 +178,7 @@ export function CartSheet() {
                           <div className="min-w-0">
                             <p className="truncate text-sm font-medium">{cart.name}</p>
                             <p className="text-xs text-muted-foreground">
-                              {cart.items.length} produit{cart.items.length > 1 ? "s" : ""} · {total.toFixed(2)} €
+                              {cart.items.length} produit{cart.items.length > 1 ? "s" : ""} · {total.toFixed(2)} FC
                             </p>
                           </div>
                           <div className="flex shrink-0 gap-1">
@@ -209,7 +209,7 @@ export function CartSheet() {
           <SheetFooter className="border-t p-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Total</span>
-              <span className="text-xl font-bold text-primary">{totalPrice.toFixed(2)} €</span>
+              <span className="text-xl font-bold text-primary">{totalPrice.toFixed(2)} FC</span>
             </div>
             <Button className="w-full gap-2" onClick={handleOrder}>
               Commander

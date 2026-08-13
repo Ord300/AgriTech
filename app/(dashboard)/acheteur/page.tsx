@@ -174,7 +174,7 @@ export default function BuyerDashboard() {
                 <TrendingUp className="h-6 w-6 text-secondary-foreground" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{totalSpent.toFixed(0)} €</p>
+                <p className="text-2xl font-bold">{totalSpent.toFixed(0)} FC</p>
                 <p className="text-sm text-muted-foreground">Total dépensé</p>
               </div>
             </CardContent>
@@ -213,7 +213,7 @@ export default function BuyerDashboard() {
                         <div>
                           <p className="font-medium">{order.productName}</p>
                           <p className="text-sm text-muted-foreground">
-                            {order.quantity} unités · {order.totalPrice.toFixed(2)} €
+                            {order.quantity} unités · {order.totalPrice.toFixed(2)} FC
                           </p>
                           <p className="text-sm text-muted-foreground">Vendeur: {order.farmerName}</p>
                           <p className="text-xs text-muted-foreground">
