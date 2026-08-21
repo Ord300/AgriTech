@@ -42,12 +42,12 @@ export default function AboutPage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background py-16 lg:py-24">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center">
-            <ScrollReveal>
+            {/* <ScrollReveal>
               <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
                 <Leaf className="h-5 w-5 text-primary" />
                 <span className="text-sm font-medium text-primary">Notre Histoire</span>
               </div>
-            </ScrollReveal>
+            </ScrollReveal> */}
             <ScrollReveal delay={100}>
               <h1 className="text-balance text-4xl font-bold text-foreground sm:text-5xl">
                 À Propos de <span className="text-primary">TerraFrais</span>

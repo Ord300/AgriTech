@@ -299,7 +299,7 @@ export function CheckoutDialog() {
       results.push({ group, transactionRef: payment.transactionRef })
     }
 
-    // 3. Enregistrer les transactions (95% agriculteur, 5% admin)
+    // 3. Enregistrer les transactions (97% agriculteur, 3% admin)
     addTransactions(
       results.map(({ group, transactionRef }) => ({
         reference: transactionRef,
@@ -644,7 +644,7 @@ export function CheckoutDialog() {
                         {group.items.length} produit{group.items.length > 1 ? "s" : ""} · Versé au {group.farmerPhone}
                       </p>
                       <div className="mt-2 flex items-center justify-between border-t pt-2 text-xs">
-                        <span className="text-muted-foreground">Commission plateforme (5%)</span>
+                        <span className="text-muted-foreground">Commission plateforme (3%)</span>
                         <span className="text-muted-foreground">- {group.commission.toFixed(2)} FC</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
@@ -659,7 +659,7 @@ export function CheckoutDialog() {
                   <span className="font-bold text-primary">{totalPrice.toFixed(2)} FC</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Commission totale de la plateforme : {totalCommission.toFixed(2)} FC (5% par transaction).
+                  Commission totale de la plateforme : {totalCommission.toFixed(2)} FC (3% par transaction).
                 </p>
               </div>
             </div>

@@ -305,6 +305,33 @@
   animation: fade-up 0.5s ease-out both;
 }
 
+/* Slider hero : fondu + zoom doux */
+@keyframes hero-zoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hero-slide-active {
+  animation: hero-fade-in 0.8s ease-out both;
+}
+
+.hero-slide-active img {
+  animation: hero-zoom 6s ease-out both;
+}
+
 /* Apparition au scroll */
 .scroll-reveal {
   opacity: 0;

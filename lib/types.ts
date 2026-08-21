@@ -127,7 +127,7 @@ export const TRANSACTION_STATUS_LABELS: Record<TransactionStatus, string> = {
 }
 
 /** Commission prélevée par la plateforme sur chaque transaction (revenu admin) */
-export const PLATFORM_COMMISSION_RATE = 0.05
+export const PLATFORM_COMMISSION_RATE = 0.03
 
 export interface PaymentTransaction {
   id: string
@@ -145,9 +145,9 @@ export interface PaymentTransaction {
   method: PaymentMethod
   /** Montant total payé par l'acheteur pour cet agriculteur */
   amount: number
-  /** Part de l'administrateur (5%) */
+  /** Part de l'administrateur (3%) */
   commission: number
-  /** Part reversée à l'agriculteur (95%) */
+  /** Part reversée à l'agriculteur (97%) */
   farmerAmount: number
   status: TransactionStatus
   createdAt: string

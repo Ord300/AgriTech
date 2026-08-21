@@ -1172,7 +1172,7 @@ export default function AdminDashboard() {
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Card className="border-emerald-500/20 bg-emerald-500/5">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-xs font-medium text-emerald-500 uppercase tracking-wider">Commissions plateforme (5%)</CardTitle>
+                    <CardTitle className="text-xs font-medium text-emerald-500 uppercase tracking-wider">Commissions plateforme (3%)</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-xl font-bold text-emerald-500">
@@ -1777,7 +1777,7 @@ export default function AdminDashboard() {
               <div className="mb-6 grid gap-4 sm:grid-cols-3">
                 <Card className="border-emerald-500/20 bg-emerald-500/5">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-xs font-medium text-emerald-500 uppercase tracking-wider">Revenus plateforme (5%)</CardTitle>
+                    <CardTitle className="text-xs font-medium text-emerald-500 uppercase tracking-wider">Revenus plateforme (3%)</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-emerald-500">{totalCommissions.toFixed(2)} FC</div>
@@ -1786,7 +1786,7 @@ export default function AdminDashboard() {
                 </Card>
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Reversé aux agriculteurs (95%)</CardTitle>
+                    <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Reversé aux agriculteurs (97%)</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{totalPaidToFarmers.toFixed(2)} FC</div>
@@ -1807,7 +1807,7 @@ export default function AdminDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle>Toutes les Transactions ({transactions.length})</CardTitle>
-                  <CardDescription>Chaque paiement est versé à l'agriculteur (95%), la plateforme perçoit 5%</CardDescription>
+                  <CardDescription>Chaque paiement est versé à l'agriculteur (97%), la plateforme perçoit 3%</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {transactions.length === 0 ? (

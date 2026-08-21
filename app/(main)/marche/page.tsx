@@ -120,10 +120,10 @@ export default function MarketPage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background">
         <div className="container mx-auto px-4 py-12 lg:py-16">
           <div className="flex flex-col items-center text-center">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+            {/* <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               <Leaf className="h-4 w-4" />
               Produits frais & locaux
-            </div>
+            </div> */}
             <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
               Le <span className="text-primary">Marché</span>
             </h1>

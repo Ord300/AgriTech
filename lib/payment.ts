@@ -6,7 +6,7 @@ import { PLATFORM_COMMISSION_RATE } from "./types"
  * Quand le panier contient des produits de plusieurs agriculteurs,
  * le paiement est scindé : chaque agriculteur reçoit sa part sur
  * son propre numéro Mobile Money enregistré, moins la commission
- * de 5% reversée à l'administrateur de la plateforme.
+ * de 3% reversée à l'administrateur de la plateforme.
  */
 export interface FarmerPaymentGroup {
   farmerId: string
@@ -16,9 +16,9 @@ export interface FarmerPaymentGroup {
   items: CartItem[]
   /** Montant brut dû à l'agriculteur (somme de ses produits) */
   amount: number
-  /** Commission plateforme (5%) prélevée sur le montant */
+  /** Commission plateforme (3%) prélevée sur le montant */
   commission: number
-  /** Montant net réellement reversé à l'agriculteur (95%) */
+  /** Montant net réellement reversé à l'agriculteur (97%) */
   farmerAmount: number
 }
 

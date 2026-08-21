@@ -9,6 +9,7 @@ import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ScrollReveal } from "@/components/scroll-reveal"
+import { HeroSlider } from "@/components/hero-slider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -142,15 +143,15 @@ function HomeContent() {
             <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
               {/* Texte */}
               <div className="text-center lg:text-left">
-                <ScrollReveal>
+                {/* <ScrollReveal>
                   <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
                     <Leaf className="h-4 w-4" />
                     Plateforme Agricole Moderne
                   </div>
-                </ScrollReveal>
+                </ScrollReveal> */}
                 <ScrollReveal delay={100}>
                   <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                    Du Champ à Votre Table, <span className="text-primary">Sans Intermédiaires</span>
+                    Du Champ <span className="text-primary">à Votre Table</span>
                   </h1>
                 </ScrollReveal>
                 <ScrollReveal delay={200}>
@@ -192,57 +193,10 @@ function HomeContent() {
                 </ScrollReveal>
               </div>
 
-              {/* Collage d'images animé */}
+              {/* Slider d'images */}
               <ScrollReveal delay={200} className="relative mx-auto w-full max-w-md lg:max-w-none">
                 <div className="relative mb-10 lg:mb-0">
-                  {/* Image principale : nos agriculteurs au travail */}
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border-4 border-card shadow-2xl">
-                    <Image
-                      src="/farmers-hero.jpg"
-                      alt="Agriculteurs récoltant dans les champs"
-                      fill
-                      priority
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  </div>
-
-                  {/* Image flottante : pommes */}
-                  <div className="absolute -left-4 -top-6 w-28 animate-float overflow-hidden rounded-2xl border-4 border-card shadow-xl sm:-left-8 sm:w-36">
-                    <div className="relative aspect-[4/3]">
-                      <Image
-                        src="/red-gala-apples-fresh.jpg"
-                        alt="Pommes Gala fraîches"
-                        fill
-                        sizes="150px"
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Image flottante : miel */}
-                  <div className="absolute -bottom-8 -right-4 w-28 animate-float-slow overflow-hidden rounded-2xl border-4 border-card shadow-xl sm:-right-8 sm:w-36">
-                    <div className="relative aspect-[4/3]">
-                      <Image
-                        src="/honey-jar-lavender.jpg"
-                        alt="Miel artisanal à la lavande"
-                        fill
-                        sizes="150px"
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Badge flottant */}
-                  <div className="absolute -bottom-5 left-6 flex animate-float-y items-center gap-3 rounded-2xl border bg-card/95 px-4 py-3 shadow-xl backdrop-blur">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      <Leaf className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">100% Local</p>
-                      <p className="text-xs text-muted-foreground">Direct du producteur</p>
-                    </div>
-                  </div>
+                  <HeroSlider />
                 </div>
               </ScrollReveal>
             </div>

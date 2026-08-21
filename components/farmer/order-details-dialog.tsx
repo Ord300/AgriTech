@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { useData } from "@/lib/data-context"
 import { ORDER_STATUS_LABELS, type Order } from "@/lib/types"
 import { Calendar, Check, MessageSquare, Package, Phone, Smartphone, Truck, User, X } from "lucide-react"
@@ -71,6 +72,7 @@ export function OrderDetailsDialog({
           <DialogDescription>Commande #{order.id}</DialogDescription>
         </DialogHeader>
 
+        <ScrollArea className="max-h-[60vh] pr-3">
         <div className="space-y-4 py-2">
           {/* Produit */}
           <div className="rounded-lg border p-4">
@@ -154,6 +156,7 @@ export function OrderDetailsDialog({
             </div>
           )}
         </div>
+        </ScrollArea>
 
         <DialogFooter className="flex-col gap-2 sm:flex-col">
           {/* Actions principales */}
