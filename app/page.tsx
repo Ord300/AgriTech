@@ -435,7 +435,7 @@ function HomeContent() {
                   </div>
                   <div className="flex flex-col gap-3 sm:flex-row">
                     <Button size="lg" variant="secondary" asChild>
-                      <Link href="/inscription">Créer un compte Acheteur</Link>
+                      <Link href="/contact">Créer un compte Agriculteur</Link>
                     </Button>
                   </div>
                 </CardContent>

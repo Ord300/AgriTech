@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2, ShoppingCart, Eye, EyeOff, User, Phone, Mail, MapPin, Lock } from "lucide-react"
+import { Loader2, ShoppingCart, Eye, EyeOff, User, Phone, Mail, MapPin, Lock, Info } from "lucide-react"
 
 export default function RegisterPage() {
   const searchParams = useSearchParams()
@@ -68,7 +68,21 @@ export default function RegisterPage() {
     <div className="animate-menu-in w-full max-w-lg">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">Crée votre compte</h1>
-        <p className="mt-2 text-muted-foreground">Rejoignez la communauté TerraFrais en quelques clics</p>
+        <p className="mt-2 text-muted-foreground">Rejoignez la communauté TerraFrais en tant qu&apos;acheteur</p>
+      </div>
+
+      {/* Info : uniquement les comptes acheteurs */}
+      <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
+        <p className="flex items-start gap-2 text-sm">
+          <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          <span>
+            Ce formulaire permet de créer uniquement un{" "}
+            <span className="font-semibold">compte acheteur</span>. Les{" "}
+            <span className="font-semibold">comptes agriculteurs</span> ne sont pas créés ici :
+            ils sont créés par l&apos;administration après validation d&apos;une demande via la
+            page Contact.
+          </span>
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">

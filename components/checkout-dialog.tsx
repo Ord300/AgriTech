@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Dialog,
   DialogContent,
@@ -31,6 +30,7 @@ import {
   Smartphone,
   ShoppingBag,
   AlertCircle,
+  ShieldAlert,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { PaymentMethod } from "@/lib/types"
@@ -333,8 +333,8 @@ export function CheckoutDialog() {
 
   return (
     <Dialog open={isCheckoutOpen} onOpenChange={resetAndClose}>
-      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden sm:max-w-lg">
+        <DialogHeader className="shrink-0">
           <DialogTitle>
             {step === "recap" && "Finaliser la commande"}
             {step === "contact" && "Vos coordonnées"}
@@ -357,7 +357,8 @@ export function CheckoutDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-2">
+        {/* Liste défilante : les produits restent visibles et consultables même nombreux */}
+        <div className="min-h-0 flex-1 overflow-y-auto pr-2">
           {/* ---------- Étape : Coordonnées (invité) ---------- */}
           {step === "contact" && (
             <div className="space-y-4 py-2">
@@ -578,6 +579,20 @@ export function CheckoutDialog() {
           {/* ---------- Étape : Paiement Mobile Money ---------- */}
           {step === "payment" && (
             <div className="space-y-4 py-2">
+              {/* Avertissement vigilance avant paiement */}
+              <div className="flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
+                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-semibold text-amber-700 dark:text-amber-400">
+                    Achetez en toute vigilance :
+                  </span>{" "}
+                  vérifiez le profil du vendeur (badge « Certifié », avis clients) avant de
+                  confirmer. TerraFrais verse les fonds directement aux numéros Mobile Money des
+                  agriculteurs enregistrés. Refusez toute demande de paiement direct ou de
+                  changement de numéro reçue en dehors de la plateforme.
+                </p>
+              </div>
+
               {/* Choix de l'opérateur */}
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -725,9 +740,9 @@ export function CheckoutDialog() {
               </div>
             </div>
           )}
-        </ScrollArea>
+        </div>
 
-        <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
+        <DialogFooter className="shrink-0 flex-col gap-2 sm:flex-row sm:justify-between">
           {(step === "contact" || step === "login" || step === "register" || step === "recap" || step === "payment") && (
             <div className="flex gap-2">
               {(step === "login" || step === "register" || step === "payment") && (

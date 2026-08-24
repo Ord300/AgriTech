@@ -1,7 +1,9 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { Product, Order, User, Article, Rating, Notification, SupportTicket, SupportMessage, Conversation, ChatMessage, PaymentTransaction, ShowcaseProduct, AccountRequest, AccountRequestStatus, PaymentMethod } from "./types"
+import type { Product, Order, User, Article, Rating, Notification, SupportTicket, SupportMessage, Conversation, ChatMessage, PaymentTransaction, ShowcaseProduct, AccountRequest, AccountRequestStatus, CertificationRequestStatus, CertificationRequest, PaymentMethod } from "./types"
+import { CERTIFICATION_FEE } from "./types"
+import { safeSetItem } from "./storage"
 import { mockProducts, mockOrders, mockUsers, mockArticles, mockRatings, mockConversations, mockMessages, mockShowcaseProducts } from "./mock-data"
 
 interface DataContextType {
@@ -25,6 +27,8 @@ interface DataContextType {
   addArticle: (article: Omit<Article, "id" | "createdAt">) => void
   updateArticle: (id: string, updates: Partial<Article>) => void
   deleteArticle: (id: string) => void
+  /** Désigne l'article à la une (null retire la une) */
+  setFeaturedArticle: (id: string | null) => void
   showcaseProducts: ShowcaseProduct[]
   addShowcaseProduct: (item: Omit<ShowcaseProduct, "id" | "createdAt">) => void
   deleteShowcaseProduct: (id: string) => void
@@ -44,6 +48,11 @@ interface DataContextType {
   updateAccountRequestStatus: (id: string, status: AccountRequestStatus) => void
   /** Marque la demande comme payée et crée le compte agriculteur correspondant */
   payAccountRequest: (id: string, method: PaymentMethod, reference: string) => void
+  certificationRequests: CertificationRequest[]
+  createCertificationRequest: (farmerId: string, farmerName: string, email: string, rating: number, message?: string) => void
+  updateCertificationRequestStatus: (id: string, status: CertificationRequestStatus) => void
+  /** Marque les frais de certification comme payés : le badge est activé */
+  payCertificationFee: (id: string, method: PaymentMethod, reference: string) => void
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined)
@@ -61,6 +70,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<PaymentTransaction[]>([])
   const [showcaseProducts, setShowcaseProducts] = useState<ShowcaseProduct[]>([])
   const [accountRequests, setAccountRequests] = useState<AccountRequest[]>([])
+  const [certificationRequests, setCertificationRequests] = useState<CertificationRequest[]>([])
 
   useEffect(() => {
     const storedProducts = localStorage.getItem("agrimarche_products")
@@ -75,6 +85,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const storedTransactions = localStorage.getItem("agrimarche_transactions")
     const storedShowcase = localStorage.getItem("agrimarche_showcase")
     const storedAccountRequests = localStorage.getItem("agrimarche_account_requests")
+    const storedAccountRequestsData: AccountRequest[] = storedAccountRequests ? JSON.parse(storedAccountRequests) : []
+    const storedCertificationRequests = localStorage.getItem("agrimarche_certification_requests")
+    const storedCertificationRequestsData: CertificationRequest[] = storedCertificationRequests ? JSON.parse(storedCertificationRequests) : []
+    setAccountRequests(storedAccountRequestsData)
+    setCertificationRequests(storedCertificationRequestsData)
 
     setProducts(storedProducts ? JSON.parse(storedProducts) : mockProducts)
     setOrders(storedOrders ? JSON.parse(storedOrders) : mockOrders)
@@ -87,37 +102,36 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setMessages(storedMessages ? JSON.parse(storedMessages) : mockMessages)
     setTransactions(storedTransactions ? JSON.parse(storedTransactions) : [])
     setShowcaseProducts(storedShowcase ? JSON.parse(storedShowcase) : mockShowcaseProducts)
-    setAccountRequests(storedAccountRequests ? JSON.parse(storedAccountRequests) : [])
   }, [])
 
   const saveProducts = (newProducts: Product[]) => {
     setProducts(newProducts)
-    localStorage.setItem("agrimarche_products", JSON.stringify(newProducts))
+    safeSetItem("agrimarche_products", JSON.stringify(newProducts))
   }
 
   const saveOrders = (newOrders: Order[]) => {
     setOrders(newOrders)
-    localStorage.setItem("agrimarche_orders", JSON.stringify(newOrders))
+    safeSetItem("agrimarche_orders", JSON.stringify(newOrders))
   }
 
   const saveUsers = (newUsers: User[]) => {
     setUsers(newUsers)
-    localStorage.setItem("agrimarche_users", JSON.stringify(newUsers))
+    safeSetItem("agrimarche_users", JSON.stringify(newUsers))
   }
 
   const saveArticles = (newArticles: Article[]) => {
     setArticles(newArticles)
-    localStorage.setItem("agrimarche_articles", JSON.stringify(newArticles))
+    safeSetItem("agrimarche_articles", JSON.stringify(newArticles))
   }
 
   const saveRatings = (newRatings: Rating[]) => {
     setRatings(newRatings)
-    localStorage.setItem("agrimarche_ratings", JSON.stringify(newRatings))
+    safeSetItem("agrimarche_ratings", JSON.stringify(newRatings))
   }
 
   const saveNotifications = (newNotifications: Notification[]) => {
     setNotifications(newNotifications)
-    localStorage.setItem("agrimarche_notifications", JSON.stringify(newNotifications))
+    safeSetItem("agrimarche_notifications", JSON.stringify(newNotifications))
   }
 
   const addNotification = (notification: Omit<Notification, "id" | "timestamp">) => {
@@ -131,7 +145,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const saveSupportTickets = (newTickets: SupportTicket[]) => {
     setSupportTickets(newTickets)
-    localStorage.setItem("agrimarche_support_tickets", JSON.stringify(newTickets))
+    safeSetItem("agrimarche_support_tickets", JSON.stringify(newTickets))
   }
 
   const createSupportTicket = (ticket: Omit<SupportTicket, "id" | "createdAt" | "updatedAt" | "messages">) => {
@@ -181,12 +195,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const saveConversations = (newConversations: Conversation[]) => {
     setConversations(newConversations)
-    localStorage.setItem("agrimarche_conversations", JSON.stringify(newConversations))
+    safeSetItem("agrimarche_conversations", JSON.stringify(newConversations))
   }
 
   const saveMessages = (newMessages: ChatMessage[]) => {
     setMessages(newMessages)
-    localStorage.setItem("agrimarche_messages", JSON.stringify(newMessages))
+    safeSetItem("agrimarche_messages", JSON.stringify(newMessages))
   }
 
   const sendMessage = (conversationId: string, senderId: string, content: string) => {
@@ -365,7 +379,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const saveTransactions = (newTransactions: PaymentTransaction[]) => {
     setTransactions(newTransactions)
-    localStorage.setItem("agrimarche_transactions", JSON.stringify(newTransactions))
+    safeSetItem("agrimarche_transactions", JSON.stringify(newTransactions))
   }
 
   const addTransactions = (txns: Omit<PaymentTransaction, "id" | "createdAt">[]) => {
@@ -471,9 +485,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     saveArticles(articles.filter((a) => a.id !== id))
   }
 
+  const setFeaturedArticle = (id: string | null) => {
+    saveArticles(articles.map((a) => ({ ...a, featured: id !== null && a.id === id })))
+  }
+
   const saveShowcaseProducts = (items: ShowcaseProduct[]) => {
     setShowcaseProducts(items)
-    localStorage.setItem("agrimarche_showcase", JSON.stringify(items))
+    safeSetItem("agrimarche_showcase", JSON.stringify(items))
   }
 
   const addShowcaseProduct = (item: Omit<ShowcaseProduct, "id" | "createdAt">) => {
@@ -491,7 +509,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const saveAccountRequests = (newRequests: AccountRequest[]) => {
     setAccountRequests(newRequests)
-    localStorage.setItem("agrimarche_account_requests", JSON.stringify(newRequests))
+    safeSetItem("agrimarche_account_requests", JSON.stringify(newRequests))
   }
 
   const createAccountRequest = (request: Omit<AccountRequest, "id" | "status" | "createdAt" | "updatedAt">) => {
@@ -520,6 +538,75 @@ export function DataProvider({ children }: { children: ReactNode }) {
         r.id === id ? { ...r, status, updatedAt: new Date().toISOString() } : r
       )
     )
+  }
+
+  const createCertificationRequest = (farmerId: string, farmerName: string, email: string, rating: number, message?: string) => {
+    const now = new Date().toISOString()
+    const newRequest: CertificationRequest = {
+      id: `cert-request-${Date.now()}`,
+      farmerId,
+      farmerName,
+      email,
+      rating,
+      message,
+      status: "pending",
+      feePaid: false,
+      createdAt: now,
+      updatedAt: now,
+    }
+    saveCertificationRequests([newRequest, ...certificationRequests])
+    addNotification({
+      type: "user_registered",
+      title: "Nouvelle demande de certification",
+      message: `${farmerName} a demandé une certification (note: ${rating} étoiles)`,
+      actionUser: farmerName,
+      read: false,
+      actionUrl: "/admin?section=requests",
+    })
+  }
+
+  const updateCertificationRequestStatus = (id: string, status: CertificationRequestStatus) => {
+    saveCertificationRequests(
+      certificationRequests.map((r) =>
+        r.id === id ? { ...r, status, updatedAt: new Date().toISOString() } : r
+      )
+    )
+  }
+
+  const payCertificationFee = (id: string, method: PaymentMethod, reference: string) => {
+    const request = certificationRequests.find((r) => r.id === id)
+    if (!request || request.status !== "approved") return
+
+    const now = new Date().toISOString()
+    saveCertificationRequests(
+      certificationRequests.map((r) =>
+        r.id === id
+          ? {
+              ...r,
+              status: "paid" as const,
+              feePaid: true,
+              paymentMethod: method,
+              paymentReference: reference,
+              paidAt: now,
+              updatedAt: now,
+            }
+          : r
+      )
+    )
+
+    addNotification({
+      type: "payment_received",
+      title: "Frais de certification payés",
+      message: `${request.farmerName} a payé les frais de certification (${CERTIFICATION_FEE.toLocaleString("fr-FR")} FC, réf. ${reference}). Son badge est désormais actif sur le marché.`,
+      actionUser: request.farmerName,
+      read: false,
+      actionUrl: "/admin?section=certifications",
+    })
+  }
+
+  const saveCertificationRequests = (newRequests: CertificationRequest[]) => {
+    setCertificationRequests(newRequests)
+    safeSetItem("agrimarche_certification_requests", JSON.stringify(newRequests))
   }
 
   const payAccountRequest = (id: string, method: PaymentMethod, reference: string) => {
@@ -593,6 +680,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         addArticle,
         updateArticle,
         deleteArticle,
+        setFeaturedArticle,
         showcaseProducts,
         addShowcaseProduct,
         deleteShowcaseProduct,
@@ -613,6 +701,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         createAccountRequest,
         updateAccountRequestStatus,
         payAccountRequest,
+        certificationRequests,
+        createCertificationRequest,
+        updateCertificationRequestStatus,
+        payCertificationFee,
         addRating: (rating: Omit<Rating, "id" | "createdAt">) => {
           const newRating: Rating = {
             ...rating,

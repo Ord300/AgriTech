@@ -6,7 +6,8 @@ import Image from "next/image"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, User, Phone, Mail, Calendar, ExternalLink, MessageSquare, ShoppingCart } from "lucide-react"
+import { MapPin, User, Phone, Mail, Calendar, ExternalLink, MessageSquare, ShoppingCart, BadgeCheck, ShieldAlert } from "lucide-react"
+import { cn } from "@/lib/utils"
 import type { Product } from "@/lib/types"
 import { CATEGORIES } from "@/lib/types"
 import { useData } from "@/lib/data-context"
@@ -35,7 +36,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, showOrderButton = true }: ProductCardProps) {
   const [contactDialogOpen, setContactDialogOpen] = useState(false)
-  const { users, products } = useData()
+  const { users, products, certificationRequests } = useData()
   const { addToCart, setCartOpen } = useCart()
   const { user } = useAuth()
   const { toast } = useToast()
@@ -43,6 +44,9 @@ export function ProductCard({ product, showOrderButton = true }: ProductCardProp
 
   const farmer = users.find((u) => u.id === product.farmerId)
   const farmerProducts = products.filter((p) => p.farmerId === product.farmerId && p.id !== product.id)
+  const isFarmerCertified = certificationRequests.some(
+    (r) => r.farmerId === product.farmerId && r.status === "paid"
+  )
 
   const handleAddToCart = () => {
     if (user?.role === "farmer") {
@@ -85,11 +89,17 @@ export function ProductCard({ product, showOrderButton = true }: ProductCardProp
       <CardContent className="p-4">
         <h3 className="text-lg font-semibold text-foreground">{product.name}</h3>
         <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
-        <div className="mt-3 flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <User className="h-4 w-4" />
             {product.farmerName}
           </span>
+          {isFarmerCertified && (
+            <span className="flex items-center gap-1 font-medium text-lime-600">
+              <BadgeCheck className="h-4 w-4 fill-lime-500/20 text-lime-600" />
+              Certifié
+            </span>
+          )}
           {farmer?.rating && (
             <span className="flex items-center gap-1 text-yellow-600 font-medium">
               <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
@@ -155,8 +165,16 @@ export function ProductCard({ product, showOrderButton = true }: ProductCardProp
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <h3 className="text-xl font-bold">{product.farmerName}</h3>
-                            <Badge variant="secondary" className="mt-1">Agriculteur Vérifié</Badge>
+                            <h3 className="flex flex-wrap items-center justify-center gap-2 text-xl font-bold">
+                              {product.farmerName}
+                              {isFarmerCertified && (
+                                <Badge className="gap-1 border-0 bg-lime-500 text-white">
+                                  <BadgeCheck className="h-3.5 w-3.5" />
+                                  Certifié
+                                </Badge>
+                              )}
+                            </h3>
+                            <Badge variant="secondary" className="mt-1">Agriculteur</Badge>
                             {farmer?.rating && (
                               <div className="mt-2 flex items-center justify-center gap-1">
                                 <StarRating rating={farmer.rating} size="sm" />
@@ -195,6 +213,50 @@ export function ProductCard({ product, showOrderButton = true }: ProductCardProp
                           </p>
                         </div>
                       )}
+
+                      {/* Avertissement vigilance acheteurs */}
+                      <div
+                        className={cn(
+                          "flex items-start gap-3 rounded-xl border p-4",
+                          isFarmerCertified
+                            ? "border-lime-500/30 bg-lime-500/5"
+                            : "border-amber-500/40 bg-amber-500/10"
+                        )}
+                      >
+                        <ShieldAlert
+                          className={cn(
+                            "mt-0.5 h-5 w-5 shrink-0",
+                            isFarmerCertified ? "text-lime-600" : "text-amber-600"
+                          )}
+                        />
+                        <div className="text-sm">
+                          {isFarmerCertified ? (
+                            <>
+                              <p className="font-semibold text-lime-700 dark:text-lime-400">
+                                Vendeur certifié par l&apos;administration
+                              </p>
+                              <p className="mt-1 text-muted-foreground">
+                                L&apos;identité de cet agriculteur a été vérifiée et il a réglé les
+                                frais de certification. Vous pouvez acheter en confiance, tout en
+                                restant attentif comme pour tout achat en ligne.
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="font-semibold text-amber-700 dark:text-amber-400">
+                                Vendeur non certifié — soyez prudent
+                              </p>
+                              <p className="mt-1 text-muted-foreground">
+                                Attention : des personnes mal intentionnées peuvent se faire passer
+                                pour des agriculteurs. Vérifiez les avis clients, privilégiez les
+                                profils « Certifié » et payez uniquement via la plateforme. Ne
+                                versez jamais d&apos;acompte en dehors de TerraFrais et ne partagez
+                                jamais vos codes Mobile Money.
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      </div>
 
                       {/* Other Products */}
                       {farmerProducts.length > 0 && (

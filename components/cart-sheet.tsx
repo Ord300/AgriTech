@@ -60,8 +60,8 @@ export function CartSheet() {
 
   return (
     <Sheet open={isCartOpen} onOpenChange={setCartOpen}>
-      <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
-        <SheetHeader className="border-b p-4">
+      <SheetContent side="right" className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-md">
+        <SheetHeader className="shrink-0 border-b p-4">
           <SheetTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
             Mon panier
@@ -74,7 +74,7 @@ export function CartSheet() {
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <div className="flex flex-col gap-4 p-4">
             {items.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12 text-center">
@@ -206,7 +206,7 @@ export function CartSheet() {
         </ScrollArea>
 
         {items.length > 0 && (
-          <SheetFooter className="border-t p-4">
+          <SheetFooter className="shrink-0 border-t p-4">
             <div className="flex items-center justify-between">
               <span className="font-medium">Total</span>
               <span className="text-xl font-bold text-primary">{totalPrice.toFixed(2)} FC</span>

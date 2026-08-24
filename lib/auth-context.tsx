@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User } from "./types"
 import { mockUsers } from "./mock-data"
+import { safeSetItem } from "./storage"
 
 interface AuthContextType {
   user: User | null
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setUser(foundUser)
-    localStorage.setItem("agrimarche_user", JSON.stringify(foundUser))
+    safeSetItem("agrimarche_user", JSON.stringify(foundUser))
     return { success: true }
   }
 
@@ -86,9 +87,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     users.push(newUser)
-    localStorage.setItem("agrimarche_users", JSON.stringify(users))
+    safeSetItem("agrimarche_users", JSON.stringify(users))
     setUser(newUser)
-    localStorage.setItem("agrimarche_user", JSON.stringify(newUser))
+    safeSetItem("agrimarche_user", JSON.stringify(newUser))
 
     return { success: true }
   }
@@ -102,14 +103,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return
     const updatedUser = { ...user, ...updates }
     setUser(updatedUser)
-    localStorage.setItem("agrimarche_user", JSON.stringify(updatedUser))
+    safeSetItem("agrimarche_user", JSON.stringify(updatedUser))
 
     // Also update in the global users list
     const storedUsers = localStorage.getItem("agrimarche_users")
     if (storedUsers) {
       const users: User[] = JSON.parse(storedUsers)
       const updatedUsers = users.map((u) => (u.id === user.id ? updatedUser : u))
-      localStorage.setItem("agrimarche_users", JSON.stringify(updatedUsers))
+      safeSetItem("agrimarche_users", JSON.stringify(updatedUsers))
     }
   }
 
@@ -144,8 +145,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updatedUser = { ...user, password: newPassword }
     const updatedUsers = users.map((u) => (u.id === user.id ? { ...u, password: newPassword } : u))
 
-    localStorage.setItem("agrimarche_users", JSON.stringify(updatedUsers))
-    localStorage.setItem("agrimarche_user", JSON.stringify(updatedUser))
+    safeSetItem("agrimarche_users", JSON.stringify(updatedUsers))
+    safeSetItem("agrimarche_user", JSON.stringify(updatedUser))
     setUser(updatedUser)
 
     return { success: true }

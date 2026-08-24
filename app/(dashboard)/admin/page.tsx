@@ -13,9 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ORDER_STATUS_LABELS, CATEGORIES, ACCOUNT_REQUEST_STATUS_LABELS, FARMER_ACCOUNT_FEE, type User, type ArticleCategory, type AccountRequestStatus } from "@/lib/types"
-import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff, Newspaper, Star, X, BarChart3, DollarSign, Clock, Bell, CheckCircle2, AlertCircle, MessageSquare, ShieldCheck, LifeBuoy, MessagesSquare, UserPlus, UserCog, Save, Plus, Upload, ClipboardList, Check, Ban, type LucideIcon } from "lucide-react"
+import { ORDER_STATUS_LABELS, CATEGORIES, ACCOUNT_REQUEST_STATUS_LABELS, CERTIFICATION_REQUEST_STATUS_LABELS, FARMER_ACCOUNT_FEE, CERTIFICATION_FEE, type User, type ArticleCategory, type AccountRequestStatus, type CertificationRequestStatus } from "@/lib/types"
+import { Leaf, Users, Package, ShoppingCart, TrendingUp, LogOut, Home, Trash2, Menu, Eye, EyeOff, Newspaper, Star, StarOff, Sparkles, X, BarChart3, DollarSign, Clock, Bell, CheckCircle2, AlertCircle, MessageSquare, ShieldCheck, LifeBuoy, MessagesSquare, UserPlus, UserCog, Save, Plus, Upload, ClipboardList, Check, Ban, type LucideIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { readFileAsCompressedDataUrl } from "@/lib/utils"
 import { ConversationList } from "@/components/messaging/conversation-list"
 import { ChatWindow } from "@/components/messaging/chat-window"
 import { useToast } from "@/hooks/use-toast"
@@ -23,19 +24,20 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Respon
 
 export default function AdminDashboard() {
   const { user, logout, isLoading, updateUser: updateAuthUser, changePassword } = useAuth()
-  const { products, orders, users, articles, deleteProduct, deleteUser, updateOrderStatus, updateUser, addArticle, deleteArticle, notifications, unreadNotifications, markNotificationAsRead, clearNotifications, supportTickets, addMessageToTicket, updateTicketStatus, conversations, messages, sendMessage, startConversation, transactions, showcaseProducts, addShowcaseProduct, deleteShowcaseProduct, accountRequests, updateAccountRequestStatus } = useData()
+  const { products, orders, users, articles, deleteProduct, deleteUser, updateOrderStatus, updateUser, addArticle, deleteArticle, setFeaturedArticle, notifications, unreadNotifications, markNotificationAsRead, clearNotifications, supportTickets, addMessageToTicket, updateTicketStatus, conversations, messages, sendMessage, startConversation, transactions, showcaseProducts, addShowcaseProduct, deleteShowcaseProduct, accountRequests, updateAccountRequestStatus, certificationRequests, createCertificationRequest, updateCertificationRequestStatus } = useData()
   const { totalItems, setCartOpen } = useCart()
   const router = useRouter()
   const { toast } = useToast()
 
   const [isAddFarmerDialogOpen, setIsAddFarmerDialogOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeMenu, setActiveMenu] = useState<"overview" | "users" | "products" | "orders" | "payments" | "news" | "showcase" | "support" | "requests" | "security" | "messages" | "contact" | "profile">("overview")
+  const [activeMenu, setActiveMenu] = useState<"overview" | "users" | "products" | "orders" | "payments" | "news" | "showcase" | "support" | "requests" | "certifications" | "security" | "messages" | "contact" | "profile">("overview")
   const [showNotifications, setShowNotifications] = useState(false)
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
   const [ticketReplyText, setTicketReplyText] = useState("")
   const [ticketStatusFilter, setTicketStatusFilter] = useState<"all" | "open" | "in_progress" | "closed">("all")
   const [requestStatusFilter, setRequestStatusFilter] = useState<"all" | AccountRequestStatus>("all")
+  const [certStatusFilter, setCertStatusFilter] = useState<"all" | CertificationRequestStatus>("all")
   const [showFarmerPassword, setShowFarmerPassword] = useState(false)
   const [showFarmerConfirmPassword, setShowFarmerConfirmPassword] = useState(false)
 
@@ -116,7 +118,7 @@ export default function AdminDashboard() {
   // Ouvrir directement une section via ?section= (ex: /admin?section=messages)
   useEffect(() => {
     const section = new URLSearchParams(window.location.search).get("section")
-    const validSections = ["overview", "users", "products", "orders", "payments", "news", "showcase", "support", "requests", "security", "messages", "contact", "profile"] as const
+    const validSections = ["overview", "users", "products", "orders", "payments", "news", "showcase", "support", "requests", "certifications", "security", "messages", "contact", "profile"] as const
     if (section && (validSections as readonly string[]).includes(section)) {
       setActiveMenu(section as typeof activeMenu)
     }
@@ -161,6 +163,7 @@ export default function AdminDashboard() {
   const totalRevenue = orders.filter((o) => o.status !== "cancelled").reduce((sum, o) => sum + o.totalPrice, 0)
   const openTicketsCount = supportTickets.filter((t) => t.status === "open").length
   const pendingRequestsCount = accountRequests.filter((r) => r.status === "pending").length
+  const pendingCertificationCount = certificationRequests.filter((r) => r.status === "pending").length
   const totalCommissions = transactions
     .filter((t) => t.status === "completed")
     .reduce((sum, t) => sum + t.commission, 0)
@@ -178,6 +181,7 @@ export default function AdminDashboard() {
     showcase: "Produits du moment",
     support: "Support client",
     requests: "Demandes de comptes agriculteurs",
+    certifications: "Demandes de certification",
     security: "Sécurité du compte",
     messages: "Messages",
     contact: "Contacter un Pro",
@@ -194,6 +198,7 @@ export default function AdminDashboard() {
     { key: "showcase", label: "Produits du moment", icon: Star },
     { key: "support", label: "Support", icon: LifeBuoy },
     { key: "requests", label: "Demandes", icon: ClipboardList },
+    { key: "certifications", label: "Certifications", icon: ShieldCheck },
   ]
 
   const communicationMenuItems: { key: typeof activeMenu; label: string; icon: LucideIcon }[] = [
@@ -206,7 +211,7 @@ export default function AdminDashboard() {
     { key: "security", label: "Sécurité", icon: ShieldCheck },
   ]
 
-  const renderMenuButton = (
+const renderMenuButton = (
     item: { key: typeof activeMenu; label: string; icon: LucideIcon },
     onNavigate?: () => void,
   ) => (
@@ -231,6 +236,11 @@ export default function AdminDashboard() {
       {item.key === "requests" && pendingRequestsCount > 0 && (
         <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]">
           {pendingRequestsCount}
+        </span>
+      )}
+      {item.key === "certifications" && pendingCertificationCount > 0 && (
+        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-lime-500 px-1.5 text-xs font-bold text-white shadow-[0_0_10px_rgba(163,230,53,0.5)]">
+          {pendingCertificationCount}
         </span>
       )}
     </button>
@@ -287,24 +297,28 @@ export default function AdminDashboard() {
     })
   }
 
-  const handleShowcaseImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleShowcaseImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
+      if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "Fichier trop volumineux",
-          description: "L'image ne doit pas dépasser 2 Mo.",
+          description: "L'image ne doit pas dépasser 5 Mo.",
           variant: "destructive",
         })
         return
       }
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
+      try {
+        const result = await readFileAsCompressedDataUrl(file, 800, 0.72)
         setNewShowcaseData({ ...newShowcaseData, image: result })
         setShowcaseImagePreview(result)
+      } catch {
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger cette image.",
+          variant: "destructive",
+        })
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -616,6 +630,22 @@ export default function AdminDashboard() {
     })
   }
 
+  const handleApproveCertificationRequest = (id: string, name: string) => {
+    updateCertificationRequestStatus(id, "approved")
+    toast({
+      title: "Demande approuvée",
+      description: `${name} doit maintenant régler les frais de certification de ${CERTIFICATION_FEE.toLocaleString("fr-FR")} FC pour finaliser son badge.`,
+    })
+  }
+
+  const handleRejectCertificationRequest = (id: string, name: string) => {
+    updateCertificationRequestStatus(id, "rejected")
+    toast({
+      title: "Demande rejetée",
+      description: `La demande de certification de ${name} a été rejetée. Aucun frais n'est dû.`,
+    })
+  }
+
   const adminConversations = conversations.filter(c => c.participantIds.includes(user.id))
   const selectedConv = conversations.find(c => c.id === selectedConvId)
   const otherParticipantId = selectedConv?.participantIds.find(id => id !== user.id)
@@ -635,24 +665,16 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        toast({
-          title: "Fichier trop volumineux",
-          description: "L'image ne doit pas dépasser 2 Mo.",
-          variant: "destructive",
-        })
-        return
-      }
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const base64String = reader.result as string
+      try {
+        const base64String = await readFileAsCompressedDataUrl(file, 256, 0.75)
         setAvatarPreview(base64String)
         setProfileData({ ...profileData, avatar: base64String })
+      } catch {
+        /* ignore */
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -1989,9 +2011,35 @@ export default function AdminDashboard() {
                               <p className="text-sm text-muted-foreground mt-2 line-clamp-1">{article.description}</p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => handleDeleteArticle(article.id, article.title)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+                            {article.featured && (
+                              <Badge className="hidden gap-1 border-0 bg-amber-500 text-white md:inline-flex">
+                                <Sparkles className="h-3 w-3" />
+                                À la une
+                              </Badge>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="gap-1.5 text-xs"
+                              onClick={() => setFeaturedArticle(article.featured ? null : article.id)}
+                            >
+                              {article.featured ? (
+                                <>
+                                  <StarOff className="h-3.5 w-3.5 text-amber-500" />
+                                  Retirer de la une
+                                </>
+                              ) : (
+                                <>
+                                  <Star className="h-3.5 w-3.5 text-amber-500" />
+                                  Mettre à la une
+                                </>
+                              )}
+                            </Button>
+                            <Button variant="ghost" size="icon" className="shrink-0" onClick={() => handleDeleteArticle(article.id, article.title)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -2311,6 +2359,159 @@ export default function AdminDashboard() {
                                 <Badge variant="outline" className="shrink-0 gap-1 border-amber-500/40 text-amber-500">
                                   <Clock className="h-3 w-3" />
                                   Paiement de {FARMER_ACCOUNT_FEE.toFixed(2).replace(".", ",")} FC attendu
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Certification Requests Section */}
+          {activeMenu === "certifications" && (
+            <div>
+              <div className="mb-8">
+                <h2 className="text-3xl font-bold text-foreground">Demandes de certification</h2>
+                <p className="text-muted-foreground">
+                  Condition d&apos;envoi : au moins 4 étoiles. Après votre approbation,
+                  l&apos;agriculteur règle les frais de {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC pour finaliser son badge.
+                </p>
+              </div>
+
+              {/* Stats rapides */}
+              <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card className="border-amber-500/20 bg-amber-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium uppercase tracking-wider text-amber-500">En attente</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-amber-500">
+                      {certificationRequests.filter((r) => r.status === "pending").length}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-sky-500/20 bg-sky-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium uppercase tracking-wider text-sky-500">Approuvées (frais attendus)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-sky-500">
+                      {certificationRequests.filter((r) => r.status === "approved").length}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-emerald-500/20 bg-emerald-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium uppercase tracking-wider text-emerald-500">Certifiés (payés)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-emerald-500">
+                      {certificationRequests.filter((r) => r.status === "paid").length}
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-lime-500/20 bg-lime-500/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium uppercase tracking-wider text-lime-500">Revenus certifications</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-lime-500">
+                      {(certificationRequests.filter((r) => r.status === "paid").length * CERTIFICATION_FEE).toLocaleString("fr-FR")} FC
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    Demandes ({certificationRequests.length})
+                    <Badge variant="secondary">{pendingCertificationCount} en attente</Badge>
+                  </CardTitle>
+                  <CardDescription>Filtrer par statut</CardDescription>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {(["all", "pending", "approved", "paid", "rejected"] as const).map((status) => (
+                      <Button
+                        key={status}
+                        variant={certStatusFilter === status ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCertStatusFilter(status)}
+                      >
+                        {status === "all" ? "Toutes" : CERTIFICATION_REQUEST_STATUS_LABELS[status]}
+                      </Button>
+                    ))}
+                  </div>
+
+                  {certificationRequests.filter((r) => certStatusFilter === "all" || r.status === certStatusFilter).length === 0 ? (
+                    <p className="py-8 text-center text-muted-foreground">Aucune demande</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {certificationRequests
+                        .filter((r) => certStatusFilter === "all" || r.status === certStatusFilter)
+                        .map((req) => (
+                          <div key={req.id} className="rounded-lg border p-4 transition-colors hover:bg-muted/50">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <div className="mb-1 flex flex-wrap items-center gap-2">
+                                  <span className="font-medium">{req.farmerName}</span>
+                                  <Badge variant="outline" className="text-xs border-yellow-500/40 text-yellow-500">
+                                    {req.rating} ★
+                                  </Badge>
+                                  <Badge
+                                    variant={
+                                      req.status === "pending"
+                                        ? "outline"
+                                        : req.status === "approved"
+                                          ? "default"
+                                          : req.status === "paid"
+                                            ? "secondary"
+                                            : "destructive"
+                                    }
+                                  >
+                                    {CERTIFICATION_REQUEST_STATUS_LABELS[req.status]}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground">{req.email}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  Envoyée le {new Date(req.createdAt).toLocaleDateString("fr-FR")}
+                                </p>
+                                {req.message && (
+                                  <p className="mt-2 line-clamp-2 text-sm italic text-muted-foreground">
+                                    &quot;{req.message}&quot;
+                                  </p>
+                                )}
+                                {req.status === "paid" && req.paymentReference && (
+                                  <p className="mt-2 text-xs text-emerald-500">
+                                    Payé le {req.paidAt ? new Date(req.paidAt).toLocaleDateString("fr-FR") : "-"} • Réf.{" "}
+                                    <span className="font-mono">{req.paymentReference}</span>
+                                  </p>
+                                )}
+                              </div>
+
+                              {req.status === "pending" && (
+                                <div className="flex shrink-0 gap-2">
+                                  <Button size="sm" className="gap-1" onClick={() => handleApproveCertificationRequest(req.id, req.farmerName)}>
+                                    <Check className="h-4 w-4" />
+                                    Approuver
+                                  </Button>
+                                  <Button size="sm" variant="destructive" className="gap-1" onClick={() => handleRejectCertificationRequest(req.id, req.farmerName)}>
+                                    <Ban className="h-4 w-4" />
+                                    Rejeter
+                                  </Button>
+                                </div>
+                              )}
+
+                              {req.status === "approved" && (
+                                <Badge variant="outline" className="shrink-0 gap-1 border-sky-500/40 text-sky-500">
+                                  <Clock className="h-3 w-3" />
+                                  Frais de {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC attendus
                                 </Badge>
                               )}
                             </div>

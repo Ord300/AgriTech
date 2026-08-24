@@ -25,6 +25,7 @@ import {
   Hexagon,
   ArrowUpDown,
   SearchX,
+  ShieldAlert,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -48,6 +49,7 @@ export default function MarketPage() {
   const [location, setLocation] = useState<string>("all")
   const [sortBy, setSortBy] = useState<string>("recent")
   const [showFilters, setShowFilters] = useState(false)
+  const [showVigilance, setShowVigilance] = useState(true)
 
   const availableProducts = useMemo(() => products.filter((p) => p.isAvailable && p.quantity > 0), [products])
 
@@ -253,6 +255,33 @@ export default function MarketPage() {
       
 
       <div className="container mx-auto px-4 py-8">
+        {/* Bandeau de vigilance anti-arnaque */}
+        {showVigilance && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+            <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+            <div className="flex-1 text-sm">
+              <p className="font-semibold text-amber-700 dark:text-amber-400">
+                Restez vigilant face aux faux vendeurs
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                N&apos;importe qui peut se présenter comme agriculteur sur la plateforme. Privilégiez
+                les profils affichant le badge{" "}
+                <span className="font-semibold text-lime-600 dark:text-lime-400">« Certifié »</span>,
+                consultez les avis clients et effectuez toujours vos paiements via TerraFrais.
+                Ne concluez jamais de transaction en dehors de l&apos;application et ne partagez
+                jamais vos codes Mobile Money.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowVigilance(false)}
+              aria-label="Masquer l'avertissement"
+              className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {/* Results count + active filters */}
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <p className="text-sm text-muted-foreground">

@@ -162,6 +162,8 @@ export interface Article {
   category: ArticleCategory
   imageUrl: string
   authorName: string
+  /** Article mis à la une par l'administrateur */
+  featured?: boolean
   createdAt: string
 }
 
@@ -248,6 +250,34 @@ export interface AccountRequest {
   password: string
   message?: string
   status: AccountRequestStatus
+  paymentMethod?: PaymentMethod
+  paymentReference?: string
+  paidAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type CertificationRequestStatus = "pending" | "approved" | "rejected" | "paid"
+
+export const CERTIFICATION_REQUEST_STATUS_LABELS: Record<CertificationRequestStatus, string> = {
+  pending: "En attente",
+  approved: "Approuvée - Paiement requis",
+  rejected: "Rejetée",
+  paid: "Certifié",
+}
+
+/** Frais de certification à payer par l'agriculteur après acceptation (en Francs Congolais) */
+export const CERTIFICATION_FEE = 30000
+
+export interface CertificationRequest {
+  id: string
+  farmerId: string
+  farmerName: string
+  email: string
+  rating: number
+  message?: string
+  status: CertificationRequestStatus
+  feePaid: boolean
   paymentMethod?: PaymentMethod
   paymentReference?: string
   paidAt?: string

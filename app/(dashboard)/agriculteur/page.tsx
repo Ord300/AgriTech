@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
-import { CATEGORIES, ORDER_STATUS_LABELS, type ProductCategory, type Order } from "@/lib/types"
+import { CATEGORIES, ORDER_STATUS_LABELS, CERTIFICATION_FEE, CERTIFICATION_REQUEST_STATUS_LABELS, PAYMENT_METHOD_LABELS, type ProductCategory, type Order, type PaymentMethod } from "@/lib/types"
+import { readFileAsCompressedDataUrl } from "@/lib/utils"
 import {
   Package,
   Plus,
@@ -46,6 +47,8 @@ import {
   ChevronRight,
   Wallet,
   ClipboardList,
+  Star,
+  BadgeCheck,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { OrderChatDialog } from "@/components/order-chat-dialog"
@@ -56,7 +59,7 @@ import { OrderDetailsDialog } from "@/components/farmer/order-details-dialog"
 
 export default function FarmerDashboard() {
   const { user, logout, isLoading: authLoading, updateUser: updateAuthUser, changePassword } = useAuth()
-  const { products, orders, users, addProduct, updateProduct, deleteProduct, updateOrderStatus, updateUser: updateDataUser, transactions, startConversation } = useData()
+  const { products, orders, users, addProduct, updateProduct, deleteProduct, updateOrderStatus, updateUser: updateDataUser, transactions, startConversation, certificationRequests, createCertificationRequest, payCertificationFee } = useData()
   const router = useRouter()
   const { toast } = useToast()
 
@@ -98,6 +101,11 @@ export default function FarmerDashboard() {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [detailsOrder, setDetailsOrder] = useState<Order | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const [isCertificationDialogOpen, setIsCertificationDialogOpen] = useState(false)
+  const [certificationMessage, setCertificationMessage] = useState("")
+  const [isCertPayDialogOpen, setIsCertPayDialogOpen] = useState(false)
+  const [certPayMethod, setCertPayMethod] = useState<PaymentMethod>("mpesa")
+  const [certPayPhone, setCertPayPhone] = useState("")
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== "farmer")) {
@@ -119,39 +127,50 @@ export default function FarmerDashboard() {
   const totalRevenue = farmerOrders.filter((o) => o.status !== "cancelled").reduce((sum, o) => sum + o.totalPrice, 0)
   const farmerPayments = transactions.filter((t) => t.farmerId === user.id && t.status === "completed")
   const totalPaymentsReceived = farmerPayments.reduce((sum, t) => sum + t.farmerAmount, 0)
+  const farmerRating = user.rating ?? 0
+  const myCertificationRequests = certificationRequests.filter((r) => r.farmerId === user.id)
+  const pendingCertification = myCertificationRequests.find((r) => r.status === "pending")
+  const approvedCertification = myCertificationRequests.find((r) => r.status === "approved")
+  const certifiedRequest = myCertificationRequests.find((r) => r.status === "paid")
+  const certAttentionCount = (pendingCertification ? 1 : 0) + (approvedCertification ? 1 : 0)
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
+      if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "Fichier trop volumineux",
-          description: "L'image ne doit pas dépasser 2 Mo.",
+          description: "L'image ne doit pas dépasser 5 Mo.",
           variant: "destructive",
         })
         return
       }
 
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const result = reader.result as string
+      try {
+        // Compression canvas : évite de saturer le localStorage en base64
+        const result = await readFileAsCompressedDataUrl(file, 800, 0.72)
         setNewProduct({ ...newProduct, image: result })
         setImagePreview(result)
+      } catch {
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger cette image.",
+          variant: "destructive",
+        })
       }
-      reader.readAsDataURL(file)
     }
   }
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const base64String = reader.result as string
+      try {
+        const base64String = await readFileAsCompressedDataUrl(file, 256, 0.75)
         setAvatarPreview(base64String)
         setProfileData({ ...profileData, avatar: base64String })
+      } catch {
+        /* ignore */
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -337,6 +356,73 @@ export default function FarmerDashboard() {
     }
   }
 
+  const handleSubmitCertificationRequest = () => {
+    if (!user) return
+
+    if (approvedCertification) {
+      toast({
+        title: "Déjà certifié",
+        description: "Votre compte est déjà certifié par l'administrateur.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (pendingCertification) {
+      toast({
+        title: "Demande en cours",
+        description: "Vous avez déjà une demande de certification en attente.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Condition : note minimale de 4 étoiles
+    if (farmerRating < 4) {
+      toast({
+        title: "Conditions non remplies",
+        description: "Vous avez besoin d'au moins 4 étoiles pour demander la certification.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    createCertificationRequest(user.id, user.name, user.email, farmerRating, certificationMessage.trim() || undefined)
+
+    toast({
+      title: "Demande soumise",
+      description:
+        "Votre demande de certification a été envoyée à l'administrateur. Les frais de 56 000 FC ne seront dus qu'en cas d'acceptation.",
+    })
+
+    setIsCertificationDialogOpen(false)
+    setCertificationMessage("")
+  }
+
+  const handlePayCertificationFee = () => {
+    if (!user || !approvedCertification) return
+
+    if (!certPayPhone.trim()) {
+      toast({
+        title: "Numéro requis",
+        description: "Veuillez renseigner votre numéro Mobile Money.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const reference = `CERT-${Date.now()}`
+    payCertificationFee(approvedCertification.id, certPayMethod, reference)
+
+    toast({
+      title: "Paiement effectué",
+      description: `Frais de certification de ${CERTIFICATION_FEE.toLocaleString("fr-FR")} FC payés. Votre badge « Certifié » est désormais visible sur le marché.`,
+    })
+
+    setIsCertPayDialogOpen(false)
+    setCertPayPhone("")
+  }
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -383,8 +469,13 @@ export default function FarmerDashboard() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">{user.name}</p>
-              <p className="text-xs text-lime-400/80 capitalize">Agriculteur</p>
+              <p className="flex items-center gap-1 font-medium text-sm truncate">
+                {user.name}
+                {certifiedRequest && <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-lime-400" />}
+              </p>
+              <p className="text-xs text-lime-400/80 capitalize">
+                Agriculteur{certifiedRequest ? " certifié" : ""}
+              </p>
             </div>
           </div>
         </div>
@@ -419,6 +510,19 @@ export default function FarmerDashboard() {
             {farmerProducts.length > 0 && (
               <Badge variant="outline" className="ml-auto border-lime-400/30 bg-lime-400/10 text-lime-300">
                 {farmerProducts.length}
+              </Badge>
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 text-muted-foreground hover:bg-lime-400/10 hover:text-lime-200"
+            onClick={() => scrollToSection("module-certification")}
+          >
+            <Star className="h-5 w-5" />
+            <span className="text-sm font-medium">Certification</span>
+            {certAttentionCount > 0 && (
+              <Badge variant="outline" className="ml-auto border-amber-400/30 bg-amber-400/10 text-amber-300">
+                {certAttentionCount}
               </Badge>
             )}
           </Button>
@@ -517,6 +621,19 @@ export default function FarmerDashboard() {
                   {farmerProducts.length > 0 && (
                     <Badge variant="outline" className="ml-auto border-lime-400/30 bg-lime-400/10 text-lime-300">
                       {farmerProducts.length}
+                    </Badge>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={() => { scrollToSection("module-certification"); setMobileMenuOpen(false); }}
+                >
+                  <Star className="h-4 w-4" />
+                  Certification
+                  {certAttentionCount > 0 && (
+                    <Badge variant="outline" className="ml-auto border-amber-400/30 bg-amber-400/10 text-amber-300">
+                      {certAttentionCount}
                     </Badge>
                   )}
                 </Button>
@@ -906,7 +1023,7 @@ export default function FarmerDashboard() {
             </div>
           </section>
 
-          {/* Stats Cards */}
+{/* Stats Cards */}
           <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
               <Card key={stat.label} className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl transition-colors hover:border-lime-400/20">
@@ -922,6 +1039,182 @@ export default function FarmerDashboard() {
               </Card>
             ))}
           </div>
+
+          {/* Certification Request Section */}
+          <Card id="module-certification" className="mb-8 scroll-mt-20 border-white/5 bg-card/60 shadow-lg backdrop-blur-xl">
+            <CardHeader>
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5 text-lime-400" />
+                    Certification
+                  </CardTitle>
+                  <CardDescription>Demandez le badge officiel de la plateforme</CardDescription>
+                </div>
+                {certifiedRequest && (
+                  <Badge variant="outline" className="border-lime-400/30 bg-lime-400/10 text-lime-300">
+                    <BadgeCheck className="mr-1 h-3 w-3" />
+                    Certifié
+                  </Badge>
+                )}
+                {!certifiedRequest && approvedCertification && (
+                  <Badge variant="outline" className="border-amber-400/30 bg-amber-400/10 text-amber-300">
+                    Paiement requis
+                  </Badge>
+                )}
+                {!certifiedRequest && !approvedCertification && pendingCertification && (
+                  <Badge variant="outline" className="border-sky-400/30 bg-sky-400/10 text-sky-300">
+                    {CERTIFICATION_REQUEST_STATUS_LABELS.pending}
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between rounded-lg border border-white/5 bg-card/40 p-4">
+                  <span className="text-sm text-muted-foreground">Votre note actuelle</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold">{farmerRating}</span>
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm text-muted-foreground">/ 5</span>
+                  </div>
+                </div>
+
+                {certifiedRequest ? (
+                  <p className="text-sm text-lime-300">
+                    Votre compte est certifié : le badge « Certifié » est visible par les acheteurs
+                    dans les informations du vendeur sur le marché.
+                  </p>
+                ) : approvedCertification ? (
+                  <div className="space-y-3 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4">
+                    <p className="text-sm font-medium text-amber-300">
+                      Demande approuvée ! Réglez les frais de certification pour finaliser votre badge.
+                    </p>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <span className="text-lg font-mono font-bold text-foreground">
+                        {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC
+                      </span>
+                      <Button
+                        onClick={() => {
+                          setCertPayPhone(user.phone || "")
+                          setIsCertPayDialogOpen(true)
+                        }}
+                        className="gap-2 bg-lime-400 text-emerald-950 shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300"
+                      >
+                        <BadgeCheck className="h-4 w-4" />
+                        Payer et obtenir le badge
+                      </Button>
+                    </div>
+                  </div>
+                ) : farmerRating >= 4 ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Vous remplissez la condition des 4 étoiles minimum. Envoyez une demande à
+                      l&apos;administrateur : si elle est acceptée, vous devrez régler les frais de{" "}
+                      {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC puis recevrez votre badge.
+                    </p>
+                    <Button
+                      onClick={() => setIsCertificationDialogOpen(true)}
+                      className="gap-2 bg-lime-400 text-emerald-950 shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300"
+                    >
+                      <Star className="h-4 w-4" />
+                      Demander une certification
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-sm text-destructive">
+                    Note insuffisante : il faut au moins 4 étoiles pour pouvoir demander la certification.
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Dialog : demande de certification */}
+          <Dialog open={isCertificationDialogOpen} onOpenChange={setIsCertificationDialogOpen}>
+            <DialogContent className="farmer-theme text-foreground max-w-md">
+              <DialogHeader>
+                <DialogTitle>Demande de Certification</DialogTitle>
+                <DialogDescription>Soumettez votre demande à l&apos;administrateur</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="space-y-1 rounded-lg border border-white/10 p-3">
+                  <p className="text-sm font-medium">Conditions</p>
+                  <p className="text-xs text-muted-foreground">
+                    ✓ Note minimale de 4 étoiles (votre note : {farmerRating}/5)
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    ✓ Frais de {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC à payer uniquement si
+                    l&apos;administrateur accepte votre demande
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="certification-message">Message (optionnel)</Label>
+                  <Textarea
+                    id="certification-message"
+                    placeholder="Expliquez pourquoi vous méritez la certification..."
+                    value={certificationMessage}
+                    onChange={(e) => setCertificationMessage(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" className="border-white/10 bg-transparent" onClick={() => setIsCertificationDialogOpen(false)}>
+                  Annuler
+                </Button>
+                <Button onClick={handleSubmitCertificationRequest}>Envoyer la demande</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Dialog : paiement des frais de certification */}
+          <Dialog open={isCertPayDialogOpen} onOpenChange={setIsCertPayDialogOpen}>
+            <DialogContent className="farmer-theme text-foreground max-w-md">
+              <DialogHeader>
+                <DialogTitle>Paiement des frais de certification</DialogTitle>
+                <DialogDescription>
+                  Finalisez votre certification en réglant {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC via Mobile Money
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label>Méthode de paiement</Label>
+                  <Select value={certPayMethod} onValueChange={(v) => setCertPayMethod(v as PaymentMethod)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="farmer-theme">
+                      <SelectItem value="mpesa">{PAYMENT_METHOD_LABELS.mpesa}</SelectItem>
+                      <SelectItem value="orange_money">{PAYMENT_METHOD_LABELS.orange_money}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cert-pay-phone">Numéro Mobile Money</Label>
+                  <Input
+                    id="cert-pay-phone"
+                    placeholder="Ex : 081 234 5678"
+                    value={certPayPhone}
+                    onChange={(e) => setCertPayPhone(e.target.value)}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Une fois le paiement confirmé, votre badge « Certifié » sera immédiatement
+                  visible dans les informations du vendeur sur le marché.
+                </p>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" className="border-white/10 bg-transparent" onClick={() => setIsCertPayDialogOpen(false)}>
+                  Annuler
+                </Button>
+                <Button onClick={handlePayCertificationFee} className="gap-2">
+                  <BadgeCheck className="h-4 w-4" />
+                  Payer {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {/* Assistant IA */}
           <div className="mb-8">
@@ -1086,7 +1379,7 @@ export default function FarmerDashboard() {
                         Paiements Mobile Money reçus
                       </CardTitle>
                       <CardDescription>
-                        Paiements versés sur votre numéro {user.phone || "enregistré"} — 95% du montant vous revient, 5% de commission plateforme
+                        Paiements versés sur votre numéro {user.phone || "enregistré"} — 97% du montant vous revient, 3% de commission plateforme
                       </CardDescription>
                     </div>
                     <div className="text-right">
