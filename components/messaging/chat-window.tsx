@@ -5,7 +5,7 @@ import { ChatMessage, User } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send, User as UserIcon } from "lucide-react"
+import { Send, User as UserIcon, ArrowLeft } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { cn } from "@/lib/utils"
@@ -16,6 +16,7 @@ interface ChatWindowProps {
   currentUserId: string
   onSendMessage: (content: string) => void
   headerAction?: ReactNode
+  onBack?: () => void
 }
 
 export function ChatWindow({
@@ -24,6 +25,7 @@ export function ChatWindow({
   currentUserId,
   onSendMessage,
   headerAction,
+  onBack,
 }: ChatWindowProps) {
   const [inputValue, setInputValue] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -56,10 +58,18 @@ export function ChatWindow({
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="p-4 border-b flex items-center gap-3 bg-card">
-        <Avatar>
-          <AvatarImage src={otherParticipant.avatar} />
-          <AvatarFallback>{otherParticipant.name.charAt(0)}</AvatarFallback>
-        </Avatar>
+        {onBack && (
+          <Button variant="ghost" size="icon" className="md:hidden shrink-0" onClick={onBack}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+        <div className="relative">
+          <Avatar>
+            <AvatarImage src={otherParticipant.avatar} />
+            <AvatarFallback>{otherParticipant.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-card" />
+        </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground">{otherParticipant.name}</h3>
           <p className="text-xs text-muted-foreground">En ligne</p>

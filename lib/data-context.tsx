@@ -134,6 +134,32 @@ export function DataProvider({ children }: { children: ReactNode }) {
     safeSetItem("agrimarche_notifications", JSON.stringify(newNotifications))
   }
 
+  /** Envoie par e-mail les notifications destinées aux acheteurs et agriculteurs */
+  const dispatchEmailNotification = (notification: Notification) => {
+    if (!notification.targetUser) return
+
+    const recipient = users.find(
+      (u) =>
+        u.name.toLowerCase() === notification.targetUser!.toLowerCase() &&
+        (u.role === "buyer" || u.role === "farmer")
+    )
+    if (!recipient?.email || typeof window === "undefined") return
+
+    fetch("/api/notifications/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to: recipient.email,
+        recipientName: recipient.name,
+        title: notification.title,
+        message: notification.message,
+        type: notification.type,
+        timestamp: notification.timestamp,
+        actionUrl: notification.actionUrl,
+      }),
+    }).catch((error) => console.warn("[email] Envoi impossible :", error))
+  }
+
   const addNotification = (notification: Omit<Notification, "id" | "timestamp">) => {
     const newNotification: Notification = {
       ...notification,
@@ -141,6 +167,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       timestamp: new Date().toISOString(),
     }
     saveNotifications([newNotification, ...notifications])
+    dispatchEmailNotification(newNotification)
   }
 
   const saveSupportTickets = (newTickets: SupportTicket[]) => {

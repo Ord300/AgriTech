@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
 import { Conversation } from "@/lib/types"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { format } from "date-fns"
+import { format, isToday, isYesterday } from "date-fns"
 import { fr } from "date-fns/locale"
+import { MessagesSquare } from "lucide-react"
 
 interface ConversationListProps {
   conversations: Conversation[]
@@ -15,51 +16,106 @@ interface ConversationListProps {
   currentUserId: string
 }
 
-export function ConversationList({ 
-  conversations, 
-  selectedId, 
+function formatConversationTime(date: string) {
+  const d = new Date(date)
+  if (isToday(d)) return format(d, "HH:mm", { locale: fr })
+  if (isYesterday(d)) return "Hier"
+  return format(d, "dd MMM", { locale: fr })
+}
+
+export function ConversationList({
+  conversations,
+  selectedId,
   onSelect,
   currentUserId
 }: ConversationListProps) {
+  const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0)
+
   return (
-    <div className="flex flex-col h-full border-r">
-      <div className="p-4 border-b">
-        <h2 className="text-xl font-semibold text-foreground">Messages</h2>
+    <div className="flex flex-col h-full border-r border-white/5 bg-sidebar/40">
+      <div className="p-4 border-b border-white/5">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15">
+            <MessagesSquare className="h-4 w-4 text-primary" />
+          </div>
+          <h2 className="text-base font-semibold text-foreground">Conversations</h2>
+          {totalUnread > 0 && (
+            <Badge variant="outline" className="ml-auto border-primary/30 bg-primary/10 text-primary">
+              {totalUnread}
+            </Badge>
+          )}
+        </div>
       </div>
       <ScrollArea className="flex-1">
-        <div className="flex flex-col">
+        <div className="flex flex-col p-2 gap-1">
+          {conversations.length === 0 && (
+            <p className="p-6 text-sm text-center text-muted-foreground">
+              Aucune conversation pour le moment.
+            </p>
+          )}
           {conversations.map((conv) => {
-            const otherParticipantName = conv.participantNames.find(
-              (_, i) => conv.participantIds[i] !== currentUserId
-            )
+            const otherIndex = conv.participantIds.findIndex((id) => id !== currentUserId)
+            const otherParticipantName =
+              otherIndex >= 0 ? conv.participantNames[otherIndex] : undefined
             const isSelected = selectedId === conv.id
+            const hasUnread = conv.unreadCount > 0
 
             return (
               <button
                 key={conv.id}
                 onClick={() => onSelect(conv.id)}
                 className={cn(
-                  "flex items-start gap-3 p-4 text-left hover:bg-accent transition-colors border-b last:border-b-0",
-                  isSelected && "bg-accent"
+                  "group flex items-center gap-3 rounded-xl p-3 text-left transition-colors",
+                  "hover:bg-accent/70",
+                  isSelected
+                    ? "bg-primary/10 border border-primary/20"
+                    : "border border-transparent",
                 )}
               >
-                <Avatar>
-                  <AvatarFallback>{otherParticipantName?.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar
+                    className={cn(
+                      "transition-all",
+                      isSelected ? "ring-2 ring-primary/50" : "",
+                    )}
+                  >
+                    <AvatarFallback
+                      className={cn(
+                        hasUnread ? "bg-primary/20 text-primary font-semibold" : "",
+                      )}
+                    >
+                      {otherParticipantName?.charAt(0) ?? "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  {hasUnread && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-primary-foreground shadow-sm">
+                      {conv.unreadCount}
+                    </span>
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline mb-1">
-                    <span className="font-medium truncate text-foreground">{otherParticipantName}</span>
-                    <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                      {format(new Date(conv.lastMessageAt), "HH:mm", { locale: fr })}
+                  <div className="flex items-baseline justify-between gap-2 mb-0.5">
+                    <span
+                      className={cn(
+                        "truncate text-sm",
+                        hasUnread ? "font-semibold text-foreground" : "font-medium text-foreground/90",
+                      )}
+                    >
+                      {otherParticipantName}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[11px] whitespace-nowrap shrink-0",
+                        hasUnread ? "text-primary font-medium" : "text-muted-foreground",
+                      )}
+                    >
+                      {formatConversationTime(conv.lastMessageAt)}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground truncate italic">
-                    {conv.lastMessage}
+                  <p className="text-xs text-muted-foreground truncate">
+                    {conv.lastMessage ?? "Nouvelle conversation"}
                   </p>
                 </div>
-                {conv.unreadCount > 0 && (
-                  <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                )}
               </button>
             )
           })}
