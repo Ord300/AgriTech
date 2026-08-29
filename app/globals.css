@@ -332,6 +332,15 @@
   animation: hero-zoom 6s ease-out both;
 }
 
+@keyframes progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
 /* Apparition au scroll */
 .scroll-reveal {
   opacity: 0;

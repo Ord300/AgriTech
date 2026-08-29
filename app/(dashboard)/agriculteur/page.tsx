@@ -49,7 +49,12 @@ import {
   ClipboardList,
   Star,
   BadgeCheck,
+  MapPin,
+  Navigation,
+  ExternalLink,
+  Pencil,
 } from "lucide-react"
+import { LocationMapPicker } from "@/components/location-map-picker"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { OrderChatDialog } from "@/components/order-chat-dialog"
 import { MessageNotifications } from "@/components/message-notifications"
@@ -79,6 +84,10 @@ export default function FarmerDashboard() {
     location: user?.location || "",
     image: "",
   })
+  const [mapLocation, setMapLocation] = useState<{ lat: string; lng: string; displayName: string } | null>(null)
+  const [isEditLocationDialogOpen, setIsEditLocationDialogOpen] = useState(false)
+  const [editingProductId, setEditingProductId] = useState<string | null>(null)
+  const [editMapLocation, setEditMapLocation] = useState<{ lat: string; lng: string; displayName: string } | null>(null)
   const [profileData, setProfileData] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
@@ -161,6 +170,8 @@ export default function FarmerDashboard() {
     }
   }
 
+
+
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -227,6 +238,17 @@ export default function FarmerDashboard() {
       return
     }
 
+    if (!mapLocation) {
+      toast({
+        title: "Localisation requise",
+        description: "Veuillez rechercher et cibler l'emplacement sur la carte.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const gps = { lat: parseFloat(mapLocation.lat), lng: parseFloat(mapLocation.lng) }
+
     addProduct({
       farmerId: user.id,
       farmerName: user.name,
@@ -236,14 +258,15 @@ export default function FarmerDashboard() {
       price: Number.parseFloat(newProduct.price),
       unit: newProduct.unit,
       quantity: Number.parseInt(newProduct.quantity),
-      location: newProduct.location || user.location || "Non spécifié",
+      location: mapLocation.displayName || newProduct.location || user.location || "Non spécifié",
+      gps,
       image: newProduct.image || `/placeholder.svg?height=300&width=400&query=${encodeURIComponent(newProduct.name + " fresh produce")}`,
       isAvailable: true,
     })
 
     toast({
       title: "Produit ajouté",
-      description: `${newProduct.name} a été ajouté à votre catalogue.`,
+      description: `${newProduct.name} a été ajouté à votre catalogue. Origine GPS enregistrée.`,
     })
 
     setNewProduct({
@@ -256,8 +279,50 @@ export default function FarmerDashboard() {
       location: user.location || "",
       image: "",
     })
+    setMapLocation(null)
     setImagePreview(null)
     setIsAddDialogOpen(false)
+  }
+
+  const handleOpenEditLocation = (product: import("@/lib/types").Product) => {
+    setEditingProductId(product.id)
+    if (product.gps) {
+      setEditMapLocation({
+        lat: product.gps.lat.toFixed(6),
+        lng: product.gps.lng.toFixed(6),
+        displayName: product.location,
+      })
+    } else {
+      // Pré-remplit avec la localisation texte si pas de GPS, l'utilisateur ciblera sur la carte
+      setEditMapLocation(null)
+    }
+    setIsEditLocationDialogOpen(true)
+  }
+
+  const handleSaveEditLocation = () => {
+    if (!editingProductId) return
+    if (!editMapLocation) {
+      toast({
+        title: "Localisation requise",
+        description: "Veuillez rechercher et cibler l'emplacement sur la carte.",
+        variant: "destructive",
+      })
+      return
+    }
+    const product = products.find((p) => p.id === editingProductId)
+    if (!product) return
+    const gps = { lat: parseFloat(editMapLocation.lat), lng: parseFloat(editMapLocation.lng) }
+    updateProduct(editingProductId, {
+      location: editMapLocation.displayName,
+      gps,
+    })
+    toast({
+      title: "Localisation mise à jour",
+      description: `${product.name} — nouvelle origine : ${editMapLocation.displayName}`,
+    })
+    setIsEditLocationDialogOpen(false)
+    setEditingProductId(null)
+    setEditMapLocation(null)
   }
 
   const handleOpenRestock = (productId: string) => {
@@ -845,12 +910,12 @@ export default function FarmerDashboard() {
                       Ajouter un produit
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="farmer-theme text-foreground max-w-lg">
+                  <DialogContent className="farmer-theme text-foreground max-w-2xl">
                     <DialogHeader>
                       <DialogTitle>Nouveau Produit</DialogTitle>
-                      <DialogDescription>Ajoutez un nouveau produit à votre catalogue</DialogDescription>
+                      <DialogDescription>Ajoutez un nouveau produit à votre catalogue — ciblez l&apos;origine sur la carte</DialogDescription>
                     </DialogHeader>
-                    <div className="max-h-[60vh] overflow-y-auto py-4 pr-2">
+                    <div className="max-h-[75vh] overflow-y-auto py-4 pr-2">
                       <div className="grid gap-4">
                         <div className="grid gap-4 sm:grid-cols-2">
                           <div className="space-y-2">
@@ -929,14 +994,15 @@ export default function FarmerDashboard() {
                             />
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="location">Localisation</Label>
-                          <Input
-                            id="location"
-                            placeholder="Ex: Kinshasa / Gombe"
-                            value={newProduct.location}
-                            onChange={(e) => setNewProduct({ ...newProduct, location: e.target.value })}
-                          />
+                        <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                          <Label className="flex items-center gap-1.5 text-sm">
+                            <MapPin className="h-3.5 w-3.5 text-lime-400" />
+                            Localisation & traçabilité GPS *
+                          </Label>
+                          <p className="text-[11px] leading-relaxed text-muted-foreground">
+                            Recherchez sur la carte puis cliquez pour cibler l&apos;emplacement exact du champ. La localisation sera automatiquement utilisée pour la traçabilité.
+                          </p>
+                          <LocationMapPicker value={mapLocation} onChange={setMapLocation} />
                         </div>
                         <div className="space-y-2">
                           <Label>Image du produit</Label>
@@ -1011,6 +1077,59 @@ export default function FarmerDashboard() {
                         Annuler
                       </Button>
                       <Button onClick={handleRestockProduct}>Valider le stock</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog
+                  open={isEditLocationDialogOpen}
+                  onOpenChange={(open) => {
+                    setIsEditLocationDialogOpen(open)
+                    if (!open) {
+                      setEditingProductId(null)
+                      setEditMapLocation(null)
+                    }
+                  }}
+                >
+                  <DialogContent className="farmer-theme text-foreground flex max-h-[90vh] max-w-2xl flex-col p-0">
+                    <DialogHeader className="shrink-0 px-6 pt-6">
+                      <DialogTitle className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-sky-400" />
+                        Modifier la localisation
+                      </DialogTitle>
+                      <DialogDescription>
+                        {editingProductId
+                          ? `Produit : ${products.find((p) => p.id === editingProductId)?.name ?? ""} — recherchez puis ciblez le nouvel emplacement sur la carte.`
+                          : "Recherchez puis ciblez l'emplacement sur la carte."}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto px-6 py-4">
+                      {editingProductId && products.find((p) => p.id === editingProductId)?.location && !editMapLocation && (
+                        <p className="mb-3 rounded-lg border border-white/10 bg-white/[0.03] p-2.5 text-xs text-muted-foreground">
+                          Localisation actuelle : <span className="font-medium text-foreground">{products.find((p) => p.id === editingProductId)?.location}</span>
+                          {products.find((p) => p.id === editingProductId)?.gps && (
+                            <span className="font-mono">
+                              {" "}
+                              — {products.find((p) => p.id === editingProductId)?.gps?.lat.toFixed(6)},{" "}
+                              {products.find((p) => p.id === editingProductId)?.gps?.lng.toFixed(6)}
+                            </span>
+                          )}
+                        </p>
+                      )}
+                      <LocationMapPicker value={editMapLocation} onChange={setEditMapLocation} />
+                    </div>
+                    <DialogFooter className="shrink-0 border-t border-white/5 px-6 py-4">
+                      <Button
+                        variant="outline"
+                        className="border-white/10 bg-transparent"
+                        onClick={() => setIsEditLocationDialogOpen(false)}
+                      >
+                        Annuler
+                      </Button>
+                      <Button onClick={handleSaveEditLocation} className="gap-2 bg-sky-500 hover:bg-sky-600 text-white">
+                        <Navigation className="h-4 w-4" />
+                        Enregistrer la localisation
+                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -1310,10 +1429,28 @@ export default function FarmerDashboard() {
                             <Badge variant="outline" className="border-lime-400/20 text-xs">
                               {CATEGORIES.find((c) => c.value === product.category)?.label}
                             </Badge>
+                            {product.gps && (
+                              <Badge className="gap-1 bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+                                <Navigation className="h-3 w-3" />
+                                GPS
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {product.price.toFixed(2)} FC / {product.unit} · Stock: {product.quantity}
+                            {product.price.toFixed(2)} FC / {product.unit} · Stock: {product.quantity} · {product.location}
                           </p>
+                          {product.gps && (
+                            <a
+                              href={`https://www.google.com/maps?q=${product.gps.lat},${product.gps.lng}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-emerald-400 hover:underline"
+                            >
+                              <MapPin className="h-3 w-3" />
+                              {product.gps.lat.toFixed(4)}, {product.gps.lng.toFixed(4)} — Voir trace
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          )}
                         </div>
                         <div className="flex flex-wrap gap-1">
                           <Button
@@ -1334,6 +1471,14 @@ export default function FarmerDashboard() {
                             onClick={() => handleOpenRestock(product.id)}
                           >
                             Renouveler
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenEditLocation(product)}
+                            title="Modifier la localisation"
+                          >
+                            <MapPin className="h-4 w-4 text-sky-400" />
                           </Button>
                           <Button
                             variant="ghost"

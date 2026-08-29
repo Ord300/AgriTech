@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, User, Phone, Mail, Calendar, ExternalLink, MessageSquare, ShoppingCart, BadgeCheck, ShieldAlert } from "lucide-react"
+import { MapPin, User, Phone, Mail, Calendar, ExternalLink, MessageSquare, ShoppingCart, BadgeCheck, ShieldAlert, Navigation } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Product } from "@/lib/types"
 import { CATEGORIES } from "@/lib/types"
@@ -69,71 +69,126 @@ export function ProductCard({ product, showOrderButton = true }: ProductCardProp
     })
   }
 
+  const lowStock = product.quantity > 0 && product.quantity <= 10
+  const outOfStock = !product.isAvailable || product.quantity === 0
+
   return (
-    <Card className="group h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10">
-      <div className="relative aspect-[4/3] overflow-hidden">
+    <Card className="group relative flex h-full flex-col overflow-hidden rounded-[1.6rem] border-0 bg-card shadow-sm ring-1 ring-border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/10 hover:ring-primary/10">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <Image
           src={product.image || "/placeholder.svg"}
           alt={product.name}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        <Badge className="absolute left-3 top-3 border-0 bg-card/90 text-foreground shadow-sm backdrop-blur">{categoryLabel}</Badge>
-        {!product.isAvailable && (
-          <div className="absolute inset-0 flex items-center justify-center bg-foreground/60">
-            <span className="rounded-md bg-card px-3 py-1 text-sm font-medium">Indisponible</span>
-          </div>
-        )}
-      </div>
-      <CardContent className="p-4">
-        <h3 className="text-lg font-semibold text-foreground">{product.name}</h3>
-        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <User className="h-4 w-4" />
-            {product.farmerName}
-          </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent" />
+        <div className="absolute left-3 top-3 flex items-center gap-2">
+          <Badge className="border-0 bg-white/95 px-2.5 py-1 text-xs font-semibold text-foreground shadow backdrop-blur">{categoryLabel}</Badge>
+          {lowStock && !outOfStock && (
+            <Badge variant="destructive" className="border-0 px-2 py-1 text-xs font-bold shadow">
+              Stock faible
+            </Badge>
+          )}
+        </div>
+        <div className="absolute right-3 top-3 flex flex-col items-end gap-2">
+          {product.gps && (
+            <Badge className="gap-1 border-0 bg-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow">
+              <Navigation className="h-3 w-3" />
+              GPS tracé
+            </Badge>
+          )}
           {isFarmerCertified && (
-            <span className="flex items-center gap-1 font-medium text-lime-600">
-              <BadgeCheck className="h-4 w-4 fill-lime-500/20 text-lime-600" />
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-xs font-bold text-lime-700 shadow backdrop-blur">
+              <BadgeCheck className="h-3.5 w-3.5 text-lime-600" />
               Certifié
             </span>
           )}
-          {farmer?.rating && (
-            <span className="flex items-center gap-1 text-yellow-600 font-medium">
-              <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-              {farmer.rating} ({farmer.reviewCount})
+        </div>
+        {outOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/55 backdrop-blur-[1px]">
+            <span className="rounded-full bg-white px-4 py-2 text-sm font-bold shadow">Indisponible</span>
+          </div>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
+            <div className={`h-2 w-2 rounded-full ${outOfStock ? "bg-red-400" : lowStock ? "bg-amber-400" : "bg-emerald-400"}`} />
+            {outOfStock ? "Rupture" : lowStock ? `Plus que ${product.quantity}` : `${product.quantity} dispo.`}
+          </div>
+        </div>
+      </div>
+      <CardContent className="flex flex-1 flex-col p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-1 text-[17px] font-extrabold leading-tight text-foreground">{product.name}</h3>
+          {farmer?.rating ? (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2 py-1 text-xs font-bold text-amber-700 dark:text-amber-300">
+              <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+              {farmer.rating}
             </span>
-          )}
-          <span className="flex items-center gap-1">
-            <MapPin className="h-4 w-4" />
-            {product.location}
+          ) : null}
+        </div>
+        <p className="mt-1 line-clamp-2 min-h-[2.6em] text-[13px] leading-relaxed text-muted-foreground">{product.description}</p>
+
+        <div className="mt-3 flex items-center gap-2">
+          <Avatar className="h-7 w-7 border">
+            <AvatarImage src={farmer?.avatar} alt={product.farmerName} />
+            <AvatarFallback className="text-xs font-bold">{product.farmerName.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-semibold leading-none">{product.farmerName}</p>
+            <p className="text-xs text-muted-foreground">{farmer?.reviewCount ? `${farmer.reviewCount} avis` : "Nouveau vendeur"}</p>
+          </div>
+        </div>
+
+        {product.gps ? (
+          <a
+            href={`https://www.google.com/maps?q=${product.gps.lat},${product.gps.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-all hover:bg-emerald-500 hover:text-white hover:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500 dark:hover:text-white"
+          >
+            <Navigation className="h-3.5 w-3.5" />
+            Voir trace GPS
+            <ExternalLink className="h-3 w-3 opacity-70" />
+          </a>
+        ) : (
+          <span className="mt-3 inline-flex w-fit items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3" />
+            Traçabilité à venir
           </span>
+        )}
+
+        <div className="mt-3 flex items-end justify-between gap-3 border-t pt-3">
+          <div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-[22px] font-black leading-none text-primary">{product.price.toFixed(0)}</span>
+              <span className="text-xs font-bold text-primary">FC</span>
+              <span className="text-xs text-muted-foreground">/ {product.unit}</span>
+            </div>
+            <p className="mt-1 text-xs font-medium text-muted-foreground">Stock : {product.quantity} {product.unit}</p>
+          </div>
+          <span className={`hidden h-2 w-2 shrink-0 rounded-full sm:block ${outOfStock ? "bg-red-500" : "bg-emerald-500"}`} />
         </div>
-        <div className="mt-3 flex items-baseline justify-between">
-          <span className="text-2xl font-bold text-primary">{product.price.toFixed(2)} FC</span>
-          <span className="text-sm text-muted-foreground">/ {product.unit}</span>
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Stock: {product.quantity} {product.unit}
-        </p>
       </CardContent>
       {showOrderButton && (
         <CardFooter className="flex flex-col gap-2 p-4 pt-0">
-          <Button className="w-full gap-2" onClick={handleAddToCart} disabled={!product.isAvailable || product.quantity === 0}>
+          <Button
+            className="w-full gap-2 rounded-full font-semibold shadow-md shadow-primary/20 hover:shadow-lg"
+            onClick={handleAddToCart}
+            disabled={outOfStock}
+          >
             <ShoppingCart className="h-4 w-4" />
             Ajouter au panier
           </Button>
 
           <div className="grid grid-cols-2 gap-2 w-full">
-            <Button variant="outline" className="w-full gap-2" onClick={() => setContactDialogOpen(true)}>
+            <Button variant="outline" className="w-full gap-2 rounded-full" onClick={() => setContactDialogOpen(true)}>
               <MessageSquare className="h-4 w-4" />
               Contacter
             </Button>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="w-full gap-2">
+                <Button variant="outline" className="w-full gap-2 rounded-full">
                   <ExternalLink className="h-4 w-4" />
                   Voir vendeur
                 </Button>
@@ -201,8 +256,72 @@ export function ProductCard({ product, showOrderButton = true }: ProductCardProp
                             <Calendar className="h-4 w-4 text-primary" />
                             <span>Inscrit le {farmer?.createdAt ? new Date(farmer.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : "Inconnu"}</span>
                           </div>
+                          {product.gps && (
+                            <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-emerald-700 dark:text-emerald-300">
+                              <Navigation className="h-4 w-4 shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-semibold">Origine tracée GPS</p>
+                                <p className="font-mono text-xs text-muted-foreground">
+                                  {product.gps.lat.toFixed(6)}, {product.gps.lng.toFixed(6)}
+                                </p>
+                              </div>
+                              <a
+                                href={`https://www.google.com/maps?q=${product.gps.lat},${product.gps.lng}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-xs font-bold text-white hover:bg-emerald-600"
+                              >
+                                Voir
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </div>
+                          )}
                         </div>
                       </div>
+
+                      {/* Carte GPS – traçabilité origine */}
+                      {product.gps && (
+                        <div className="space-y-3 rounded-xl border border-emerald-500/20 bg-card p-3">
+                          <h4 className="flex items-center gap-2 text-sm font-semibold">
+                            <MapPin className="h-4 w-4 text-emerald-600" />
+                            Localisation exacte du champ
+                          </h4>
+                          <div className="overflow-hidden rounded-lg border">
+                            <iframe
+                              title={`Carte ${product.name}`}
+                              width="100%"
+                              height="180"
+                              loading="lazy"
+                              referrerPolicy="no-referrer-when-downgrade"
+                              src={`https://www.openstreetmap.org/export/embed.html?bbox=${product.gps.lng - 0.02},${product.gps.lat - 0.02},${product.gps.lng + 0.02},${product.gps.lat + 0.02}&layer=mapnik&marker=${product.gps.lat},${product.gps.lng}`}
+                              style={{ border: 0 }}
+                            />
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <a
+                              href={`https://www.google.com/maps?q=${product.gps.lat},${product.gps.lng}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                            >
+                              <Navigation className="h-3.5 w-3.5" />
+                              Ouvrir dans Google Maps
+                            </a>
+                            <a
+                              href={`https://www.openstreetmap.org/?mlat=${product.gps.lat}&mlon=${product.gps.lng}#map=15/${product.gps.lat}/${product.gps.lng}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-xs font-medium hover:bg-muted"
+                            >
+                              OpenStreetMap
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Coordonnées enregistrées par l&apos;agriculteur lors de l&apos;ajout du produit — permet à l&apos;acheteur de vérifier l&apos;origine.
+                          </p>
+                        </div>
+                      )}
 
                       {/* Farmer Description */}
                       {farmer?.description && (

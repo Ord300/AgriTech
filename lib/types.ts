@@ -37,6 +37,8 @@ export interface Product {
   unit: string
   quantity: number
   location: string
+  /** Coordonnées GPS pour la traçabilité de l'origine du produit */
+  gps?: { lat: number; lng: number }
   image: string
   createdAt: string
   isAvailable: boolean

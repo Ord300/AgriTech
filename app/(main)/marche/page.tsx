@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { useData } from "@/lib/data-context"
 import { ProductCard } from "@/components/product-card"
 import { Input } from "@/components/ui/input"
@@ -41,8 +42,29 @@ const CATEGORY_ICONS: Record<ProductCategory, LucideIcon> = {
   autres: Package,
 }
 
+function QuerySync({
+  onCategory,
+  onFarmer,
+}: {
+  onCategory: (cat: string) => void
+  onFarmer: (farmerId: string) => void
+}) {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const cat = searchParams.get("category")
+    if (cat && CATEGORIES.some((c) => c.value === cat)) {
+      onCategory(cat)
+    }
+    const farmer = searchParams.get("farmer")
+    if (farmer) {
+      onFarmer(farmer)
+    }
+  }, [searchParams, onCategory, onFarmer])
+  return null
+}
+
 export default function MarketPage() {
-  const { products } = useData()
+  const { products, users } = useData()
 
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>("all")
@@ -50,6 +72,21 @@ export default function MarketPage() {
   const [sortBy, setSortBy] = useState<string>("recent")
   const [showFilters, setShowFilters] = useState(false)
   const [showVigilance, setShowVigilance] = useState(true)
+  const [farmer, setFarmer] = useState<string | null>(null)
+
+  // Pré-sélectionne les filtres depuis l'URL (?category= / ?farmer=)
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const params = new URLSearchParams(window.location.search)
+    const cat = params.get("category")
+    if (cat && CATEGORIES.some((c) => c.value === cat)) {
+      setCategory(cat)
+    }
+    const farmerParam = params.get("farmer")
+    if (farmerParam) {
+      setFarmer(farmerParam)
+    }
+  }, [])
 
   const availableProducts = useMemo(() => products.filter((p) => p.isAvailable && p.quantity > 0), [products])
 
@@ -70,6 +107,10 @@ export default function MarketPage() {
 
   const filteredProducts = useMemo(() => {
     let result = [...availableProducts]
+
+    if (farmer) {
+      result = result.filter((p) => p.farmerId === farmer)
+    }
 
     if (search) {
       const searchLower = search.toLowerCase()
@@ -102,22 +143,37 @@ export default function MarketPage() {
     }
 
     return result
-  }, [availableProducts, search, category, location, sortBy])
+  }, [availableProducts, search, category, location, sortBy, farmer])
 
   const clearFilters = () => {
     setSearch("")
     setCategory("all")
     setLocation("all")
     setSortBy("recent")
+    setFarmer(null)
+    // Nettoie aussi l'URL sans recharger
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href)
+      url.searchParams.delete("farmer")
+      url.searchParams.delete("category")
+      window.history.replaceState({}, "", url.toString())
+    }
   }
 
-  const activeFiltersCount = (search ? 1 : 0) + (category !== "all" ? 1 : 0) + (location !== "all" ? 1 : 0)
+  const farmerUser = farmer ? users.find((u) => u.id === farmer) : null
+  const activeFarmerLabel = farmerUser?.name ?? farmer
+
+  const activeFiltersCount =
+    (search ? 1 : 0) + (category !== "all" ? 1 : 0) + (location !== "all" ? 1 : 0) + (farmer ? 1 : 0)
   const hasActiveFilters = activeFiltersCount > 0
 
   const activeCategory = CATEGORIES.find((c) => c.value === category)
 
   return (
     <div className="flex flex-col">
+      <Suspense fallback={null}>
+        <QuerySync onCategory={setCategory} onFarmer={setFarmer} />
+      </Suspense>
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 to-background">
         <div className="container mx-auto px-4 py-12 lg:py-16">
@@ -174,15 +230,15 @@ export default function MarketPage() {
               </SelectContent>
             </Select>
             <Button
-              variant={showFilters || location !== "all" ? "default" : "outline"}
+              variant={showFilters || hasActiveFilters ? "default" : "outline"}
               onClick={() => setShowFilters(!showFilters)}
-              className={cn("gap-2 rounded-full", !showFilters && location === "all" && "bg-card")}
+              className={cn("gap-2 rounded-full", !showFilters && !hasActiveFilters && "bg-card")}
             >
               <SlidersHorizontal className="h-4 w-4" />
               Filtres
-              {location !== "all" && (
+              {hasActiveFilters && (
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-foreground text-xs font-bold text-primary">
-                  1
+                  {activeFiltersCount}
                 </span>
               )}
             </Button>
@@ -302,7 +358,14 @@ export default function MarketPage() {
               )}
               {activeCategory && (
                 <button
-                  onClick={() => setCategory("all")}
+                  onClick={() => {
+                    setCategory("all")
+                    if (typeof window !== "undefined") {
+                      const url = new URL(window.location.href)
+                      url.searchParams.delete("category")
+                      window.history.replaceState({}, "", url.toString())
+                    }
+                  }}
                   className="group inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-xs font-medium transition-colors hover:border-destructive/50 hover:text-destructive"
                 >
                   {activeCategory.label}
@@ -311,7 +374,9 @@ export default function MarketPage() {
               )}
               {location !== "all" && (
                 <button
-                  onClick={() => setLocation("all")}
+                  onClick={() => {
+                    setLocation("all")
+                  }}
                   className="group inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-xs font-medium transition-colors hover:border-destructive/50 hover:text-destructive"
                 >
                   <MapPin className="h-3 w-3 text-muted-foreground" />
@@ -319,9 +384,60 @@ export default function MarketPage() {
                   <X className="h-3 w-3 text-muted-foreground group-hover:text-destructive" />
                 </button>
               )}
+              {farmer && (
+                <button
+                  onClick={() => {
+                    setFarmer(null)
+                    if (typeof window !== "undefined") {
+                      const url = new URL(window.location.href)
+                      url.searchParams.delete("farmer")
+                      window.history.replaceState({}, "", url.toString())
+                    }
+                  }}
+                  className="group inline-flex items-center gap-1.5 rounded-full border bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:border-primary/50 hover:bg-primary/15"
+                >
+                  <Leaf className="h-3 w-3" />
+                  {activeFarmerLabel}
+                  <X className="h-3 w-3" />
+                </button>
+              )}
             </div>
           )}
         </div>
+        {farmer && farmerUser && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-gradient-to-r from-primary/5 via-emerald-500/5 to-amber-500/5 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                <Leaf className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold">
+                  Produits de <span className="text-primary">{farmerUser.name}</span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {farmerUser.location ? `${farmerUser.location} • ` : ""}
+                  {filteredProducts.length} produit{filteredProducts.length !== 1 ? "s" : ""} disponible{filteredProducts.length !== 1 ? "s" : ""}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setFarmer(null)
+                if (typeof window !== "undefined") {
+                  const url = new URL(window.location.href)
+                  url.searchParams.delete("farmer")
+                  window.history.replaceState({}, "", url.toString())
+                }
+              }}
+              className="rounded-full bg-card"
+            >
+              <X className="h-4 w-4" />
+              Voir tout le marché
+            </Button>
+          </div>
+        )}
 
         {filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed bg-muted/30 px-6 py-16 text-center">
