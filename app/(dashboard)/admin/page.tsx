@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useData } from "@/lib/data-context"
-import { useCart } from "@/lib/cart-context"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -25,7 +24,6 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Respon
 export default function AdminDashboard() {
   const { user, logout, isLoading, updateUser: updateAuthUser, changePassword } = useAuth()
   const { products, orders, users, articles, deleteProduct, deleteUser, updateOrderStatus, updateUser, addArticle, deleteArticle, setFeaturedArticle, notifications, unreadNotifications, markNotificationAsRead, clearNotifications, supportTickets, addMessageToTicket, updateTicketStatus, conversations, messages, sendMessage, startConversation, transactions, showcaseProducts, addShowcaseProduct, deleteShowcaseProduct, accountRequests, updateAccountRequestStatus, certificationRequests, createCertificationRequest, updateCertificationRequestStatus } = useData()
-  const { totalItems, setCartOpen } = useCart()
   const router = useRouter()
   const { toast } = useToast()
 
@@ -833,20 +831,6 @@ const renderMenuButton = (
             </div>
             <div className="flex items-center gap-1.5 max-[360px]:gap-1 sm:gap-3 md:gap-4 shrink-0">
               <span className="hidden sm:inline max-w-[120px] truncate text-sm text-muted-foreground">{user.name}</span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="relative bg-transparent h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 sm:h-9 sm:w-9 shrink-0"
-                onClick={() => setCartOpen(true)}
-                aria-label="Ouvrir le panier"
-              >
-                <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {totalItems > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 sm:-right-2 sm:-top-2 flex h-4 min-w-4 sm:h-5 sm:min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] sm:text-xs font-bold text-primary-foreground">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
               <div className="relative">
                 <Button
                   variant="ghost"
@@ -943,6 +927,16 @@ const renderMenuButton = (
                   </div>
                 )}
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => logout()}
+                aria-label="Déconnexion"
+                title="Déconnexion"
+                className="h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 sm:h-9 sm:w-9 shrink-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              >
+                <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
+              </Button>
             </div>
           </div>
         </header>

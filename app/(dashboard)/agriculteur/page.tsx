@@ -640,8 +640,28 @@ export default function FarmerDashboard() {
             <div className="hidden md:block min-w-0">
               <h1 className="text-base font-semibold sm:text-xl truncate">Tableau de Bord</h1>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
-              <span className="hidden sm:inline max-w-[120px] lg:max-w-[160px] truncate text-sm text-muted-foreground">{user.name}</span>
+            <div className="flex items-center gap-1.5 max-[360px]:gap-1 sm:gap-3 lg:gap-4 shrink-0">
+              <span className="hidden sm:inline max-w-[100px] lg:max-w-[160px] truncate text-sm text-muted-foreground">{user.name}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleContactAdmin}
+                className="hidden sm:inline-flex gap-1.5 border-lime-400/20 bg-transparent text-lime-300 hover:bg-lime-400/10 hover:text-lime-200 h-8 max-[360px]:h-7 text-xs sm:text-sm px-2.5 sm:px-3"
+              >
+                <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden lg:inline">Contacter admin</span>
+                <span className="lg:hidden">Admin</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleContactAdmin}
+                aria-label="Contacter admin"
+                title="Contacter admin"
+                className="sm:hidden h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 border-lime-400/20 bg-transparent text-lime-300 hover:bg-lime-400/10 shrink-0"
+              >
+                <MessageSquare className="h-4 w-4" />
+              </Button>
               <MessageNotifications role="farmer" />
             </div>
           </div>
