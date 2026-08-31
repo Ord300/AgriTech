@@ -435,18 +435,18 @@ function HomeContent() {
 
         {/* AGRICULTEURS À L'HONNEUR — PREMIUM REDESIGN */}
         {(topSeller || bestRated) && (
-          <section className="relative overflow-hidden py-16 lg:py-24">
+          <section className="relative overflow-hidden py-12 lg:py-16">
             {/* fond editorial */}
             <div className="absolute inset-0 bg-gradient-to-b from-amber-50/40 via-white to-emerald-50/30 dark:from-card dark:via-background dark:to-background" />
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:28px_28px]" />
             <div className="absolute left-1/2 top-0 h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-400/10 via-primary/5 to-emerald-400/10 blur-3xl" />
 
-            <div className="container relative mx-auto px-4">
+            <div className="container relative mx-auto px-3 max-[360px]:px-2 sm:px-4">
               <ScrollReveal>
                 <div className="mx-auto max-w-3xl text-center">
-                  <div className="inline-flex items-center gap-2 rounded-full border bg-white px-4 py-1.5 text-xs font-semibold shadow-sm dark:bg-card">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white">
-                      <Crown className="h-3.5 w-3.5" />
+                  <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border bg-white px-3 max-[360px]:px-2.5 py-1 sm:py-1.5 text-xs max-[360px]:text-[11px] font-semibold shadow-sm dark:bg-card">
+                    <span className="flex h-5 w-5 max-[360px]:h-4 max-[360px]:w-4 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white">
+                      <Crown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     </span>
                     Palmarès du mois
                     <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
@@ -454,25 +454,25 @@ function HomeContent() {
                       Édition {new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}
                     </span>
                   </div>
-                  <h2 className="mt-4 text-balance text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-[2.5rem]">
+                  <h2 className="mt-3 sm:mt-4 text-balance text-2xl max-[360px]:text-xl sm:text-4xl lg:text-[2.5rem] font-extrabold tracking-tight">
                     Nos agriculteurs <span className="bg-gradient-to-r from-amber-600 via-primary to-emerald-600 bg-clip-text text-transparent">à l&apos;honneur</span>
                   </h2>
-                  <p className="mx-auto mt-3 max-w-2xl text-pretty text-[15px] leading-relaxed text-muted-foreground">
-                    Deux producteurs d&apos;exception sélectionnés chaque mois — l&apos;un pour ses <span className="font-semibold text-foreground">volumes</span>, l&apos;autre pour la <span className="font-semibold text-foreground">confiance</span> de ses clients. Qualité contrôlée, traçabilité totale.
+                  <p className="mx-auto mt-2 sm:mt-3 max-w-2xl text-pretty text-sm max-[360px]:text-xs sm:text-[15px] leading-relaxed text-muted-foreground">
+                    Deux producteurs d&apos;exception sélectionnés chaque mois — l&apos;un pour ses <span className="font-semibold text-foreground">volumes</span>, l&apos;autre pour la <span className="font-semibold text-foreground">confiance</span> de ses clients.
                   </p>
                 </div>
               </ScrollReveal>
 
-              <div className="mx-auto mt-12 grid max-w-5xl gap-8 md:grid-cols-2">
+              <div className="mx-auto mt-6 max-[360px]:mt-5 sm:mt-8 grid max-w-4xl gap-4 max-[360px]:gap-3 sm:gap-5 md:grid-cols-2">
                 {/* MEILLEUR VENDEUR */}
                 {topSeller &&
                   (() => {
                     const sellerProducts = products.filter((p) => p.farmerId === topSeller.farmerId).slice(0, 3)
                     return (
                       <ScrollReveal delay={100} variant="zoom">
-                        <div className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border bg-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.15)] transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-20px_rgba(0,0,0,0.2)] dark:bg-card">
+                        <div className="group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] max-[360px]:rounded-xl border bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:bg-card">
                           {/* bannière */}
-                          <div className="relative h-32 overflow-hidden">
+                          <div className="relative h-20 max-[360px]:h-16 overflow-hidden">
                             <Image
                               src={sellerProducts[0]?.image || "/fresh-red-tomatoes-on-vine.jpg"}
                               alt=""
@@ -482,12 +482,12 @@ function HomeContent() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 via-transparent to-transparent" />
                             {/* ruban */}
-                            <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider text-white shadow-lg">
-                              <Trophy className="h-3.5 w-3.5" />
+                            <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-md">
+                              <Trophy className="h-3 w-3" />
                               #1 Ventes
                             </div>
-                            <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-foreground backdrop-blur">
-                              <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                            <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[11px] font-bold text-foreground backdrop-blur">
+                              <TrendingUp className="h-3 w-3 text-emerald-600" />
                               Top perf
                             </div>
                             {/* trait décoratif bas */}
@@ -495,21 +495,21 @@ function HomeContent() {
                           </div>
 
                           {/* avatar chevauchant */}
-                          <div className="relative px-6">
-                            <div className="absolute -top-10 left-6 flex items-end gap-3">
+                          <div className="relative px-5 max-[360px]:px-3">
+                            <div className="absolute -top-8 max-[360px]:-top-6 left-5 max-[360px]:left-3 flex items-end gap-2.5 max-[360px]:gap-2">
                               <div className="relative">
-                                <Avatar className="h-[76px] w-[76px] border-4 border-white shadow-xl ring-2 ring-amber-400/30 dark:border-card">
+                                <Avatar className="h-[60px] w-[60px] max-[360px]:h-[52px] max-[360px]:w-[52px] border-[3px] border-white shadow-lg ring-2 ring-amber-400/30 dark:border-card">
                                   <AvatarImage src={topSeller.avatar} />
-                                  <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-xl font-extrabold text-white">
+                                  <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-lg font-extrabold text-white">
                                     {topSeller.name.charAt(0)}
                                   </AvatarFallback>
                                 </Avatar>
-                                <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-white shadow-md dark:border-card">
-                                  <BadgeCheck className="h-4 w-4" />
+                                <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-white shadow-md dark:border-card">
+                                  <BadgeCheck className="h-3 w-3" />
                                 </span>
                               </div>
-                              <div className="mb-2 hidden sm:block">
-                                <div className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                              <div className="mb-1.5 hidden sm:block">
+                                <div className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300">
                                   <Medal className="h-3 w-3" />
                                   Certifié TerraFrais
                                 </div>
@@ -517,9 +517,9 @@ function HomeContent() {
                             </div>
                           </div>
 
-                          <CardContent className="flex flex-1 flex-col px-6 pb-6 pt-12">
+                          <CardContent className="flex flex-1 flex-col px-5 max-[360px]:px-3 pb-5 max-[360px]:pb-3 pt-10 max-[360px]:pt-8">
                             <div className="flex-1">
-                              <h3 className="text-xl font-extrabold tracking-tight">{topSeller.name}</h3>
+                              <h3 className="text-[17px] max-[360px]:text-[15px] font-extrabold tracking-tight truncate">{topSeller.name}</h3>
                               {topSeller.location && (
                                 <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                                   <MapPin className="h-3 w-3" />
@@ -528,41 +528,41 @@ function HomeContent() {
                               )}
 
                               {/* stats premium */}
-                              <div className="mt-5 grid grid-cols-2 gap-3">
-                                <div className="group/stat relative overflow-hidden rounded-2xl border bg-gradient-to-br from-amber-500/[0.08] to-orange-500/[0.08] p-3 transition-colors hover:border-amber-500/30">
-                                  <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-amber-500/10 blur-xl" />
-                                  <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                              <div className="mt-4 grid grid-cols-2 gap-2.5">
+                                <div className="group/stat relative overflow-hidden rounded-xl border bg-gradient-to-br from-amber-500/[0.08] to-orange-500/[0.08] p-2.5 transition-colors hover:border-amber-500/30">
+                                  <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-amber-500/10 blur-xl" />
+                                  <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
                                     <Package className="h-3 w-3" />
                                     Unités
                                   </p>
-                                  <p className="mt-1 text-2xl font-black tracking-tight text-amber-600 dark:text-amber-400">{topSeller.quantity}</p>
-                                  <p className="text-xs text-muted-foreground">vendues ce mois</p>
+                                  <p className="mt-0.5 text-xl font-black tracking-tight text-amber-600 dark:text-amber-400">{topSeller.quantity}</p>
+                                  <p className="text-[11px] text-muted-foreground">vendues ce mois</p>
                                 </div>
-                                <div className="group/stat relative overflow-hidden rounded-2xl border bg-gradient-to-br from-emerald-500/[0.08] to-teal-500/[0.08] p-3 transition-colors hover:border-emerald-500/30">
-                                  <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-emerald-500/10 blur-xl" />
-                                  <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                                <div className="group/stat relative overflow-hidden rounded-xl border bg-gradient-to-br from-emerald-500/[0.08] to-teal-500/[0.08] p-2.5 transition-colors hover:border-emerald-500/30">
+                                  <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-emerald-500/10 blur-xl" />
+                                  <p className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
                                     <Award className="h-3 w-3" />
                                     Revenu
                                   </p>
-                                  <p className="mt-1 text-2xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">{topSeller.revenue.toFixed(0)}<span className="text-sm font-bold"> FC</span></p>
-                                  <p className="text-xs text-muted-foreground">chiffre brut</p>
+                                  <p className="mt-0.5 text-xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">{topSeller.revenue.toFixed(0)}<span className="text-xs font-bold"> FC</span></p>
+                                  <p className="text-[11px] text-muted-foreground">chiffre brut</p>
                                 </div>
                               </div>
 
                               {/* produits miniatures */}
                               {sellerProducts.length > 0 && (
-                                <div className="mt-5">
-                                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ses produits phares</p>
-                                  <div className="mt-2 flex gap-2">
+                                <div className="mt-4">
+                                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Ses produits phares</p>
+                                  <div className="mt-1.5 flex gap-1.5">
                                     {sellerProducts.map((pp) => (
-                                      <div key={pp.id} className="relative h-16 flex-1 overflow-hidden rounded-xl border bg-muted">
+                                      <div key={pp.id} className="relative h-12 flex-1 overflow-hidden rounded-lg border bg-muted">
                                         <Image src={pp.image} alt={pp.name} fill className="object-cover" sizes="100px" />
                                       </div>
                                     ))}
                                     {sellerProducts.length < 3 &&
                                       Array.from({ length: 3 - sellerProducts.length }).map((_, i) => (
-                                        <div key={`ph-${i}`} className="flex flex-1 items-center justify-center rounded-xl border border-dashed bg-muted/40 text-muted-foreground">
-                                          <Leaf className="h-4 w-4" />
+                                        <div key={`ph-${i}`} className="flex flex-1 items-center justify-center rounded-lg border border-dashed bg-muted/40 text-muted-foreground">
+                                          <Leaf className="h-3.5 w-3.5" />
                                         </div>
                                       ))}
                                   </div>
@@ -570,7 +570,7 @@ function HomeContent() {
                               )}
                             </div>
 
-                            <Button asChild className="mt-6 w-full rounded-full bg-gradient-to-r from-amber-500 to-orange-600 font-semibold text-white shadow-lg shadow-amber-500/20 hover:from-amber-600 hover:to-orange-700">
+                            <Button asChild size="sm" className="mt-4 h-9 w-full rounded-full bg-gradient-to-r from-amber-500 to-orange-600 text-sm font-semibold text-white shadow-md shadow-amber-500/20 hover:from-amber-600 hover:to-orange-700">
                               <Link href={`/marche?farmer=${encodeURIComponent(topSeller.farmerId)}`} className="gap-2">
                                 <Eye className="h-4 w-4" />
                                 Voir ses produits
@@ -589,8 +589,8 @@ function HomeContent() {
                     const ratedProducts = products.filter((p) => p.farmerId === bestRated.farmerId).slice(0, 3)
                     return (
                       <ScrollReveal delay={180} variant="zoom">
-                        <div className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border bg-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.15)] transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-20px_rgba(0,0,0,0.2)] dark:bg-card">
-                          <div className="relative h-32 overflow-hidden">
+                        <div className="group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] max-[360px]:rounded-xl border bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:bg-card">
+                          <div className="relative h-20 max-[360px]:h-16 overflow-hidden">
                             <Image
                               src={ratedProducts[0]?.image || "/red-gala-apples-fresh.jpg"}
                               alt=""
@@ -599,32 +599,32 @@ function HomeContent() {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-transparent to-transparent" />
-                            <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider text-white shadow-lg">
-                              <Star className="h-3.5 w-3.5 fill-white" />
+                            <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-md">
+                              <Star className="h-3 w-3 fill-white" />
                               Mieux noté
                             </div>
-                            <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-foreground backdrop-blur">
-                              <Crown className="h-3.5 w-3.5 text-amber-500" />
+                            <div className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[11px] font-bold text-foreground backdrop-blur">
+                              <Crown className="h-3 w-3 text-amber-500" />
                               Coup de cœur
                             </div>
                             <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" />
                           </div>
 
-                          <div className="relative px-6">
-                            <div className="absolute -top-10 left-6 flex items-end gap-3">
+                          <div className="relative px-5 max-[360px]:px-3">
+                            <div className="absolute -top-8 max-[360px]:-top-6 left-5 max-[360px]:left-3 flex items-end gap-2.5 max-[360px]:gap-2">
                               <div className="relative">
-                                <Avatar className="h-[76px] w-[76px] border-4 border-white shadow-xl ring-2 ring-emerald-400/30 dark:border-card">
+                                <Avatar className="h-[60px] w-[60px] max-[360px]:h-[52px] max-[360px]:w-[52px] border-[3px] border-white shadow-lg ring-2 ring-emerald-400/30 dark:border-card">
                                   <AvatarImage src={bestRated.avatar} />
-                                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-xl font-extrabold text-white">
+                                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-lg font-extrabold text-white">
                                     {bestRated.name.charAt(0)}
                                   </AvatarFallback>
                                 </Avatar>
-                                <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-md dark:border-card">
-                                  <Star className="h-4 w-4 fill-white" />
+                                <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-md dark:border-card">
+                                  <Star className="h-3 w-3 fill-white" />
                                 </span>
                               </div>
-                              <div className="mb-2 hidden sm:block">
-                                <div className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                              <div className="mb-1.5 hidden sm:block">
+                                <div className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
                                   <BadgeCheck className="h-3 w-3" />
                                   Noté 5★ par les clients
                                 </div>
@@ -632,9 +632,9 @@ function HomeContent() {
                             </div>
                           </div>
 
-                          <CardContent className="flex flex-1 flex-col px-6 pb-6 pt-12">
+                          <CardContent className="flex flex-1 flex-col px-5 max-[360px]:px-3 pb-5 max-[360px]:pb-3 pt-10 max-[360px]:pt-8">
                             <div className="flex-1">
-                              <h3 className="text-xl font-extrabold tracking-tight">{bestRated.name}</h3>
+                              <h3 className="text-[17px] max-[360px]:text-[15px] font-extrabold tracking-tight truncate">{bestRated.name}</h3>
                               {bestRated.location && (
                                 <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                                   <MapPin className="h-3 w-3" />
@@ -642,31 +642,31 @@ function HomeContent() {
                                 </p>
                               )}
 
-                              <div className="mt-5 rounded-2xl border bg-gradient-to-br from-primary/[0.06] to-emerald-500/[0.06] p-4">
+                              <div className="mt-4 rounded-xl border bg-gradient-to-br from-primary/[0.06] to-emerald-500/[0.06] p-3">
                                 <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-1">
+                                  <div className="flex items-center gap-0.5">
                                     {[1, 2, 3, 4, 5].map((s) => (
                                       <Star
                                         key={s}
-                                        className={`h-5 w-5 ${s <= Math.round(bestRated.avg) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
+                                        className={`h-4 w-4 ${s <= Math.round(bestRated.avg) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/20"}`}
                                       />
                                     ))}
                                   </div>
-                                  <span className="rounded-full bg-amber-500 px-2.5 py-1 text-xs font-black text-white shadow">{bestRated.avg.toFixed(1)} / 5</span>
+                                  <span className="rounded-full bg-amber-500 px-2 py-0.5 text-[11px] font-black text-white shadow">{bestRated.avg.toFixed(1)} / 5</span>
                                 </div>
-                                <div className="mt-3 flex items-end justify-between">
+                                <div className="mt-2 flex items-end justify-between">
                                   <div>
-                                    <p className="text-3xl font-black tracking-tight text-primary">{bestRated.avg.toFixed(1)}</p>
-                                    <p className="text-xs font-medium text-muted-foreground">
+                                    <p className="text-2xl font-black tracking-tight text-primary">{bestRated.avg.toFixed(1)}</p>
+                                    <p className="text-[11px] font-medium text-muted-foreground">
                                       sur {bestRated.count} avis vérifiés
                                     </p>
                                   </div>
                                   <div className="text-right">
-                                    <p className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-                                      <CheckCircle2 className="h-3.5 w-3.5" />
+                                    <p className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+                                      <CheckCircle2 className="h-3 w-3" />
                                       100% authentiques
                                     </p>
-                                    <div className="mt-1 h-1.5 w-24 overflow-hidden rounded-full bg-muted">
+                                    <div className="mt-1 h-1.5 w-20 overflow-hidden rounded-full bg-muted">
                                       <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500" style={{ width: `${(bestRated.avg / 5) * 100}%` }} />
                                     </div>
                                   </div>
@@ -674,18 +674,18 @@ function HomeContent() {
                               </div>
 
                               {ratedProducts.length > 0 && (
-                                <div className="mt-5">
-                                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ses produits phares</p>
-                                  <div className="mt-2 flex gap-2">
+                                <div className="mt-4">
+                                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Ses produits phares</p>
+                                  <div className="mt-1.5 flex gap-1.5">
                                     {ratedProducts.map((pp) => (
-                                      <div key={pp.id} className="relative h-16 flex-1 overflow-hidden rounded-xl border bg-muted">
+                                      <div key={pp.id} className="relative h-12 flex-1 overflow-hidden rounded-lg border bg-muted">
                                         <Image src={pp.image} alt={pp.name} fill className="object-cover" sizes="100px" />
                                       </div>
                                     ))}
                                     {ratedProducts.length < 3 &&
                                       Array.from({ length: 3 - ratedProducts.length }).map((_, i) => (
-                                        <div key={`pr-${i}`} className="flex flex-1 items-center justify-center rounded-xl border border-dashed bg-muted/40 text-muted-foreground">
-                                          <Leaf className="h-4 w-4" />
+                                        <div key={`pr-${i}`} className="flex flex-1 items-center justify-center rounded-lg border border-dashed bg-muted/40 text-muted-foreground">
+                                          <Leaf className="h-3.5 w-3.5" />
                                         </div>
                                       ))}
                                   </div>
@@ -693,7 +693,7 @@ function HomeContent() {
                               )}
                             </div>
 
-                            <Button asChild className="mt-6 w-full rounded-full font-semibold shadow-lg shadow-primary/20">
+                            <Button asChild size="sm" className="mt-4 h-9 w-full rounded-full text-sm font-semibold shadow-md shadow-primary/20">
                               <Link href={`/marche?farmer=${encodeURIComponent(bestRated.farmerId)}`} className="gap-2">
                                 <Eye className="h-4 w-4" />
                                 Voir ses produits

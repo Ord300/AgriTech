@@ -63,16 +63,16 @@ export function OrderDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="farmer-theme text-foreground sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center justify-between gap-2">
-            <DialogTitle>Détails de la commande</DialogTitle>
-            <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+      <DialogContent className="farmer-theme text-foreground w-[calc(100%-1rem)] sm:max-w-md sm:w-full max-h-[92vh] flex flex-col gap-0 p-0">
+        <DialogHeader className="shrink-0 border-b border-white/5 px-4 pb-4 pt-5 sm:px-6 sm:pt-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <DialogTitle className="text-left text-base sm:text-lg">Détails de la commande</DialogTitle>
+            <Badge variant={getStatusBadgeVariant(order.status)} className="w-fit shrink-0">{ORDER_STATUS_LABELS[order.status]}</Badge>
           </div>
-          <DialogDescription>Commande #{order.id}</DialogDescription>
+          <DialogDescription className="text-left text-xs sm:text-sm">Commande #{order.id}</DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] pr-3">
+        <ScrollArea className="flex-1 max-h-[60vh] px-4 sm:px-6">
         <div className="space-y-4 py-2">
           {/* Produit */}
           <div className="rounded-lg border p-4">
@@ -158,7 +158,7 @@ export function OrderDetailsDialog({
         </div>
         </ScrollArea>
 
-        <DialogFooter className="flex-col gap-2 sm:flex-col">
+        <DialogFooter className="shrink-0 flex-col gap-2 border-t border-white/5 px-4 py-3 sm:px-6 sm:py-4">
           {/* Actions principales */}
           <div className="flex w-full flex-col gap-2">
             {order.status === "pending" && (

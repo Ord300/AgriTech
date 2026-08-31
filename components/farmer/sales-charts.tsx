@@ -108,22 +108,23 @@ export function FarmerSalesCharts({ orders }: FarmerSalesChartsProps) {
   }, [orders])
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-2.5 max-[360px]:gap-2 sm:gap-4 lg:grid-cols-2">
       {/* Évolution des revenus */}
-      <Card className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl lg:col-span-2">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base text-foreground">Évolution des revenus</CardTitle>
-          <CardDescription className="text-xs text-muted-foreground">
+      <Card className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl lg:col-span-2 overflow-hidden">
+        <CardHeader className="p-3 max-[360px]:p-2.5 pb-2 sm:p-6 sm:pb-2">
+          <CardTitle className="text-sm max-[360px]:text-xs sm:text-base text-foreground">Évolution des revenus</CardTitle>
+          <CardDescription className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">
             Chiffre d&apos;affaires par jour de commande
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-1.5 max-[360px]:p-1 sm:p-6 sm:pt-2">
           {revenueByDay.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">
+            <p className="py-6 sm:py-12 text-center text-xs sm:text-sm text-muted-foreground">
               Aucune vente enregistrée pour le moment.
             </p>
           ) : (
-            <ResponsiveContainer width="100%" height={240}>
+            <div className="h-[180px] max-[360px]:h-[160px] w-full sm:h-[240px]">
+              <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={revenueByDay} margin={{ top: 8, right: 8, left: -14, bottom: 0 }}>
                 <defs>
                   <linearGradient id="farmerRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -153,26 +154,28 @@ export function FarmerSalesCharts({ orders }: FarmerSalesChartsProps) {
                   activeDot={{ r: 5, fill: "#a3e635", stroke: "rgba(255,255,255,0.3)", strokeWidth: 2 }}
                 />
               </AreaChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            </div>
           )}
         </CardContent>
       </Card>
 
       {/* Ventes par produit */}
-      <Card className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base text-foreground">Ventes par produit</CardTitle>
-          <CardDescription className="text-xs text-muted-foreground">
+      <Card className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl overflow-hidden">
+        <CardHeader className="p-3 max-[360px]:p-2.5 pb-2 sm:p-6 sm:pb-2">
+          <CardTitle className="text-sm max-[360px]:text-xs sm:text-base text-foreground">Ventes par produit</CardTitle>
+          <CardDescription className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">
             Quantités vendues (top 8)
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-1.5 max-[360px]:p-1 sm:p-6 sm:pt-2">
           {salesByProduct.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">
+            <p className="py-6 sm:py-12 text-center text-xs sm:text-sm text-muted-foreground">
               Aucune vente enregistrée pour le moment.
             </p>
           ) : (
-            <ResponsiveContainer width="100%" height={240}>
+            <div className="h-[180px] max-[360px]:h-[160px] w-full sm:h-[240px]">
+              <ResponsiveContainer width="100%" height="100%">
               <BarChart data={salesByProduct} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
                 <defs>
                   <linearGradient id="farmerBar" x1="0" y1="0" x2="0" y2="1">
@@ -190,28 +193,30 @@ export function FarmerSalesCharts({ orders }: FarmerSalesChartsProps) {
                   cursor={{ fill: "rgba(255,255,255,0.04)" }}
                   formatter={(value: any) => [`${value}`, "Quantité"]}
                 />
-                <Bar dataKey="quantity" fill="url(#farmerBar)" name="Quantité" radius={[5, 5, 0, 0]} barSize={28} />
+                <Bar dataKey="quantity" fill="url(#farmerBar)" name="Quantité" radius={[5, 5, 0, 0]} barSize={22} />
               </BarChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            </div>
           )}
         </CardContent>
       </Card>
 
       {/* Commandes par statut */}
-      <Card className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base text-foreground">Commandes par statut</CardTitle>
-          <CardDescription className="text-xs text-muted-foreground">
+      <Card className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl overflow-hidden">
+        <CardHeader className="p-3 max-[360px]:p-2.5 pb-2 sm:p-6 sm:pb-2">
+          <CardTitle className="text-sm max-[360px]:text-xs sm:text-base text-foreground">Commandes par statut</CardTitle>
+          <CardDescription className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">
             Distribution de vos commandes
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-1.5 max-[360px]:p-1 sm:p-6 sm:pt-2">
           {ordersByStatus.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">
+            <p className="py-6 sm:py-12 text-center text-xs sm:text-sm text-muted-foreground">
               Aucune commande pour le moment.
             </p>
           ) : (
-            <ResponsiveContainer width="100%" height={240}>
+            <div className="h-[180px] max-[360px]:h-[160px] w-full sm:h-[240px]">
+              <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={ordersByStatus}
@@ -219,9 +224,9 @@ export function FarmerSalesCharts({ orders }: FarmerSalesChartsProps) {
                   cy="50%"
                   labelLine={false}
                   label={renderPieLabel}
-                  innerRadius={55}
-                  outerRadius={72}
-                  paddingAngle={4}
+                  innerRadius={48}
+                  outerRadius={66}
+                  paddingAngle={3}
                   dataKey="value"
                   stroke="none"
                 >
@@ -231,7 +236,8 @@ export function FarmerSalesCharts({ orders }: FarmerSalesChartsProps) {
                 </Pie>
                 <Tooltip contentStyle={tooltipStyle} itemStyle={{ color: "#fff" }} />
               </PieChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            </div>
           )}
         </CardContent>
       </Card>

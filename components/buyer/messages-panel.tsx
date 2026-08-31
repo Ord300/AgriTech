@@ -54,8 +54,8 @@ export function BuyerMessagesPanel({ className }: BuyerMessagesPanelProps) {
   }
 
   return (
-    <div className={cn("flex flex-col overflow-hidden rounded-xl border bg-card md:flex-row", className)}>
-      <div className="h-56 w-full md:h-auto md:w-80 md:flex-shrink-0">
+    <div className={cn("flex flex-col overflow-hidden rounded-xl max-[360px]:rounded-lg border bg-card md:flex-row h-[calc(100dvh-180px)] max-[360px]:h-[calc(100dvh-140px)] sm:h-[calc(100vh-180px)] md:h-[calc(100vh-180px)]", className)}>
+      <div className="h-[42%] max-[360px]:h-[38%] sm:h-56 w-full md:h-auto md:w-80 md:flex-shrink-0 border-b md:border-b-0 md:border-r border-border overflow-hidden shrink-0">
         <ConversationList
           conversations={buyerConversations}
           selectedId={selectedConvId}
@@ -63,7 +63,7 @@ export function BuyerMessagesPanel({ className }: BuyerMessagesPanelProps) {
           currentUserId={currentUserId}
         />
       </div>
-      <div className="min-h-[420px] flex-1">
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
         <ChatWindow
           messages={currentMessages}
           otherParticipant={otherParticipant}

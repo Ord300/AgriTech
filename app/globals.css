@@ -441,3 +441,34 @@
     transition: none;
   }
 }
+
+/* Très petits appareils : 320-360px */
+@media (max-width: 360px) {
+  html {
+    font-size: 15px;
+  }
+  .container {
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
+  }
+}
+
+@media (max-width: 320px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Évite le débordement horizontal global */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+/* Sécurise les cartes / dialog sur < 360px */
+@media (max-width: 360px) {
+  [data-slot="dialog-content"] {
+    max-width: calc(100vw - 1rem) !important;
+  }
+}

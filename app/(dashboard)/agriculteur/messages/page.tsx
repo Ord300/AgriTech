@@ -71,9 +71,9 @@ export default function FarmerMessagesPage() {
   }
 
   return (
-    <div className="farmer-theme min-h-screen bg-background text-foreground">
+    <div className="farmer-theme min-h-[100dvh] bg-background text-foreground overflow-x-hidden">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-white/5 bg-sidebar/80 backdrop-blur-xl fixed left-0 top-0 h-screen">
+      <aside className="hidden md:flex flex-col w-64 border-r border-white/5 bg-sidebar/80 backdrop-blur-xl fixed left-0 top-0 h-[100dvh]">
         <FarmerSidebar
           user={user}
           certified={!!certifiedRequest}
@@ -85,39 +85,39 @@ export default function FarmerMessagesPage() {
       </aside>
 
       {/* Contenu principal */}
-      <div className="relative flex flex-col flex-1 md:ml-64 h-screen overflow-hidden">
+      <div className="relative flex flex-col flex-1 md:ml-64 h-[100dvh] overflow-hidden">
         {/* Décor d'arrière-plan */}
         <div className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-lime-500/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 -left-16 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
 
         {/* Header */}
         <header className="sticky top-0 z-40 border-b border-white/5 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="h-16 flex items-center justify-between px-4">
-            <div className="flex items-center gap-4 md:hidden">
-              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                <Menu className="h-5 w-5" />
+          <div className="flex h-14 max-[360px]:h-12 sm:h-16 items-center justify-between gap-2 px-2.5 max-[360px]:px-2 sm:px-4">
+            <div className="flex items-center gap-2 max-[360px]:gap-1.5 sm:gap-4 md:hidden shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 sm:h-9 sm:w-9 shrink-0" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
-              <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400">
-                  <Leaf className="h-4 w-4 text-emerald-950" />
+              <Link href="/" className="flex items-center gap-1.5">
+                <div className="flex h-7 w-7 max-[360px]:h-7 max-[360px]:w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-lime-400">
+                  <Leaf className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-950" />
                 </div>
               </Link>
             </div>
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="hidden sm:flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-lime-400/15 shadow-[0_0_20px_rgba(163,230,53,0.2)]">
-                <MessagesSquare className="h-5 w-5 text-lime-400" />
+            <div className="flex items-center gap-2 max-[360px]:gap-1.5 sm:gap-3 min-w-0">
+              <div className="hidden sm:flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-lime-400/15 shadow-[0_0_20px_rgba(163,230,53,0.2)]">
+                <MessagesSquare className="h-4 w-4 sm:h-5 sm:w-5 text-lime-400" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-lg font-semibold leading-tight truncate">Messages</h1>
-                <p className="text-xs text-muted-foreground hidden sm:block">
+                <h1 className="text-base max-[360px]:text-sm sm:text-lg font-semibold leading-tight truncate">Messages</h1>
+                <p className="text-xs max-[360px]:text-[11px] text-muted-foreground hidden sm:block truncate">
                   {totalUnread > 0
                     ? `${totalUnread} message${totalUnread !== 1 ? "s" : ""} non lu${totalUnread !== 1 ? "s" : ""}`
                     : `${farmerConversations.length} conversation${farmerConversations.length !== 1 ? "s" : ""}`}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="hidden lg:inline text-sm text-muted-foreground">{user.name}</span>
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+              <span className="hidden lg:inline max-w-[140px] truncate text-sm text-muted-foreground">{user.name}</span>
               <MessageNotifications role="farmer" />
             </div>
           </div>
@@ -127,10 +127,10 @@ export default function FarmerMessagesPage() {
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 md:hidden">
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
-            <aside className="fixed left-0 top-0 w-64 h-screen bg-sidebar border-r border-white/5 flex flex-col z-50">
-              <div className="flex items-center justify-between p-4 border-b border-white/5 md:hidden">
-                <span className="font-bold">Menu</span>
-                <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+            <aside className="fixed left-0 top-0 w-[280px] max-w-[85vw] h-[100dvh] bg-sidebar border-r border-white/5 flex flex-col z-50 shadow-2xl">
+              <div className="flex items-center justify-between p-3 max-[360px]:p-2.5 border-b border-white/5 md:hidden">
+                <span className="text-sm font-bold">Menu</span>
+                <Button variant="ghost" size="icon" className="h-8 w-8 max-[360px]:h-7 max-[360px]:w-7" onClick={() => setMobileMenuOpen(false)}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -148,13 +148,13 @@ export default function FarmerMessagesPage() {
         )}
 
         {/* Zone de chat */}
-        <main className="relative flex-1 p-3 sm:p-4 lg:p-6 min-h-0">
+        <main className="relative flex-1 p-2 max-[360px]:p-1.5 sm:p-4 lg:p-6 min-h-0 overflow-hidden">
           <div className="mx-auto max-w-6xl h-full">
-            <div className="flex h-full rounded-xl border border-white/5 bg-card/60 shadow-lg shadow-black/20 backdrop-blur-xl overflow-hidden">
+            <div className="flex h-full rounded-xl max-[360px]:rounded-lg border border-white/5 bg-card/60 shadow-lg shadow-black/20 backdrop-blur-xl overflow-hidden">
               <div
                 className={cn(
-                  "w-64 sm:w-72 md:w-80 flex-shrink-0",
-                  mobileView === "chat" ? "hidden md:block" : "block",
+                  "w-full md:w-80 flex-shrink-0",
+                  mobileView === "chat" ? "hidden md:block" : "flex",
                 )}
               >
                 <ConversationList
@@ -169,7 +169,7 @@ export default function FarmerMessagesPage() {
               </div>
               <div
                 className={cn(
-                  "flex-1 min-w-0 border-l border-white/5",
+                  "flex-1 min-w-0 flex-col md:border-l md:border-white/5",
                   mobileView === "list" ? "hidden md:flex" : "flex",
                 )}
               >

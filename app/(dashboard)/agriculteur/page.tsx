@@ -513,7 +513,7 @@ export default function FarmerDashboard() {
   ]
 
   return (
-    <div className="farmer-theme min-h-screen bg-background text-foreground flex">
+    <div className="farmer-theme min-h-screen bg-background text-foreground flex overflow-x-hidden">
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex flex-col w-64 border-r border-white/5 bg-sidebar/80 backdrop-blur-xl fixed left-0 top-0 h-screen">
         <div className="p-6 border-b border-white/5">
@@ -625,22 +625,23 @@ export default function FarmerDashboard() {
 
         {/* Header - Mobile & Desktop Profile */}
         <header className="sticky top-0 z-40 border-b border-white/5 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="h-16 flex items-center justify-between px-4 container">
-            <div className="flex items-center gap-4 md:hidden">
-              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                <Menu className="h-5 w-5" />
+          <div className="flex h-13 max-[360px]:h-12 sm:h-16 items-center justify-between gap-2 px-2.5 max-[360px]:px-2 sm:px-4 container">
+            <div className="flex items-center gap-1.5 sm:gap-4 md:hidden shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 sm:h-9 sm:w-9 shrink-0" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
-              <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400">
-                  <Leaf className="h-4 w-4 text-emerald-950" />
+              <Link href="/" className="flex items-center gap-1.5 sm:gap-2">
+                <div className="flex h-7 w-7 max-[360px]:h-7 max-[360px]:w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-lime-400">
+                  <Leaf className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-950" />
                 </div>
+                <span className="hidden max-[360px]:hidden xs:inline text-sm font-bold sm:hidden">TerraFrais</span>
               </Link>
             </div>
-            <div className="hidden md:block">
-              <h1 className="text-xl font-semibold">Tableau de Bord</h1>
+            <div className="hidden md:block min-w-0">
+              <h1 className="text-base font-semibold sm:text-xl truncate">Tableau de Bord</h1>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="hidden sm:inline text-sm text-muted-foreground">{user.name}</span>
+            <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
+              <span className="hidden sm:inline max-w-[120px] lg:max-w-[160px] truncate text-sm text-muted-foreground">{user.name}</span>
               <MessageNotifications role="farmer" />
             </div>
           </div>
@@ -648,8 +649,8 @@ export default function FarmerDashboard() {
 
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 md:hidden">
-            <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
-            <aside className="fixed left-0 top-0 w-64 h-screen bg-sidebar border-r border-white/5 flex flex-col z-50">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+            <aside className="fixed left-0 top-0 w-[280px] max-w-[85vw] h-[100dvh] bg-sidebar border-r border-white/5 flex flex-col z-50 shadow-2xl">
               <div className="flex items-center justify-between p-4 border-b border-white/5">
                 <span className="font-bold">Menu</span>
                 <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
@@ -729,37 +730,37 @@ export default function FarmerDashboard() {
           </div>
         )}
 
-        <main className="relative container mx-auto px-4 py-8">
+        <main className="relative container mx-auto px-2.5 max-[360px]:px-2 py-5 max-[360px]:py-4 sm:px-4 sm:py-8 overflow-x-hidden">
           {/* Bannière de bienvenue */}
-          <section className="relative mb-8 overflow-hidden rounded-2xl border border-lime-400/20 bg-gradient-to-r from-lime-500/15 via-emerald-500/10 to-card/60 p-6 sm:p-8">
-            <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-lime-400/15 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 left-1/3 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl" />
-            <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
-              <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-lime-400/15 shadow-[0_0_25px_rgba(163,230,53,0.25)]">
-                  <Sprout className="h-7 w-7 text-lime-400" />
+          <section className="relative mb-5 max-[360px]:mb-4 sm:mb-8 overflow-hidden rounded-xl sm:rounded-2xl border border-lime-400/20 bg-gradient-to-r from-lime-500/15 via-emerald-500/10 to-card/60 p-3 max-[360px]:p-2.5 sm:p-6 lg:p-8">
+            <div className="pointer-events-none absolute -right-16 -top-20 h-40 w-40 sm:h-64 sm:w-64 rounded-full bg-lime-400/15 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-20 left-1/3 h-36 w-36 sm:h-48 sm:w-48 rounded-full bg-emerald-400/10 blur-3xl" />
+            <div className="relative flex flex-col justify-between gap-3 sm:gap-6 lg:flex-row lg:items-center">
+              <div className="flex items-start gap-2.5 sm:gap-4 min-w-0">
+                <div className="flex h-10 w-10 max-[360px]:h-9 max-[360px]:w-9 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-lime-400/15 shadow-[0_0_25px_rgba(163,230,53,0.25)]">
+                  <Sprout className="h-5 w-5 max-[360px]:h-4 max-[360px]:w-4 sm:h-7 sm:w-7 text-lime-400" />
                 </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Bonjour, {user.name}</h1>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Voici l&apos;activité de votre exploitation — {pendingOrders.length} commande{pendingOrders.length !== 1 ? "s" : ""} en attente de traitement.
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg max-[360px]:text-base sm:text-2xl lg:text-3xl font-bold text-foreground truncate leading-tight">Bonjour, {user.name}</h1>
+                  <p className="mt-1 text-[11px] max-[360px]:text-[10px] sm:text-sm leading-relaxed text-muted-foreground line-clamp-2">
+                    Voici l&apos;activité de votre exploitation — {pendingOrders.length} commande{pendingOrders.length !== 1 ? "s" : ""} en attente.
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-col gap-2 max-[360px]:gap-1.5 sm:flex-row sm:flex-wrap sm:items-center">
                 <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="gap-2 border-white/10 bg-transparent">
-                      <Settings className="h-4 w-4" />
+                    <Button variant="outline" size="sm" className="w-full justify-center gap-2 border-white/10 bg-transparent text-xs sm:text-sm h-9 max-[360px]:h-8 sm:w-auto">
+                      <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       Éditer le profil
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="farmer-theme text-foreground max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Éditer le Profil</DialogTitle>
-                      <DialogDescription>Mettez à jour vos informations personnelles et votre bio</DialogDescription>
+                  <DialogContent className="farmer-theme text-foreground flex max-h-[92vh] w-[calc(100%-1rem)] max-[360px]:w-[calc(100%-0.75rem)] max-w-md flex-col gap-0 p-0 sm:w-full">
+                    <DialogHeader className="shrink-0 border-b border-white/5 px-4 max-[360px]:px-3 pb-4 pt-5 max-[360px]:pt-4 sm:px-6 sm:pt-6">
+                      <DialogTitle className="text-left text-base max-[360px]:text-sm">Éditer le Profil</DialogTitle>
+                      <DialogDescription className="text-left text-xs max-[360px]:text-[11px] sm:text-sm">Mettez à jour vos informations personnelles et votre bio</DialogDescription>
                     </DialogHeader>
-                    <div className="max-h-[70vh] overflow-y-auto py-4 pr-2">
+                    <div className="flex-1 overflow-y-auto px-4 max-[360px]:px-3 py-4 max-[360px]:py-3 sm:px-6">
                       <div className="space-y-6">
                         {/* Avatar Upload */}
                         <div className="flex flex-col items-center gap-4">
@@ -896,28 +897,28 @@ export default function FarmerDashboard() {
                         </div>
                       </div>
                     </div>
-                    <DialogFooter>
-                      <Button variant="outline" className="border-white/10 bg-transparent" onClick={() => setIsProfileDialogOpen(false)}>Annuler</Button>
-                      <Button onClick={handleUpdateProfile}>Enregistrer</Button>
+                    <DialogFooter className="shrink-0 border-t border-white/5 px-4 max-[360px]:px-3 py-3 max-[360px]:py-2.5 sm:px-6 sm:py-4 flex-col-reverse gap-2 sm:flex-row">
+                      <Button variant="outline" className="w-full border-white/10 bg-transparent sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs" onClick={() => setIsProfileDialogOpen(false)}>Annuler</Button>
+                      <Button onClick={handleUpdateProfile} className="w-full sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs">Enregistrer</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
 
                 <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="gap-2 bg-lime-400 text-emerald-950 shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300">
-                      <Plus className="h-4 w-4" />
+                    <Button size="sm" className="w-full justify-center gap-2 bg-lime-400 text-emerald-950 shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300 text-xs sm:text-sm h-9 max-[360px]:h-8 sm:w-auto">
+                      <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       Ajouter un produit
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="farmer-theme text-foreground max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Nouveau Produit</DialogTitle>
-                      <DialogDescription>Ajoutez un nouveau produit à votre catalogue — ciblez l&apos;origine sur la carte</DialogDescription>
+                  <DialogContent className="farmer-theme text-foreground flex max-h-[92vh] w-[calc(100%-1rem)] max-[360px]:w-[calc(100%-0.75rem)] max-w-[420px] flex-col gap-0 p-0 sm:max-w-2xl sm:w-full">
+                    <DialogHeader className="shrink-0 border-b border-white/5 px-4 max-[360px]:px-3 pb-3 max-[360px]:pb-2 pt-5 max-[360px]:pt-4 sm:px-6 sm:pt-6">
+                      <DialogTitle className="text-left text-base max-[360px]:text-sm sm:text-xl">Nouveau Produit</DialogTitle>
+                      <DialogDescription className="text-left text-xs max-[360px]:text-[11px] sm:text-sm">Ajoutez un nouveau produit — ciblez l&apos;origine sur la carte</DialogDescription>
                     </DialogHeader>
-                    <div className="max-h-[75vh] overflow-y-auto py-4 pr-2">
-                      <div className="grid gap-4">
-                        <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="flex-1 overflow-y-auto px-4 max-[360px]:px-3 py-4 max-[360px]:py-3 sm:px-6">
+                      <div className="grid gap-3 sm:gap-4">
+                        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                           <div className="space-y-2">
                             <Label htmlFor="name">Nom du produit *</Label>
                             <Input
@@ -955,12 +956,13 @@ export default function FarmerDashboard() {
                             onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                           />
                         </div>
-                        <div className="grid gap-4 sm:grid-cols-3">
+                        <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3">
                           <div className="space-y-2">
                             <Label htmlFor="price">Prix (FC) *</Label>
                             <Input
                               id="price"
                               type="number"
+                              inputMode="decimal"
                               step="0.01"
                               placeholder="4.50"
                               value={newProduct.price}
@@ -983,18 +985,19 @@ export default function FarmerDashboard() {
                               </SelectContent>
                             </Select>
                           </div>
-                          <div className="space-y-2">
+                          <div className="col-span-2 space-y-2 sm:col-span-1">
                             <Label htmlFor="quantity">Quantité *</Label>
                             <Input
                               id="quantity"
                               type="number"
+                              inputMode="numeric"
                               placeholder="100"
                               value={newProduct.quantity}
                               onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
                             />
                           </div>
                         </div>
-                        <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                        <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-3 sm:p-3">
                           <Label className="flex items-center gap-1.5 text-sm">
                             <MapPin className="h-3.5 w-3.5 text-lime-400" />
                             Localisation & traçabilité GPS *
@@ -1005,15 +1008,15 @@ export default function FarmerDashboard() {
                           <LocationMapPicker value={mapLocation} onChange={setMapLocation} />
                         </div>
                         <div className="space-y-2">
-                          <Label>Image du produit</Label>
-                          <div className="mt-1 flex flex-col items-center gap-4 rounded-lg border-2 border-dashed border-white/10 p-4">
+                          <Label className="text-sm">Image du produit</Label>
+                          <div className="mt-1 flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-white/10 p-3 sm:p-4">
                             {imagePreview ? (
-                              <div className="relative aspect-video max-h-48 w-full overflow-hidden rounded-md border">
+                              <div className="relative aspect-video max-h-40 w-full overflow-hidden rounded-md border sm:max-h-48">
                                 <img src={imagePreview} alt="Aperçu" className="h-full w-full object-cover" />
                                 <Button
                                   variant="destructive"
                                   size="icon"
-                                  className="absolute right-2 top-2 h-8 w-8"
+                                  className="absolute right-2 top-2 h-7 w-7 sm:h-8 sm:w-8"
                                   onClick={() => {
                                     setImagePreview(null)
                                     setNewProduct({ ...newProduct, image: "" })
@@ -1023,11 +1026,11 @@ export default function FarmerDashboard() {
                                 </Button>
                               </div>
                             ) : (
-                              <label className="flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 transition-colors">
-                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                  <Upload className="mb-2 h-8 w-8" />
+                              <label className="flex h-28 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md text-muted-foreground hover:bg-muted/30 transition-colors sm:h-32">
+                                <div className="flex flex-col items-center justify-center py-4">
+                                  <Upload className="mb-2 h-7 w-7 sm:h-8 sm:w-8" />
                                   <p className="mb-1 text-sm font-semibold">Cliquez pour télécharger</p>
-                                  <p className="text-xs">PNG, JPG ou WebP (max. 2 Mo)</p>
+                                  <p className="text-xs text-center px-2">PNG, JPG ou WebP (max. 5 Mo)</p>
                                 </div>
                                 <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
                               </label>
@@ -1036,11 +1039,11 @@ export default function FarmerDashboard() {
                         </div>
                       </div>
                     </div>
-                    <DialogFooter>
-                      <Button variant="outline" className="border-white/10 bg-transparent" onClick={() => setIsAddDialogOpen(false)}>
+                    <DialogFooter className="shrink-0 border-t border-white/5 px-4 max-[360px]:px-3 py-3 max-[360px]:py-2.5 sm:px-6 sm:py-4 flex-col-reverse gap-2 sm:flex-row">
+                      <Button variant="outline" className="w-full border-white/10 bg-transparent sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs" onClick={() => setIsAddDialogOpen(false)}>
                         Annuler
                       </Button>
-                      <Button onClick={handleAddProduct}>Ajouter</Button>
+                      <Button onClick={handleAddProduct} className="w-full sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs">Ajouter le produit</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -1052,10 +1055,10 @@ export default function FarmerDashboard() {
                     setRestockQuantity("")
                   }
                 }}>
-                  <DialogContent className="farmer-theme text-foreground max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Renouveler le stock</DialogTitle>
-                      <DialogDescription>
+                  <DialogContent className="farmer-theme text-foreground w-[calc(100%-1rem)] max-[360px]:w-[calc(100%-0.75rem)] max-w-md sm:w-full">
+                    <DialogHeader className="px-4 max-[360px]:px-3 pt-4 sm:pt-5">
+                      <DialogTitle className="text-left text-base max-[360px]:text-sm">Renouveler le stock</DialogTitle>
+                      <DialogDescription className="text-left text-xs max-[360px]:text-[11px] sm:text-sm">
                         Ajoutez des unités à {products.find((item) => item.id === restockProductId)?.name ?? "ce produit"}.
                       </DialogDescription>
                     </DialogHeader>
@@ -1066,17 +1069,18 @@ export default function FarmerDashboard() {
                           id="restock-quantity"
                           type="number"
                           min="1"
+                          inputMode="numeric"
                           placeholder="Ex: 30"
                           value={restockQuantity}
                           onChange={(e) => setRestockQuantity(e.target.value)}
                         />
                       </div>
                     </div>
-                    <DialogFooter>
-                      <Button variant="outline" className="border-white/10 bg-transparent" onClick={() => setIsRestockDialogOpen(false)}>
+                    <DialogFooter className="flex-col-reverse gap-2 sm:flex-row px-4 max-[360px]:px-3 pb-4 max-[360px]:pb-3 sm:px-6">
+                      <Button variant="outline" className="w-full border-white/10 bg-transparent sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs" onClick={() => setIsRestockDialogOpen(false)}>
                         Annuler
                       </Button>
-                      <Button onClick={handleRestockProduct}>Valider le stock</Button>
+                      <Button onClick={handleRestockProduct} className="w-full sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs">Valider le stock</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -1091,19 +1095,19 @@ export default function FarmerDashboard() {
                     }
                   }}
                 >
-                  <DialogContent className="farmer-theme text-foreground flex max-h-[90vh] max-w-2xl flex-col p-0">
-                    <DialogHeader className="shrink-0 px-6 pt-6">
-                      <DialogTitle className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5 text-sky-400" />
+                  <DialogContent className="farmer-theme text-foreground flex max-h-[92vh] w-[calc(100%-1rem)] max-[360px]:w-[calc(100%-0.75rem)] max-w-2xl flex-col gap-0 p-0 sm:w-full">
+                    <DialogHeader className="shrink-0 border-b border-white/5 px-4 max-[360px]:px-3 pb-4 pt-5 max-[360px]:pt-4 sm:px-6 sm:pt-6">
+                      <DialogTitle className="flex items-center gap-2 text-left text-[15px] max-[360px]:text-sm sm:text-lg">
+                        <MapPin className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-sky-400" />
                         Modifier la localisation
                       </DialogTitle>
-                      <DialogDescription>
+                      <DialogDescription className="text-left text-xs max-[360px]:text-[11px] sm:text-sm leading-relaxed">
                         {editingProductId
                           ? `Produit : ${products.find((p) => p.id === editingProductId)?.name ?? ""} — recherchez puis ciblez le nouvel emplacement sur la carte.`
                           : "Recherchez puis ciblez l'emplacement sur la carte."}
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="flex-1 overflow-y-auto px-6 py-4">
+                    <div className="flex-1 overflow-y-auto px-4 max-[360px]:px-3 py-4 max-[360px]:py-3 sm:px-6">
                       {editingProductId && products.find((p) => p.id === editingProductId)?.location && !editMapLocation && (
                         <p className="mb-3 rounded-lg border border-white/10 bg-white/[0.03] p-2.5 text-xs text-muted-foreground">
                           Localisation actuelle : <span className="font-medium text-foreground">{products.find((p) => p.id === editingProductId)?.location}</span>
@@ -1118,24 +1122,24 @@ export default function FarmerDashboard() {
                       )}
                       <LocationMapPicker value={editMapLocation} onChange={setEditMapLocation} />
                     </div>
-                    <DialogFooter className="shrink-0 border-t border-white/5 px-6 py-4">
+                    <DialogFooter className="shrink-0 border-t border-white/5 px-4 py-3 sm:px-6 sm:py-4 flex-col-reverse gap-2 sm:flex-row">
                       <Button
                         variant="outline"
-                        className="border-white/10 bg-transparent"
+                        className="w-full border-white/10 bg-transparent sm:w-auto"
                         onClick={() => setIsEditLocationDialogOpen(false)}
                       >
                         Annuler
                       </Button>
-                      <Button onClick={handleSaveEditLocation} className="gap-2 bg-sky-500 hover:bg-sky-600 text-white">
+                      <Button onClick={handleSaveEditLocation} className="w-full gap-2 bg-sky-500 hover:bg-sky-600 text-white sm:w-auto">
                         <Navigation className="h-4 w-4" />
-                        Enregistrer la localisation
+                        Enregistrer
                       </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
 
-                <Button variant="outline" className="gap-2 border-white/10 bg-transparent" onClick={handleContactAdmin}>
-                  <MessageSquare className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="w-full justify-center gap-2 border-white/10 bg-transparent text-xs sm:text-sm h-9 max-[360px]:h-8 sm:w-auto" onClick={handleContactAdmin}>
+                  <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Contact Support
                 </Button>
               </div>
@@ -1143,16 +1147,16 @@ export default function FarmerDashboard() {
           </section>
 
 {/* Stats Cards */}
-          <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mb-5 sm:mb-8 grid grid-cols-1 min-[360px]:grid-cols-2 gap-2.5 max-[360px]:gap-2 sm:gap-4 lg:grid-cols-4">
             {stats.map((stat) => (
-              <Card key={stat.label} className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl transition-colors hover:border-lime-400/20">
-                <CardContent className="flex items-center gap-4 p-6">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.chip}`}>
-                    <stat.icon className="h-6 w-6" />
+              <Card key={stat.label} className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl transition-colors hover:border-lime-400/20 overflow-hidden">
+                <CardContent className="flex items-center gap-2.5 max-[360px]:gap-2 p-2.5 max-[360px]:p-2 sm:gap-4 sm:p-5">
+                  <div className={`flex h-9 w-9 max-[360px]:h-8 max-[360px]:w-8 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg sm:rounded-xl ${stat.chip}`}>
+                    <stat.icon className="h-4 w-4 max-[360px]:h-3.5 max-[360px]:w-3.5 sm:h-6 sm:w-6" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm max-[360px]:text-[13px] font-bold leading-tight sm:text-xl lg:text-2xl">{stat.value}</p>
+                    <p className="truncate text-[11px] max-[360px]:text-[10px] sm:text-sm text-muted-foreground">{stat.label}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -1160,42 +1164,42 @@ export default function FarmerDashboard() {
           </div>
 
           {/* Certification Request Section */}
-          <Card id="module-certification" className="mb-8 scroll-mt-20 border-white/5 bg-card/60 shadow-lg backdrop-blur-xl">
-            <CardHeader>
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-lime-400" />
+          <Card id="module-certification" className="mb-5 max-[360px]:mb-4 sm:mb-8 scroll-mt-20 border-white/5 bg-card/60 shadow-lg backdrop-blur-xl overflow-hidden">
+            <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <CardTitle className="flex items-center gap-1.5 sm:gap-2 text-[15px] max-[360px]:text-sm sm:text-lg">
+                    <Star className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-lime-400" />
                     Certification
                   </CardTitle>
-                  <CardDescription>Demandez le badge officiel de la plateforme</CardDescription>
+                  <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-sm mt-1">Demandez le badge officiel</CardDescription>
                 </div>
                 {certifiedRequest && (
-                  <Badge variant="outline" className="border-lime-400/30 bg-lime-400/10 text-lime-300">
+                  <Badge variant="outline" className="w-fit shrink-0 border-lime-400/30 bg-lime-400/10 text-lime-300">
                     <BadgeCheck className="mr-1 h-3 w-3" />
                     Certifié
                   </Badge>
                 )}
                 {!certifiedRequest && approvedCertification && (
-                  <Badge variant="outline" className="border-amber-400/30 bg-amber-400/10 text-amber-300">
+                  <Badge variant="outline" className="w-fit shrink-0 border-amber-400/30 bg-amber-400/10 text-amber-300">
                     Paiement requis
                   </Badge>
                 )}
                 {!certifiedRequest && !approvedCertification && pendingCertification && (
-                  <Badge variant="outline" className="border-sky-400/30 bg-sky-400/10 text-sky-300">
+                  <Badge variant="outline" className="w-fit shrink-0 border-sky-400/30 bg-sky-400/10 text-sky-300">
                     {CERTIFICATION_REQUEST_STATUS_LABELS.pending}
                   </Badge>
                 )}
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-lg border border-white/5 bg-card/40 p-4">
-                  <span className="text-sm text-muted-foreground">Votre note actuelle</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold">{farmerRating}</span>
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm text-muted-foreground">/ 5</span>
+            <CardContent className="p-3 max-[360px]:p-2.5 pt-0 sm:p-6 sm:pt-0">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-white/5 bg-card/40 p-2.5 max-[360px]:p-2 sm:p-4">
+                  <span className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground">Votre note actuelle</span>
+                  <div className="flex items-center gap-1 max-[360px]:gap-1 sm:gap-2 shrink-0">
+                    <span className="text-sm max-[360px]:text-xs sm:text-lg font-bold">{farmerRating}</span>
+                    <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground">/ 5</span>
                   </div>
                 </div>
 
@@ -1205,12 +1209,12 @@ export default function FarmerDashboard() {
                     dans les informations du vendeur sur le marché.
                   </p>
                 ) : approvedCertification ? (
-                  <div className="space-y-3 rounded-lg border border-amber-400/30 bg-amber-400/10 p-4">
-                    <p className="text-sm font-medium text-amber-300">
-                      Demande approuvée ! Réglez les frais de certification pour finaliser votre badge.
+                  <div className="space-y-3 rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 sm:p-4">
+                    <p className="text-xs sm:text-sm font-medium text-amber-300">
+                      Demande approuvée ! Réglez les frais pour finaliser votre badge.
                     </p>
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <span className="text-lg font-mono font-bold text-foreground">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="text-base sm:text-lg font-mono font-bold text-foreground">
                         {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC
                       </span>
                       <Button
@@ -1218,7 +1222,7 @@ export default function FarmerDashboard() {
                           setCertPayPhone(user.phone || "")
                           setIsCertPayDialogOpen(true)
                         }}
-                        className="gap-2 bg-lime-400 text-emerald-950 shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300"
+                        className="w-full justify-center gap-2 bg-lime-400 text-emerald-950 shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300 sm:w-auto"
                       >
                         <BadgeCheck className="h-4 w-4" />
                         Payer et obtenir le badge
@@ -1227,21 +1231,21 @@ export default function FarmerDashboard() {
                   </div>
                 ) : farmerRating >= 4 ? (
                   <>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
                       Vous remplissez la condition des 4 étoiles minimum. Envoyez une demande à
                       l&apos;administrateur : si elle est acceptée, vous devrez régler les frais de{" "}
-                      {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC puis recevrez votre badge.
+                      {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC.
                     </p>
                     <Button
                       onClick={() => setIsCertificationDialogOpen(true)}
-                      className="gap-2 bg-lime-400 text-emerald-950 shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300"
+                      className="w-full justify-center gap-2 bg-lime-400 text-emerald-950 shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300 sm:w-auto"
                     >
                       <Star className="h-4 w-4" />
                       Demander une certification
                     </Button>
                   </>
                 ) : (
-                  <p className="text-sm text-destructive">
+                  <p className="text-xs sm:text-sm text-destructive">
                     Note insuffisante : il faut au moins 4 étoiles pour pouvoir demander la certification.
                   </p>
                 )}
@@ -1251,10 +1255,10 @@ export default function FarmerDashboard() {
 
           {/* Dialog : demande de certification */}
           <Dialog open={isCertificationDialogOpen} onOpenChange={setIsCertificationDialogOpen}>
-            <DialogContent className="farmer-theme text-foreground max-w-md">
+            <DialogContent className="farmer-theme text-foreground w-[calc(100%-1rem)] max-w-md sm:w-full">
               <DialogHeader>
-                <DialogTitle>Demande de Certification</DialogTitle>
-                <DialogDescription>Soumettez votre demande à l&apos;administrateur</DialogDescription>
+                <DialogTitle className="text-left">Demande de Certification</DialogTitle>
+                <DialogDescription className="text-left text-xs sm:text-sm">Soumettez votre demande à l&apos;administrateur</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-2">
                 <div className="space-y-1 rounded-lg border border-white/10 p-3">
@@ -1278,21 +1282,21 @@ export default function FarmerDashboard() {
                   />
                 </div>
               </div>
-              <DialogFooter>
-                <Button variant="outline" className="border-white/10 bg-transparent" onClick={() => setIsCertificationDialogOpen(false)}>
+              <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+                <Button variant="outline" className="w-full border-white/10 bg-transparent sm:w-auto" onClick={() => setIsCertificationDialogOpen(false)}>
                   Annuler
                 </Button>
-                <Button onClick={handleSubmitCertificationRequest}>Envoyer la demande</Button>
+                <Button onClick={handleSubmitCertificationRequest} className="w-full sm:w-auto">Envoyer la demande</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
 
           {/* Dialog : paiement des frais de certification */}
           <Dialog open={isCertPayDialogOpen} onOpenChange={setIsCertPayDialogOpen}>
-            <DialogContent className="farmer-theme text-foreground max-w-md">
+            <DialogContent className="farmer-theme text-foreground w-[calc(100%-1rem)] max-w-md sm:w-full">
               <DialogHeader>
-                <DialogTitle>Paiement des frais de certification</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-left text-base sm:text-lg">Paiement des frais de certification</DialogTitle>
+                <DialogDescription className="text-left text-xs sm:text-sm">
                   Finalisez votre certification en réglant {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC via Mobile Money
                 </DialogDescription>
               </DialogHeader>
@@ -1323,11 +1327,11 @@ export default function FarmerDashboard() {
                   visible dans les informations du vendeur sur le marché.
                 </p>
               </div>
-              <DialogFooter>
-                <Button variant="outline" className="border-white/10 bg-transparent" onClick={() => setIsCertPayDialogOpen(false)}>
+              <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+                <Button variant="outline" className="w-full border-white/10 bg-transparent sm:w-auto" onClick={() => setIsCertPayDialogOpen(false)}>
                   Annuler
                 </Button>
-                <Button onClick={handlePayCertificationFee} className="gap-2">
+                <Button onClick={handlePayCertificationFee} className="w-full justify-center gap-2 sm:w-auto">
                   <BadgeCheck className="h-4 w-4" />
                   Payer {CERTIFICATION_FEE.toLocaleString("fr-FR")} FC
                 </Button>
@@ -1336,7 +1340,7 @@ export default function FarmerDashboard() {
           </Dialog>
 
           {/* Assistant IA */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <FarmerAiInsightsPanel orders={orders} products={products} farmerId={user.id} />
           </div>
 
@@ -1346,55 +1350,55 @@ export default function FarmerDashboard() {
           </div>
 
           {/* Module Commandes */}
-          <Card id="module-commandes" className="mb-8 scroll-mt-20 border-white/5 bg-card/60 shadow-lg backdrop-blur-xl">
-            <CardHeader>
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <CardTitle>Module Commandes</CardTitle>
-                  <CardDescription>
-                    Cliquez sur une commande pour voir le détail, contacter l&apos;acheteur ou rejeter la commande
+          <Card id="module-commandes" className="mb-5 max-[360px]:mb-4 sm:mb-8 scroll-mt-20 border-white/5 bg-card/60 shadow-lg backdrop-blur-xl overflow-hidden">
+            <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <CardTitle className="text-[15px] max-[360px]:text-sm sm:text-lg">Module Commandes</CardTitle>
+                  <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-sm leading-relaxed">
+                    Cliquez sur une commande pour voir le détail, contacter ou rejeter
                   </CardDescription>
                 </div>
                 {pendingOrders.length > 0 && (
-                  <Badge variant="outline" className="border-amber-400/30 bg-amber-400/10 text-amber-300">
+                  <Badge variant="outline" className="w-fit shrink-0 border-amber-400/30 bg-amber-400/10 text-amber-300 text-xs max-[360px]:text-[11px]">
                     {pendingOrders.length} en attente
                   </Badge>
                 )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 max-[360px]:p-2.5 pt-0 sm:p-6 sm:pt-0">
               {farmerOrders.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-white/10 p-8 text-center">
-                  <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <p className="mt-4 text-muted-foreground">Aucune commande pour le moment.</p>
+                <div className="rounded-lg border border-dashed border-white/10 p-5 max-[360px]:p-4 sm:p-8 text-center">
+                  <ShoppingCart className="mx-auto h-9 w-9 max-[360px]:h-8 max-[360px]:w-8 sm:h-12 sm:w-12 text-muted-foreground" />
+                  <p className="mt-3 text-xs sm:text-sm text-muted-foreground">Aucune commande pour le moment.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 max-[360px]:space-y-1.5 sm:space-y-3">
                   {farmerOrders.slice(0, 10).map((order) => (
                     <button
                       key={order.id}
                       onClick={() => handleOpenDetails(order)}
-                      className="w-full rounded-xl border border-white/5 bg-card/40 p-4 text-left transition-all hover:border-lime-400/30 hover:bg-lime-400/5"
+                      className="w-full rounded-xl border border-white/5 bg-card/40 p-2.5 max-[360px]:p-2 sm:p-4 text-left transition-all hover:border-lime-400/30 hover:bg-lime-400/5"
                     >
-                      <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-start justify-between gap-1.5 sm:gap-3">
                         <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="truncate font-medium">{order.productName}</p>
-                            <Badge variant={getStatusBadgeVariant(order.status)}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+                          <div className="flex flex-wrap items-center gap-1 max-[360px]:gap-1 sm:gap-2">
+                            <p className="truncate text-sm max-[360px]:text-xs sm:text-[15px] font-medium">{order.productName}</p>
+                            <Badge variant={getStatusBadgeVariant(order.status)} className="text-[10px] max-[360px]:text-[9px] sm:text-xs shrink-0 px-1.5 py-0">{ORDER_STATUS_LABELS[order.status]}</Badge>
                           </div>
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {order.quantity} unités · {order.totalPrice.toFixed(2)} FC · Client : {order.buyerName}
+                          <p className="mt-1 line-clamp-2 text-xs max-[360px]:text-[11px] leading-relaxed text-muted-foreground sm:text-sm">
+                            {order.quantity} unités · {order.totalPrice.toFixed(2)} FC · <span className="font-medium text-foreground">{order.buyerName}</span>
                             {order.buyerPhone && ` · ${order.buyerPhone}`}
                           </p>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
+                          <p className="mt-0.5 text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">
                             {new Date(order.createdAt).toLocaleDateString("fr-FR", {
                               day: "numeric",
-                              month: "long",
+                              month: "short",
                               year: "numeric",
                             })}
                           </p>
                         </div>
-                        <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+                        <ChevronRight className="mt-1 h-3.5 w-3.5 max-[360px]:h-3 max-[360px]:w-3 sm:h-5 sm:w-5 shrink-0 text-muted-foreground" />
                       </div>
                     </button>
                   ))}
@@ -1403,48 +1407,59 @@ export default function FarmerDashboard() {
             </CardContent>
           </Card>
 
-          <div className="grid gap-8 lg:grid-cols-2">
+          <div className="grid gap-5 max-[360px]:gap-4 sm:gap-6 lg:grid-cols-2 lg:gap-8">
             {/* Products Section */}
-            <Card id="module-produits" className="scroll-mt-20 border-white/5 bg-card/60 shadow-lg backdrop-blur-xl">
-              <CardHeader>
-                <CardTitle>Mes Produits</CardTitle>
-                <CardDescription>Gérez votre catalogue de produits</CardDescription>
+            <Card id="module-produits" className="scroll-mt-20 border-white/5 bg-card/60 shadow-lg backdrop-blur-xl overflow-hidden">
+              <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 p-3 max-[360px]:p-2.5 sm:p-6 pb-3 sm:pb-6">
+                <div className="min-w-0">
+                  <CardTitle className="text-[15px] max-[360px]:text-sm sm:text-lg">Mes Produits</CardTitle>
+                  <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-sm">Gérez votre catalogue</CardDescription>
+                </div>
+                <Button size="sm" className="shrink-0 gap-1 h-8 max-[360px]:h-7 text-xs sm:h-9 sm:gap-1.5 bg-lime-400 text-emerald-950 hover:bg-lime-300 sm:hidden" onClick={() => setIsAddDialogOpen(true)}>
+                  <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  Ajouter
+                </Button>
+                <Button size="sm" variant="outline" className="hidden shrink-0 gap-1.5 border-white/10 sm:inline-flex" onClick={() => setIsAddDialogOpen(true)}>
+                  <Plus className="h-4 w-4" />
+                  Ajouter
+                </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 max-[360px]:p-2.5 pt-0 sm:p-6 sm:pt-0">
                 {farmerProducts.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-white/10 p-8 text-center">
-                    <Package className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <p className="mt-4 text-muted-foreground">Vous n&apos;avez pas encore de produits.</p>
-                    <Button variant="outline" className="mt-4 border-white/10 bg-transparent" onClick={() => setIsAddDialogOpen(true)}>
+                  <div className="rounded-lg border border-dashed border-white/10 p-6 max-[360px]:p-4 sm:p-8 text-center">
+                    <Package className="mx-auto h-10 w-10 max-[360px]:h-8 max-[360px]:w-8 sm:h-12 sm:w-12 text-muted-foreground" />
+                    <p className="mt-3 text-xs sm:text-sm text-muted-foreground">Vous n&apos;avez pas encore de produits.</p>
+                    <Button variant="outline" size="sm" className="mt-3 sm:mt-4 border-white/10 bg-transparent text-xs sm:text-sm h-8 max-[360px]:h-7" onClick={() => setIsAddDialogOpen(true)}>
                       Ajouter mon premier produit
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5 max-[360px]:space-y-2 sm:space-y-3">
                     {farmerProducts.map((product) => (
-                      <div key={product.id} className="flex items-center justify-between rounded-xl border border-white/5 bg-card/40 p-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{product.name}</span>
-                            <Badge variant="outline" className="border-lime-400/20 text-xs">
+                      <div key={product.id} className="flex flex-col gap-2.5 max-[360px]:gap-2 rounded-xl border border-white/5 bg-card/40 p-2.5 max-[360px]:p-2 sm:flex-row sm:items-start sm:justify-between sm:p-4 overflow-hidden">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-1 max-[360px]:gap-1 sm:gap-2">
+                            <span className="text-sm max-[360px]:text-xs sm:text-[15px] font-medium truncate max-w-[120px] max-[360px]:max-w-[100px] sm:max-w-none">{product.name}</span>
+                            <Badge variant="outline" className="border-lime-400/20 text-[10px] max-[360px]:text-[9px] sm:text-xs px-1.5 py-0">
                               {CATEGORIES.find((c) => c.value === product.category)?.label}
                             </Badge>
                             {product.gps && (
-                              <Badge className="gap-1 bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
-                                <Navigation className="h-3 w-3" />
+                              <Badge className="gap-1 border-emerald-500/30 bg-emerald-500/20 text-[10px] max-[360px]:text-[9px] sm:text-xs px-1.5 py-0 text-emerald-300">
+                                <Navigation className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                                 GPS
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {product.price.toFixed(2)} FC / {product.unit} · Stock: {product.quantity} · {product.location}
+                          <p className="mt-1 text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground">
+                            {product.price.toFixed(2)} FC / {product.unit} · Stock: {product.quantity}
                           </p>
+                          <p className="truncate text-xs max-[360px]:text-[11px] text-muted-foreground">{product.location}</p>
                           {product.gps && (
                             <a
                               href={`https://www.google.com/maps?q=${product.gps.lat},${product.gps.lng}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-emerald-400 hover:underline"
+                              className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-400 hover:bg-emerald-500/20 sm:text-xs"
                             >
                               <MapPin className="h-3 w-3" />
                               {product.gps.lat.toFixed(4)}, {product.gps.lng.toFixed(4)} — Voir trace
@@ -1452,22 +1467,24 @@ export default function FarmerDashboard() {
                             </a>
                           )}
                         </div>
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex items-center gap-1 max-[360px]:gap-0.5 sm:gap-1.5 self-stretch sm:self-auto">
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-7 w-7 max-[360px]:h-6 max-[360px]:w-6 sm:h-9 sm:w-9 shrink-0"
                             onClick={() => updateProduct(product.id, { isAvailable: !product.isAvailable })}
+                            title={product.isAvailable ? "Disponible" : "Indisponible"}
                           >
                             {product.isAvailable ? (
-                              <Check className="h-4 w-4 text-lime-400" />
+                              <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-lime-400" />
                             ) : (
-                              <X className="h-4 w-4 text-muted-foreground" />
+                              <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                             )}
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-lime-400/30 bg-lime-400/5 text-lime-200"
+                            className="h-7 max-[360px]:h-6 flex-1 border-lime-400/30 bg-lime-400/5 text-[11px] max-[360px]:text-[10px] sm:text-xs text-lime-200 sm:h-9 sm:flex-none px-2 max-[360px]:px-1.5 sm:px-3"
                             onClick={() => handleOpenRestock(product.id)}
                           >
                             Renouveler
@@ -1475,17 +1492,19 @@ export default function FarmerDashboard() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-7 w-7 max-[360px]:h-6 max-[360px]:w-6 sm:h-9 sm:w-9 shrink-0"
                             onClick={() => handleOpenEditLocation(product)}
                             title="Modifier la localisation"
                           >
-                            <MapPin className="h-4 w-4 text-sky-400" />
+                            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-400" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-7 w-7 max-[360px]:h-6 max-[360px]:w-6 sm:h-9 sm:w-9 shrink-0 text-destructive hover:bg-destructive/10"
                             onClick={() => handleDeleteProduct(product.id, product.name)}
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           </Button>
                         </div>
                       </div>
@@ -1495,19 +1514,19 @@ export default function FarmerDashboard() {
               </CardContent>
             </Card>
 
-            <div className="space-y-8">
+            <div className="space-y-5 max-[360px]:space-y-4 sm:space-y-8">
               {/* Market Exploration Section */}
-              <Card className="border-lime-400/20 bg-gradient-to-r from-lime-500/10 to-emerald-500/5 shadow-lg backdrop-blur-xl">
-                <CardContent className="flex items-center justify-between p-6">
-                  <div>
-                    <h3 className="text-lg font-semibold">Explorer le Marché</h3>
-                    <p className="text-sm text-muted-foreground">
+              <Card className="border-lime-400/20 bg-gradient-to-r from-lime-500/10 to-emerald-500/5 shadow-lg backdrop-blur-xl overflow-hidden">
+                <CardContent className="flex flex-col gap-3 max-[360px]:gap-2 p-3 max-[360px]:p-2.5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                  <div className="min-w-0">
+                    <h3 className="text-[15px] max-[360px]:text-sm sm:text-lg font-semibold">Explorer le Marché</h3>
+                    <p className="mt-1 text-xs max-[360px]:text-[11px] sm:text-sm leading-relaxed text-muted-foreground">
                       Découvrez les produits des autres agriculteurs et les tendances du marché
                     </p>
                   </div>
-                  <Button asChild className="gap-2 bg-lime-400 text-emerald-950 hover:bg-lime-300">
+                  <Button asChild size="sm" className="w-full justify-center gap-2 bg-lime-400 text-emerald-950 hover:bg-lime-300 text-xs sm:text-sm h-9 max-[360px]:h-8 sm:w-auto shrink-0">
                     <Link href="/marche">
-                      <ShoppingCart className="h-4 w-4" />
+                      <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       Explorer
                     </Link>
                   </Button>
@@ -1515,50 +1534,50 @@ export default function FarmerDashboard() {
               </Card>
 
               {/* Mobile Money Payments Section */}
-              <Card className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <Smartphone className="h-5 w-5 text-lime-400" />
+              <Card className="border-white/5 bg-card/60 shadow-lg backdrop-blur-xl overflow-hidden">
+                <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6">
+                  <div className="flex flex-col gap-2.5 sm:gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <CardTitle className="flex items-center gap-1.5 sm:gap-2 text-[15px] max-[360px]:text-sm sm:text-lg">
+                        <Smartphone className="h-4 w-4 max-[360px]:h-3.5 max-[360px]:w-3.5 sm:h-5 sm:w-5 shrink-0 text-lime-400" />
                         Paiements Mobile Money reçus
                       </CardTitle>
-                      <CardDescription>
-                        Paiements versés sur votre numéro {user.phone || "enregistré"} — 97% du montant vous revient, 3% de commission plateforme
+                      <CardDescription className="mt-1 text-xs max-[360px]:text-[11px] sm:text-sm leading-relaxed">
+                        Paiements versés sur votre numéro {user.phone || "enregistré"} — 97% vous revient, 3% commission
                       </CardDescription>
                     </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-lime-400">{totalPaymentsReceived.toFixed(2)} FC</p>
-                      <p className="text-xs text-muted-foreground">Total net reçu</p>
+                    <div className="shrink-0 text-left sm:text-right bg-white/[0.04] sm:bg-transparent rounded-lg p-2 sm:p-0 border sm:border-0 border-white/5">
+                      <p className="text-lg max-[360px]:text-base sm:text-2xl font-bold text-lime-400">{totalPaymentsReceived.toFixed(2)} FC</p>
+                      <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">Total net reçu</p>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 max-[360px]:p-2.5 pt-0 sm:p-6 sm:pt-0">
                   {farmerPayments.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-white/10 p-8 text-center">
-                      <Smartphone className="mx-auto h-12 w-12 text-muted-foreground" />
-                      <p className="mt-4 text-muted-foreground">Aucun paiement reçu pour le moment.</p>
+                    <div className="rounded-lg border border-dashed border-white/10 p-5 max-[360px]:p-4 sm:p-8 text-center">
+                      <Smartphone className="mx-auto h-9 w-9 max-[360px]:h-8 max-[360px]:w-8 sm:h-12 sm:w-12 text-muted-foreground" />
+                      <p className="mt-3 text-xs sm:text-sm text-muted-foreground">Aucun paiement reçu pour le moment.</p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2 max-[360px]:space-y-1.5 sm:space-y-3">
                       {farmerPayments.map((txn) => (
-                        <div key={txn.id} className="flex items-center justify-between rounded-xl border border-white/5 bg-card/40 p-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium">{txn.buyerName}</p>
-                              <Badge variant={txn.method === "mpesa" ? "default" : "secondary"}>
+                        <div key={txn.id} className="flex flex-col gap-1.5 max-[360px]:gap-1 rounded-xl border border-white/5 bg-card/40 p-2.5 max-[360px]:p-2 sm:flex-row sm:items-center sm:justify-between sm:p-4 overflow-hidden">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-1 max-[360px]:gap-1 sm:gap-2">
+                              <p className="truncate text-sm max-[360px]:text-xs sm:text-sm font-medium max-w-[110px] max-[360px]:max-w-[90px] sm:max-w-none">{txn.buyerName}</p>
+                              <Badge variant={txn.method === "mpesa" ? "default" : "secondary"} className="text-[10px] max-[360px]:text-[9px] sm:text-xs shrink-0 px-1.5 py-0">
                                 {txn.method === "mpesa" ? "M-Pesa" : "Orange Money"}
                               </Badge>
                             </div>
-                            <p className="text-xs text-muted-foreground font-mono">Réf: {txn.reference}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(txn.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            <p className="truncate text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground font-mono">Réf: {txn.reference}</p>
+                            <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">
+                              {new Date(txn.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                             </p>
                           </div>
-                          <div className="text-right">
-                            <p className="font-bold text-lime-400">+{txn.farmerAmount.toFixed(2)} FC</p>
-                            <p className="text-xs text-muted-foreground">
-                              sur {txn.amount.toFixed(2)} FC (commission : {txn.commission.toFixed(2)} FC)
+                          <div className="shrink-0 text-left sm:text-right flex flex-row sm:flex-col justify-between items-center sm:items-end gap-2 border-t sm:border-0 border-white/5 pt-1.5 sm:pt-0 mt-1 sm:mt-0">
+                            <p className="text-sm max-[360px]:text-xs sm:text-base font-bold text-lime-400">+{txn.farmerAmount.toFixed(2)} FC</p>
+                            <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground text-right">
+                              sur {txn.amount.toFixed(2)} FC
                             </p>
                           </div>
                         </div>

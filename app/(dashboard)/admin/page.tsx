@@ -221,25 +221,25 @@ const renderMenuButton = (
         setActiveMenu(item.key)
         onNavigate?.()
       }}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeMenu === item.key
-          ? "bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-[0_0_15px_rgba(192,38,211,0.4)] font-semibold border-l-4 border-white/20"
-          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:translate-x-1"
+      className={`w-full flex items-center gap-2.5 xl:gap-3 px-3 xl:px-4 py-2.5 xl:py-3 rounded-lg xl:rounded-xl text-left transition-all duration-300 ${activeMenu === item.key
+          ? "bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-[0_0_12px_rgba(192,38,211,0.35)] xl:shadow-[0_0_15px_rgba(192,38,211,0.4)] font-semibold border-l-[3px] xl:border-l-4 border-white/20"
+          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:translate-x-0.5 xl:hover:translate-x-1"
         }`}
     >
-      <item.icon className={`h-5 w-5 shrink-0 ${activeMenu === item.key ? 'text-white' : ''}`} />
-      <span className="text-sm">{item.label}</span>
+      <item.icon className={`h-4 w-4 xl:h-5 xl:w-5 shrink-0 ${activeMenu === item.key ? 'text-white' : ''}`} />
+      <span className="text-xs xl:text-sm font-medium truncate">{item.label}</span>
       {item.key === "support" && openTicketsCount > 0 && (
-        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-bold text-white shadow-[0_0_10px_rgba(239,68,68,0.5)]">
+        <span className="ml-auto flex h-4 min-w-4 xl:h-5 xl:min-w-5 items-center justify-center rounded-full bg-red-500 px-1 xl:px-1.5 text-[10px] xl:text-xs font-bold text-white shadow-[0_0_8px_rgba(239,68,68,0.5)]">
           {openTicketsCount}
         </span>
       )}
       {item.key === "requests" && pendingRequestsCount > 0 && (
-        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+        <span className="ml-auto flex h-4 min-w-4 xl:h-5 xl:min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 xl:px-1.5 text-[10px] xl:text-xs font-bold text-white shadow-[0_0_8px_rgba(245,158,11,0.5)]">
           {pendingRequestsCount}
         </span>
       )}
       {item.key === "certifications" && pendingCertificationCount > 0 && (
-        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-lime-500 px-1.5 text-xs font-bold text-white shadow-[0_0_10px_rgba(163,230,53,0.5)]">
+        <span className="ml-auto flex h-4 min-w-4 xl:h-5 xl:min-w-5 items-center justify-center rounded-full bg-lime-500 px-1 xl:px-1.5 text-[10px] xl:text-xs font-bold text-white shadow-[0_0_8px_rgba(163,230,53,0.5)]">
           {pendingCertificationCount}
         </span>
       )}
@@ -690,143 +690,159 @@ const renderMenuButton = (
   }
 
   return (
-    <div className="admin-theme min-h-screen bg-background text-foreground flex">
+    <div className="admin-theme min-h-screen bg-background text-foreground flex overflow-x-hidden">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground fixed left-0 top-0 h-screen">
+      <aside className="hidden lg:flex flex-col w-64 xl:w-64 border-r border-sidebar-border bg-sidebar text-sidebar-foreground fixed left-0 top-0 h-[100dvh] z-30">
         {/* Logo */}
-        <div className="p-6 border-b border-sidebar-border">
+        <div className="p-4 xl:p-6 border-b border-sidebar-border shrink-0">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary">
-              <Leaf className="h-5 w-5 text-sidebar-primary-foreground" />
+            <div className="flex h-8 w-8 xl:h-9 xl:w-9 items-center justify-center rounded-lg bg-sidebar-primary shrink-0">
+              <Leaf className="h-4 w-4 xl:h-5 xl:w-5 text-sidebar-primary-foreground" />
             </div>
-            <span className="text-lg font-bold">TerraFrais</span>
-            <span className="rounded bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sidebar-accent-foreground">
+            <span className="text-base xl:text-lg font-bold truncate">TerraFrais</span>
+            <span className="rounded bg-sidebar-accent px-1 xl:px-1.5 py-0.5 text-[9px] xl:text-[10px] font-semibold uppercase tracking-wide text-sidebar-accent-foreground shrink-0">
               Admin
             </span>
           </Link>
         </div>
 
         {/* User Info */}
-        <div className="p-4 border-b border-sidebar-border">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground font-medium">
+        <div className="p-3 xl:p-4 border-b border-sidebar-border shrink-0">
+          <div className="flex items-center gap-2.5 xl:gap-3">
+            <div className="flex h-8 w-8 xl:h-10 xl:w-10 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground font-medium text-sm xl:text-base shrink-0">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">{user.name}</p>
-              <p className="text-xs text-sidebar-foreground/60 capitalize">Administrateur</p>
+              <p className="font-medium text-sm xl:text-sm truncate">{user.name}</p>
+              <p className="text-[11px] xl:text-xs text-sidebar-foreground/60 capitalize truncate">Administrateur</p>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+        <nav className="flex-1 overflow-y-auto p-2.5 xl:p-4 space-y-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+          <p className="px-3 pb-1.5 xl:pb-2 text-[11px] xl:text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
             Menu
           </p>
           {mainMenuItems.map((item) => renderMenuButton(item))}
 
-          <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+          <p className="px-3 pt-3 xl:pt-4 pb-1.5 xl:pb-2 text-[11px] xl:text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
             Communication
           </p>
           {communicationMenuItems.map((item) => renderMenuButton(item))}
 
-          <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+          <p className="px-3 pt-3 xl:pt-4 pb-1.5 xl:pb-2 text-[11px] xl:text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
             Compte
           </p>
           {accountMenuItems.map((item) => renderMenuButton(item))}
         </nav>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-sidebar-border space-y-1">
+        <div className="p-2.5 xl:p-4 border-t border-sidebar-border space-y-1 shrink-0">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            size="sm"
+            className="w-full justify-start gap-2 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground h-8 xl:h-9 text-xs xl:text-sm"
             asChild
           >
             <Link href="/">
-              <Home className="h-4 w-4" />
-              <span className="text-sm">Accueil</span>
+              <Home className="h-3.5 w-3.5 xl:h-4 xl:w-4" />
+              <span>Accueil</span>
             </Link>
           </Button>
           <Button
             variant="ghost"
-            className="w-full justify-start gap-2 text-red-400 hover:bg-sidebar-accent hover:text-red-300"
+            size="sm"
+            className="w-full justify-start gap-2 text-red-400 hover:bg-sidebar-accent hover:text-red-300 h-8 xl:h-9 text-xs xl:text-sm"
             onClick={() => { logout(); }}
           >
-            <LogOut className="h-4 w-4" />
-            <span className="text-sm">Déconnexion</span>
+            <LogOut className="h-3.5 w-3.5 xl:h-4 xl:w-4" />
+            <span>Déconnexion</span>
           </Button>
         </div>
       </aside>
 
       {/* Mobile Sidebar */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
-          <aside className="fixed left-0 top-0 w-64 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col z-50">
-            <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
-              <span className="font-bold">Menu</span>
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in-0" onClick={() => setMobileMenuOpen(false)} />
+          <aside className="fixed left-0 top-0 w-[280px] max-w-[85vw] h-[100dvh] bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col z-50 shadow-2xl animate-in slide-in-from-left duration-300">
+            <div className="flex items-center justify-between p-3 max-[360px]:p-2.5 border-b border-sidebar-border shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sidebar-primary">
+                  <Leaf className="h-4 w-4 text-sidebar-primary-foreground" />
+                </div>
+                <span className="text-sm font-bold">TerraFrais Admin</span>
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                className="h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shrink-0"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-              <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+            <nav className="flex-1 overflow-y-auto p-3 max-[360px]:p-2.5 sm:p-4 space-y-1 overscroll-contain">
+              <p className="px-3 pb-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
                 Menu
               </p>
               {mainMenuItems.map((item) => renderMenuButton(item, () => setMobileMenuOpen(false)))}
 
-              <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+              <p className="px-3 pt-3 pb-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
                 Communication
               </p>
               {communicationMenuItems.map((item) => renderMenuButton(item, () => setMobileMenuOpen(false)))}
 
-              <p className="px-3 pt-4 pb-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+              <p className="px-3 pt-3 pb-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
                 Compte
               </p>
               {accountMenuItems.map((item) => renderMenuButton(item, () => setMobileMenuOpen(false)))}
             </nav>
+            <div className="p-3 border-t border-sidebar-border shrink-0">
+              <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-sidebar-foreground/70 h-8 text-xs" asChild onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/">
+                  <Home className="h-3.5 w-3.5" />
+                  Accueil
+                </Link>
+              </Button>
+            </div>
           </aside>
         </div>
       )}
 
       {/* Main Content */}
-      <div className="flex-1 md:ml-64 flex flex-col">
+      <div className="flex-1 lg:ml-64 flex flex-col min-w-0 overflow-x-hidden">
         {/* Top Header */}
-        <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-          <div className="h-16 flex items-center justify-between px-4 container">
-            <div className="flex items-center gap-4 md:hidden">
-              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                <Menu className="h-5 w-5" />
+        <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+          <div className="flex h-14 max-[360px]:h-12 sm:h-16 items-center justify-between gap-2 px-2.5 max-[360px]:px-2 sm:px-4 container">
+            <div className="flex items-center gap-2 max-[360px]:gap-1.5 sm:gap-4 lg:hidden shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 shrink-0" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
-              <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  <Leaf className="h-4 w-4 text-primary-foreground" />
+              <Link href="/" className="flex items-center gap-1.5">
+                <div className="flex h-7 w-7 max-[360px]:h-7 max-[360px]:w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-primary">
+                  <Leaf className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-foreground" />
                 </div>
+                <span className="text-xs font-bold sm:hidden">Admin</span>
               </Link>
             </div>
-            <div className="hidden md:block">
+            <div className="hidden lg:block min-w-0">
               <p className="text-xs text-muted-foreground">Administration</p>
-              <h1 className="text-lg font-semibold leading-tight text-foreground">{sectionLabels[activeMenu]}</h1>
+              <h1 className="text-base sm:text-lg font-semibold leading-tight text-foreground truncate">{sectionLabels[activeMenu]}</h1>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="hidden sm:inline text-sm text-muted-foreground">{user.name}</span>
+            <div className="flex items-center gap-1.5 max-[360px]:gap-1 sm:gap-3 md:gap-4 shrink-0">
+              <span className="hidden sm:inline max-w-[120px] truncate text-sm text-muted-foreground">{user.name}</span>
               <Button
                 variant="outline"
                 size="icon"
-                className="relative bg-transparent"
+                className="relative bg-transparent h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 sm:h-9 sm:w-9 shrink-0"
                 onClick={() => setCartOpen(true)}
                 aria-label="Ouvrir le panier"
               >
-                <ShoppingCart className="h-4 w-4" />
+                <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 {totalItems > 0 && (
-                  <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground">
+                  <span className="absolute -right-1.5 -top-1.5 sm:-right-2 sm:-top-2 flex h-4 min-w-4 sm:h-5 sm:min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] sm:text-xs font-bold text-primary-foreground">
                     {totalItems}
                   </span>
                 )}
@@ -836,11 +852,11 @@ const renderMenuButton = (
                   variant="ghost"
                   size="icon"
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative"
+                  className="relative h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 sm:h-9 sm:w-9 shrink-0"
                 >
-                  <Bell className="h-5 w-5" />
+                  <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                   {unreadNotifications > 0 && (
-                    <span className="absolute top-1 right-1 bg-destructive text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 bg-destructive text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
                       {unreadNotifications > 9 ? '9+' : unreadNotifications}
                     </span>
                   )}
@@ -848,9 +864,9 @@ const renderMenuButton = (
 
                 {/* Notifications Panel */}
                 {showNotifications && (
-                  <div className="absolute right-0 top-full mt-2 w-96 max-h-96 overflow-y-auto bg-card border rounded-lg shadow-lg z-50">
-                    <div className="p-4 border-b flex items-center justify-between">
-                      <h3 className="font-semibold">Notifications</h3>
+                  <div className="absolute right-0 top-full mt-2 w-[calc(100vw-1rem)] max-w-sm max-[360px]:w-[calc(100vw-1rem)] sm:w-96 max-h-[70vh] sm:max-h-96 overflow-y-auto bg-card border rounded-lg shadow-lg z-50">
+                    <div className="p-3 max-[360px]:p-2.5 sm:p-4 border-b flex items-center justify-between gap-2">
+                      <h3 className="font-semibold text-sm max-[360px]:text-xs sm:text-base">Notifications</h3>
                       {unreadNotifications > 0 && (
                         <Button
                           variant="ghost"
@@ -858,7 +874,7 @@ const renderMenuButton = (
                           onClick={() => {
                             notifications.forEach(n => markNotificationAsRead(n.id))
                           }}
-                          className="text-xs"
+                          className="text-xs max-[360px]:text-[11px] h-7 max-[360px]:h-6 px-2"
                         >
                           Marquer tout comme lu
                         </Button>
@@ -932,39 +948,39 @@ const renderMenuButton = (
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto p-3 max-[360px]:p-2.5 sm:p-4 md:p-6 overflow-x-hidden">
           {/* Overview Section */}
           {activeMenu === "overview" && (
             <div>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-foreground">Tableau de bord</h2>
-                <p className="text-sm text-muted-foreground">Vue d'ensemble de la plateforme</p>
+              <div className="mb-5 max-[360px]:mb-4 sm:mb-6">
+                <h2 className="text-xl max-[360px]:text-lg sm:text-2xl font-bold text-foreground">Tableau de bord</h2>
+                <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground">Vue d'ensemble de la plateforme</p>
               </div>
 
               {/* Stats Cards */}
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-2.5 max-[360px]:gap-2 sm:gap-4 grid-cols-1 min-[360px]:grid-cols-2 lg:grid-cols-4">
                 {/* Card 1: Users (Pink/Purple Gradient) */}
                 <Card className="border-0 bg-gradient-to-br from-fuchsia-500 via-purple-600 to-indigo-600 text-white shadow-[0_8px_30px_rgba(192,38,211,0.3)]">
-                  <CardContent className="flex items-center gap-3 p-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
-                      <Users className="h-5 w-5 text-white" />
+                  <CardContent className="flex items-center gap-2.5 max-[360px]:gap-2 sm:gap-3 p-3 max-[360px]:p-2.5 sm:p-4">
+                    <div className="flex h-9 w-9 max-[360px]:h-8 max-[360px]:w-8 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md shrink-0">
+                      <Users className="h-4 w-4 max-[360px]:h-3.5 max-[360px]:w-3.5 sm:h-5 sm:w-5 text-white" />
                     </div>
-                    <div>
-                      <p className="text-2xl font-extrabold tracking-tight">{userCount}</p>
-                      <p className="text-xs font-medium text-white/80 uppercase tracking-wider">Utilisateurs</p>
+                    <div className="min-w-0">
+                      <p className="text-xl max-[360px]:text-lg sm:text-2xl font-extrabold tracking-tight truncate">{userCount}</p>
+                      <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs font-medium text-white/80 uppercase tracking-wider">Utilisateurs</p>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Card 2: Revenue (Cyan/Blue Gradient) */}
                 <Card className="border-0 bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-700 text-white shadow-[0_8px_30px_rgba(6,182,212,0.3)]">
-                  <CardContent className="flex items-center gap-3 p-4">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
-                      <TrendingUp className="h-5 w-5 text-white" />
+                  <CardContent className="flex items-center gap-2.5 max-[360px]:gap-2 sm:gap-3 p-3 max-[360px]:p-2.5 sm:p-4">
+                    <div className="flex h-9 w-9 max-[360px]:h-8 max-[360px]:w-8 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md shrink-0">
+                      <TrendingUp className="h-4 w-4 max-[360px]:h-3.5 max-[360px]:w-3.5 sm:h-5 sm:w-5 text-white" />
                     </div>
-                    <div>
-                      <p className="text-2xl font-extrabold tracking-tight">{totalRevenue.toFixed(0)} FC</p>
-                      <p className="text-xs font-medium text-white/80 uppercase tracking-wider">Volume total</p>
+                    <div className="min-w-0">
+                      <p className="text-xl max-[360px]:text-lg sm:text-2xl font-extrabold tracking-tight truncate">{totalRevenue.toFixed(0)} FC</p>
+                      <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs font-medium text-white/80 uppercase tracking-wider">Volume total</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -972,13 +988,13 @@ const renderMenuButton = (
                 {/* Card 3: Products (Dark with glowing cyan) */}
                 <Card className="border border-white/5 bg-card/80 backdrop-blur-xl shadow-lg relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <CardContent className="flex items-center gap-3 p-4 relative z-10">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/10 border border-sky-500/20 shadow-[0_0_15px_rgba(14,165,233,0.3)]">
-                      <Package className="h-5 w-5 text-sky-400" />
+                  <CardContent className="flex items-center gap-2.5 max-[360px]:gap-2 sm:gap-3 p-3 max-[360px]:p-2.5 sm:p-4 relative z-10">
+                    <div className="flex h-9 w-9 max-[360px]:h-8 max-[360px]:w-8 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-sky-500/10 border border-sky-500/20 shadow-[0_0_15px_rgba(14,165,233,0.3)] shrink-0">
+                      <Package className="h-4 w-4 max-[360px]:h-3.5 max-[360px]:w-3.5 sm:h-5 sm:w-5 text-sky-400" />
                     </div>
-                    <div>
-                      <p className="text-2xl font-extrabold tracking-tight text-foreground">{products.length}</p>
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Produits</p>
+                    <div className="min-w-0">
+                      <p className="text-xl max-[360px]:text-lg sm:text-2xl font-extrabold tracking-tight text-foreground truncate">{products.length}</p>
+                      <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">Produits</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -986,28 +1002,29 @@ const renderMenuButton = (
                 {/* Card 4: Orders (Dark with glowing amber/orange) */}
                 <Card className="border border-white/5 bg-card/80 backdrop-blur-xl shadow-lg relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <CardContent className="flex items-center gap-3 p-4 relative z-10">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-                      <ShoppingCart className="h-5 w-5 text-amber-400" />
+                  <CardContent className="flex items-center gap-2.5 max-[360px]:gap-2 sm:gap-3 p-3 max-[360px]:p-2.5 sm:p-4 relative z-10">
+                    <div className="flex h-9 w-9 max-[360px]:h-8 max-[360px]:w-8 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.3)] shrink-0">
+                      <ShoppingCart className="h-4 w-4 max-[360px]:h-3.5 max-[360px]:w-3.5 sm:h-5 sm:w-5 text-amber-400" />
                     </div>
-                    <div>
-                      <p className="text-2xl font-extrabold tracking-tight text-foreground">{orders.length}</p>
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Commandes</p>
+                    <div className="min-w-0">
+                      <p className="text-xl max-[360px]:text-lg sm:text-2xl font-extrabold tracking-tight text-foreground truncate">{orders.length}</p>
+                      <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">Commandes</p>
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Charts Row 1 */}
-              <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              <div className="mt-5 max-[360px]:mt-4 sm:mt-6 grid gap-3 max-[360px]:gap-2.5 sm:gap-4 lg:grid-cols-2">
                 {/* Products by Category */}
-                <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-foreground">Produits par Catégorie</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">Répartition des produits</CardDescription>
+                <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg overflow-hidden">
+                  <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6 pb-2">
+                    <CardTitle className="text-sm max-[360px]:text-xs sm:text-base text-foreground">Produits par Catégorie</CardTitle>
+                    <CardDescription className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">Répartition des produits</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={230}>
+                  <CardContent className="p-1.5 max-[360px]:p-1 sm:p-6 sm:pt-2">
+                    <div className="h-[180px] max-[360px]:h-[160px] sm:h-[230px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={Object.entries(
@@ -1040,17 +1057,19 @@ const renderMenuButton = (
                         />
                       </PieChart>
                     </ResponsiveContainer>
+                    </div>
                   </CardContent>
                 </Card>
 
                 {/* Orders by Status */}
-                <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-foreground">Commandes par Statut</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">Distribution des statuts</CardDescription>
+                <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg overflow-hidden">
+                  <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6 pb-2">
+                    <CardTitle className="text-sm max-[360px]:text-xs sm:text-base text-foreground">Commandes par Statut</CardTitle>
+                    <CardDescription className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">Distribution des statuts</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={230}>
+                  <CardContent className="p-1.5 max-[360px]:p-1 sm:p-6 sm:pt-2">
+                    <div className="h-[180px] max-[360px]:h-[160px] sm:h-[230px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={Object.entries(
@@ -1081,22 +1100,24 @@ const renderMenuButton = (
                           contentStyle={chartTooltipStyle}
                           itemStyle={{ color: '#fff' }}
                         />
-                      </PieChart>
+                       </PieChart>
                     </ResponsiveContainer>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Charts Row 2 */}
-              <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              <div className="mt-5 max-[360px]:mt-4 sm:mt-6 grid gap-3 max-[360px]:gap-2.5 sm:gap-4 lg:grid-cols-2">
                 {/* Revenue Trend */}
-                <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-foreground">Tendance des revenus</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">Chiffre d'affaires par catégorie</CardDescription>
+                <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg overflow-hidden">
+                  <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6 pb-2">
+                    <CardTitle className="text-sm max-[360px]:text-xs sm:text-base text-foreground">Tendance des revenus</CardTitle>
+                    <CardDescription className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">Chiffre d'affaires par catégorie</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={240}>
+                  <CardContent className="p-1.5 max-[360px]:p-1 sm:p-6 sm:pt-2">
+                    <div className="h-[200px] max-[360px]:h-[170px] sm:h-[240px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={Object.entries(
                           products.reduce((acc, p) => {
@@ -1126,20 +1147,22 @@ const renderMenuButton = (
                           cursor={{ fill: 'rgba(255,255,255,0.04)' }}
                           formatter={(value: any) => [`${value} FC`, 'Revenu']}
                         />
-                        <Bar dataKey="revenue" fill="url(#colorRevenue)" name="Revenu (FC)" radius={[5, 5, 0, 0]} barSize={28} />
+                        <Bar dataKey="revenue" fill="url(#colorRevenue)" name="Revenu (FC)" radius={[5, 5, 0, 0]} barSize={22} />
                       </BarChart>
                     </ResponsiveContainer>
+                    </div>
                   </CardContent>
                 </Card>
 
                 {/* Orders Trend */}
-                <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base text-foreground">Tendances des commandes</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground">Nombre de commandes par semaine</CardDescription>
+                <Card className="border border-white/5 bg-card/60 backdrop-blur-xl shadow-lg overflow-hidden">
+                  <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6 pb-2">
+                    <CardTitle className="text-sm max-[360px]:text-xs sm:text-base text-foreground">Tendances des commandes</CardTitle>
+                    <CardDescription className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground">Nombre de commandes par semaine</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={240}>
+                  <CardContent className="p-1.5 max-[360px]:p-1 sm:p-6 sm:pt-2">
+                    <div className="h-[200px] max-[360px]:h-[170px] sm:h-[240px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={(() => {
                           const data: { week: string; count: number }[] = []
@@ -1186,6 +1209,7 @@ const renderMenuButton = (
                         />
                       </AreaChart>
                     </ResponsiveContainer>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -1311,73 +1335,77 @@ const renderMenuButton = (
 
           {/* Users Section */}
           {activeMenu === "users" && (
-            <div>
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold text-foreground">Utilisateurs</h2>
-                <p className="text-muted-foreground">Gérez les comptes de la plateforme</p>
+            <div className="overflow-hidden">
+              <div className="mb-5 max-[360px]:mb-4 sm:mb-8">
+                <h2 className="text-xl max-[360px]:text-lg sm:text-3xl font-bold text-foreground">Utilisateurs</h2>
+                <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground">Gérez les comptes de la plateforme</p>
               </div>
-              <div className="grid gap-6 lg:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Agriculteurs ({farmers.length})</CardTitle>
-                        <CardDescription>Liste des agriculteurs inscrits</CardDescription>
+              <div className="grid gap-4 max-[360px]:gap-3 sm:gap-6 lg:grid-cols-2">
+                <Card className="overflow-hidden">
+                  <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0">
+                        <CardTitle className="text-base max-[360px]:text-sm sm:text-lg">Agriculteurs ({farmers.length})</CardTitle>
+                        <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-sm">Liste des agriculteurs inscrits</CardDescription>
                       </div>
                       <Dialog open={isAddFarmerDialogOpen} onOpenChange={setIsAddFarmerDialogOpen}>
                         <DialogTrigger asChild>
-                          <Button className="gap-2">
-                            <Users className="h-4 w-4" />
+                          <Button size="sm" className="w-full sm:w-auto gap-1.5 sm:gap-2 h-9 max-[360px]:h-8 text-xs max-[360px]:text-[11px] sm:text-sm">
+                            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             Ajouter Agriculteur
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="admin-theme">
-                          <DialogHeader>
-                            <DialogTitle>Ajouter un nouvel agriculteur</DialogTitle>
-                            <DialogDescription>
+                        <DialogContent className="admin-theme w-[calc(100%-1rem)] max-[360px]:w-[calc(100%-0.75rem)] sm:max-w-lg max-h-[92vh] flex flex-col gap-0 p-0 overflow-hidden">
+                          <DialogHeader className="shrink-0 p-4 max-[360px]:p-3 sm:p-6 pb-3 sm:pb-4 border-b">
+                            <DialogTitle className="text-left text-base max-[360px]:text-sm sm:text-lg">Ajouter un nouvel agriculteur</DialogTitle>
+                            <DialogDescription className="text-left text-xs max-[360px]:text-[11px] sm:text-sm">
                               Créez un compte agriculteur pour un nouveau producteur.
                             </DialogDescription>
                           </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="farmer-name">Nom complet</Label>
+                          <div className="flex-1 overflow-y-auto p-4 max-[360px]:p-3 sm:p-6 grid gap-3 max-[360px]:gap-2.5 sm:gap-4">
+                            <div className="grid gap-1.5 sm:gap-2">
+                              <Label htmlFor="farmer-name" className="text-xs max-[360px]:text-[11px] sm:text-sm">Nom complet</Label>
                               <Input
                                 id="farmer-name"
                                 placeholder="Richard DM"
                                 value={newFarmerData.name}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, name: e.target.value })}
+                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
                               />
                             </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="farmer-email">Adresse email</Label>
+                            <div className="grid gap-1.5 sm:gap-2">
+                              <Label htmlFor="farmer-email" className="text-xs max-[360px]:text-[11px] sm:text-sm">Adresse email</Label>
                               <Input
                                 id="farmer-email"
                                 type="email"
                                 placeholder="exemple@gmail.com"
                                 value={newFarmerData.email}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, email: e.target.value })}
+                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
                               />
                             </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="farmer-phone">Téléphone</Label>
+                            <div className="grid gap-1.5 sm:gap-2">
+                              <Label htmlFor="farmer-phone" className="text-xs max-[360px]:text-[11px] sm:text-sm">Téléphone</Label>
                               <Input
                                 id="farmer-phone"
                                 placeholder="+243 6 12 34 56 78"
                                 value={newFarmerData.phone}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, phone: e.target.value })}
+                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
                               />
                             </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="farmer-location">Localisation</Label>
+                            <div className="grid gap-1.5 sm:gap-2">
+                              <Label htmlFor="farmer-location" className="text-xs max-[360px]:text-[11px] sm:text-sm">Localisation</Label>
                               <Input
                                 id="farmer-location"
                                 placeholder="Région, Ville"
                                 value={newFarmerData.location}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, location: e.target.value })}
+                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
                               />
                             </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="farmer-password">Mot de passe temporaire *</Label>
+                            <div className="grid gap-1.5 sm:gap-2">
+                              <Label htmlFor="farmer-password" className="text-xs max-[360px]:text-[11px] sm:text-sm">Mot de passe temporaire *</Label>
                               <div className="relative">
                                 <Input
                                   id="farmer-password"
@@ -1385,20 +1413,20 @@ const renderMenuButton = (
                                   placeholder="Min. 6 caractères"
                                   value={newFarmerData.password}
                                   onChange={(e) => setNewFarmerData({ ...newFarmerData, password: e.target.value })}
-                                  className="pr-10"
+                                  className="pr-9 sm:pr-10 h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => setShowFarmerPassword(!showFarmerPassword)}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                  className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                                   tabIndex={-1}
                                 >
-                                  {showFarmerPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                  {showFarmerPassword ? <EyeOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                                 </button>
                               </div>
                             </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="farmer-confirm-password">Confirmer le mot de passe *</Label>
+                            <div className="grid gap-1.5 sm:gap-2">
+                              <Label htmlFor="farmer-confirm-password" className="text-xs max-[360px]:text-[11px] sm:text-sm">Confirmer le mot de passe *</Label>
                               <div className="relative">
                                 <Input
                                   id="farmer-confirm-password"
@@ -1406,40 +1434,40 @@ const renderMenuButton = (
                                   placeholder="Répétez le mot de passe"
                                   value={newFarmerData.confirmPassword}
                                   onChange={(e) => setNewFarmerData({ ...newFarmerData, confirmPassword: e.target.value })}
-                                  className="pr-10"
+                                  className="pr-9 sm:pr-10 h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => setShowFarmerConfirmPassword(!showFarmerConfirmPassword)}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                  className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                                   tabIndex={-1}
                                 >
-                                  {showFarmerConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                  {showFarmerConfirmPassword ? <EyeOff className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                                 </button>
                               </div>
                             </div>
                           </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsAddFarmerDialogOpen(false)}>
+                          <DialogFooter className="shrink-0 p-4 max-[360px]:p-3 sm:p-6 pt-0 sm:pt-0 border-t flex-col-reverse sm:flex-row gap-2 sm:gap-2">
+                            <Button variant="outline" className="w-full sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs" onClick={() => setIsAddFarmerDialogOpen(false)}>
                               Annuler
                             </Button>
-                            <Button onClick={handleAddFarmer}>Ajouter l'agriculteur</Button>
+                            <Button className="w-full sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs" onClick={handleAddFarmer}>Ajouter l'agriculteur</Button>
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-3 max-[360px]:p-2.5 sm:p-6">
                     {farmers.length === 0 ? (
-                      <p className="text-muted-foreground">Aucun agriculteur inscrit</p>
+                      <p className="text-sm max-[360px]:text-xs text-muted-foreground">Aucun agriculteur inscrit</p>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-2.5 max-[360px]:space-y-2 sm:space-y-3">
                         {farmers.map((farmer: User) => (
-                          <div key={farmer.id} className="flex items-center justify-between rounded-lg border p-3">
-                            <div>
-                              <p className="font-medium">{farmer.name}</p>
-                              <p className="text-sm text-muted-foreground">{farmer.email}</p>
-                              <p className="text-xs text-muted-foreground">{farmer.location}</p>
+                          <div key={farmer.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-[360px]:gap-2 rounded-lg border p-3 max-[360px]:p-2.5 sm:p-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm max-[360px]:text-xs sm:text-base truncate">{farmer.name}</p>
+                              <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground truncate break-all">{farmer.email}</p>
+                              <p className="text-xs max-[360px]:text-[11px] text-muted-foreground truncate">{farmer.location}</p>
                               {farmer.rating && (
                                 <div className="flex items-center gap-1 mt-1">
                                   <span className="text-xs font-medium">{farmer.rating} ({farmer.reviewCount})</span>
@@ -1461,12 +1489,12 @@ const renderMenuButton = (
                                 </Button>
                               </p>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-[360px]:gap-1.5 w-full sm:w-auto">
                               <Select
                                 value={farmer.role}
                                 onValueChange={(value) => handleRoleChange(farmer.id, value as "farmer" | "buyer" | "admin")}
                               >
-                                <SelectTrigger className="w-32">
+                                <SelectTrigger className="w-full sm:w-32 h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-sm">
                                   <SelectValue placeholder="Rôle" />
                                 </SelectTrigger>
                                 <SelectContent className="admin-theme">
@@ -1478,7 +1506,7 @@ const renderMenuButton = (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-destructive"
+                                className="text-destructive w-full sm:w-auto h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-sm justify-center"
                                 onClick={() => handleDeleteUser(farmer.id, farmer.name)}
                               >
                                 Supprimer
@@ -1491,22 +1519,22 @@ const renderMenuButton = (
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Acheteurs ({buyers.length})</CardTitle>
-                    <CardDescription>Liste des acheteurs inscrits</CardDescription>
+                <Card className="overflow-hidden">
+                  <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6">
+                    <CardTitle className="text-base max-[360px]:text-sm sm:text-lg">Acheteurs ({buyers.length})</CardTitle>
+                    <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-sm">Liste des acheteurs inscrits</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-3 max-[360px]:p-2.5 sm:p-6">
                     {buyers.length === 0 ? (
-                      <p className="text-muted-foreground">Aucun acheteur inscrit</p>
+                      <p className="text-sm max-[360px]:text-xs text-muted-foreground">Aucun acheteur inscrit</p>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-2.5 max-[360px]:space-y-2 sm:space-y-3">
                         {buyers.map((buyer: User) => (
-                          <div key={buyer.id} className="flex items-center justify-between rounded-lg border p-3">
-                            <div>
-                              <p className="font-medium">{buyer.name}</p>
-                              <p className="text-sm text-muted-foreground">{buyer.email}</p>
-                              <p className="text-xs text-muted-foreground">{buyer.location}</p>
+                          <div key={buyer.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-[360px]:gap-2 rounded-lg border p-3 max-[360px]:p-2.5 sm:p-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm max-[360px]:text-xs sm:text-base truncate">{buyer.name}</p>
+                              <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground truncate break-all">{buyer.email}</p>
+                              <p className="text-xs max-[360px]:text-[11px] text-muted-foreground truncate">{buyer.location}</p>
                               <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
                                 Mot de passe: {revealedPasswords[buyer.id] ? (
                                   <span className="font-mono text-foreground">{buyer.password || "password"}</span>
@@ -1523,12 +1551,12 @@ const renderMenuButton = (
                                 </Button>
                               </p>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-[360px]:gap-1.5 w-full sm:w-auto">
                               <Select
                                 value={buyer.role}
                                 onValueChange={(value) => handleRoleChange(buyer.id, value as "farmer" | "buyer" | "admin")}
                               >
-                                <SelectTrigger className="w-32">
+                                <SelectTrigger className="w-full sm:w-32 h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-sm">
                                   <SelectValue placeholder="Rôle" />
                                 </SelectTrigger>
                                 <SelectContent className="admin-theme">
@@ -1540,7 +1568,7 @@ const renderMenuButton = (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-destructive"
+                                className="text-destructive w-full sm:w-auto h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-sm justify-center"
                                 onClick={() => handleDeleteUser(buyer.id, buyer.name)}
                               >
                                 Supprimer
@@ -1559,47 +1587,48 @@ const renderMenuButton = (
           {/* Products Section */}
           {activeMenu === "products" && (
             <div>
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold text-foreground">Produits</h2>
-                <p className="text-muted-foreground">Gérez tous les produits de la plateforme</p>
+              <div className="mb-5 max-[360px]:mb-4 sm:mb-8">
+                <h2 className="text-xl max-[360px]:text-lg sm:text-3xl font-bold text-foreground">Produits</h2>
+                <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground">Gérez tous les produits de la plateforme</p>
               </div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tous les Produits ({products.length})</CardTitle>
-                  <CardDescription>Gérez les produits de la plateforme</CardDescription>
+              <Card className="overflow-hidden">
+                <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6">
+                  <CardTitle className="text-base max-[360px]:text-sm sm:text-lg">Tous les Produits ({products.length})</CardTitle>
+                  <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-sm">Gérez les produits de la plateforme</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 max-[360px]:p-2.5 sm:p-6">
                   {products.length === 0 ? (
-                    <p className="text-muted-foreground">Aucun produit sur la plateforme</p>
+                    <p className="text-sm max-[360px]:text-xs text-muted-foreground">Aucun produit sur la plateforme</p>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2.5 max-[360px]:space-y-2 sm:space-y-3">
                       {products.map((product) => (
-                        <div key={product.id} className="flex items-center justify-between rounded-lg border p-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{product.name}</span>
-                              <Badge variant="outline" className="text-xs">
+                        <div key={product.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 max-[360px]:gap-2 rounded-lg border p-3 max-[360px]:p-2.5 sm:p-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-1.5 max-[360px]:gap-1 sm:gap-2">
+                              <span className="font-medium text-sm max-[360px]:text-xs sm:text-base truncate">{product.name}</span>
+                              <Badge variant="outline" className="text-[11px] max-[360px]:text-[10px] sm:text-xs px-1.5 py-0">
                                 {CATEGORIES.find((c) => c.value === product.category)?.label}
                               </Badge>
                               {!product.isAvailable && (
-                                <Badge variant="secondary" className="text-xs">
+                                <Badge variant="secondary" className="text-[11px] max-[360px]:text-[10px] sm:text-xs px-1.5 py-0">
                                   Indisponible
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground">
                               {product.price.toFixed(2)} FC / {product.unit} · Stock: {product.quantity}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs max-[360px]:text-[11px] text-muted-foreground truncate">
                               Par {product.farmerName} · {product.location}
                             </p>
                           </div>
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-8 w-8 max-[360px]:h-7 max-[360px]:w-7 self-end sm:self-auto shrink-0"
                             onClick={() => handleDeleteProduct(product.id, product.name)}
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" />
                           </Button>
                         </div>
                       ))}
