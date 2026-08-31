@@ -70,66 +70,66 @@
   --sidebar-ring: oklch(0.65 0.15 145);
 }
 
-/* Thème "console" pour la partie admin : CRM Neon Dashboard */
+/* Thème "console" pour la partie admin : CRM Neon Dashboard - contraste amélioré pour les espaces ajouter */
 .admin-theme {
   --background: oklch(0.2 0.05 280); /* #1a1a2e */
-  --foreground: oklch(0.95 0.01 280);
+  --foreground: oklch(0.97 0.01 280);
   --card: oklch(0.25 0.04 280); /* #27293d */
-  --card-foreground: oklch(0.95 0.01 280);
-  --popover: oklch(0.25 0.04 280);
-  --popover-foreground: oklch(0.95 0.01 280);
+  --card-foreground: oklch(0.97 0.01 280);
+  --popover: oklch(0.27 0.04 280);
+  --popover-foreground: oklch(0.97 0.01 280);
   --primary: oklch(0.65 0.25 330); /* Neon Pink/Purple #e14eca */
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.7 0.15 230); /* Neon Cyan #00f2fe */
   --secondary-foreground: oklch(0.1 0.05 280);
-  --muted: oklch(0.3 0.05 280);
-  --muted-foreground: oklch(0.7 0.05 280);
+  --muted: oklch(0.32 0.05 280);
+  --muted-foreground: oklch(0.78 0.02 280);
   --accent: oklch(0.35 0.1 330);
-  --accent-foreground: oklch(0.95 0.01 280);
-  --destructive: oklch(0.5 0.2 27);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.3 0.04 280);
-  --input: oklch(0.3 0.04 280);
+  --accent-foreground: oklch(0.97 0.01 280);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.35 0.04 280);
+  --input: oklch(0.34 0.05 280);
   --ring: oklch(0.65 0.25 330);
   --radius: 0.75rem;
   --sidebar: oklch(0.22 0.04 280); /* #222338 */
-  --sidebar-foreground: oklch(0.85 0.02 280);
+  --sidebar-foreground: oklch(0.9 0.02 280);
   --sidebar-primary: oklch(0.65 0.25 330);
   --sidebar-primary-foreground: oklch(0.98 0 0);
   --sidebar-accent: oklch(0.28 0.05 280);
-  --sidebar-accent-foreground: oklch(0.95 0.01 280);
-  --sidebar-border: oklch(0.28 0.04 280);
+  --sidebar-accent-foreground: oklch(0.97 0.01 280);
+  --sidebar-border: oklch(0.32 0.04 280);
   --sidebar-ring: oklch(0.65 0.25 330);
 }
 
 /* Identique pour le dark mode puisqu'on force un thème sombre CRM */
 .dark .admin-theme {
   --background: oklch(0.2 0.05 280);
-  --foreground: oklch(0.95 0.01 280);
+  --foreground: oklch(0.97 0.01 280);
   --card: oklch(0.25 0.04 280);
-  --card-foreground: oklch(0.95 0.01 280);
-  --popover: oklch(0.25 0.04 280);
-  --popover-foreground: oklch(0.95 0.01 280);
+  --card-foreground: oklch(0.97 0.01 280);
+  --popover: oklch(0.27 0.04 280);
+  --popover-foreground: oklch(0.97 0.01 280);
   --primary: oklch(0.65 0.25 330);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.7 0.15 230);
   --secondary-foreground: oklch(0.1 0.05 280);
-  --muted: oklch(0.3 0.05 280);
-  --muted-foreground: oklch(0.7 0.05 280);
+  --muted: oklch(0.32 0.05 280);
+  --muted-foreground: oklch(0.78 0.02 280);
   --accent: oklch(0.35 0.1 330);
-  --accent-foreground: oklch(0.95 0.01 280);
-  --destructive: oklch(0.5 0.2 27);
-  --destructive-foreground: oklch(0.95 0 0);
-  --border: oklch(0.3 0.04 280);
-  --input: oklch(0.3 0.04 280);
+  --accent-foreground: oklch(0.97 0.01 280);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.35 0.04 280);
+  --input: oklch(0.34 0.05 280);
   --ring: oklch(0.65 0.25 330);
   --sidebar: oklch(0.22 0.04 280);
-  --sidebar-foreground: oklch(0.85 0.02 280);
+  --sidebar-foreground: oklch(0.9 0.02 280);
   --sidebar-primary: oklch(0.65 0.25 330);
   --sidebar-primary-foreground: oklch(0.98 0 0);
   --sidebar-accent: oklch(0.28 0.05 280);
-  --sidebar-accent-foreground: oklch(0.95 0.01 280);
-  --sidebar-border: oklch(0.28 0.04 280);
+  --sidebar-accent-foreground: oklch(0.97 0.01 280);
+  --sidebar-border: oklch(0.32 0.04 280);
   --sidebar-ring: oklch(0.65 0.25 330);
 }
 

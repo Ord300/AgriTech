@@ -1330,22 +1330,22 @@ const renderMenuButton = (
           {/* Users Section */}
           {activeMenu === "users" && (
             <div className="overflow-hidden">
-              <div className="mb-5 max-[360px]:mb-4 sm:mb-8">
-                <h2 className="text-xl max-[360px]:text-lg sm:text-3xl font-bold text-foreground">Utilisateurs</h2>
+              <div className="mb-4 max-[360px]:mb-3 sm:mb-6">
+                <h2 className="text-lg max-[360px]:text-base sm:text-2xl font-bold text-foreground">Utilisateurs</h2>
                 <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground">Gérez les comptes de la plateforme</p>
               </div>
-              <div className="grid gap-4 max-[360px]:gap-3 sm:gap-6 lg:grid-cols-2">
-                <Card className="overflow-hidden">
-                  <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="grid gap-3 max-[360px]:gap-2 sm:gap-4 lg:grid-cols-2">
+                <Card className="overflow-hidden rounded-xl max-[360px]:rounded-lg shadow-sm">
+                  <CardHeader className="p-2.5 max-[360px]:p-2 sm:p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
-                        <CardTitle className="text-base max-[360px]:text-sm sm:text-lg">Agriculteurs ({farmers.length})</CardTitle>
-                        <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-sm">Liste des agriculteurs inscrits</CardDescription>
+                        <CardTitle className="text-sm max-[360px]:text-xs sm:text-base">Agriculteurs ({farmers.length})</CardTitle>
+                        <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-xs">Liste des agriculteurs inscrits</CardDescription>
                       </div>
                       <Dialog open={isAddFarmerDialogOpen} onOpenChange={setIsAddFarmerDialogOpen}>
                         <DialogTrigger asChild>
-                          <Button size="sm" className="w-full sm:w-auto gap-1.5 sm:gap-2 h-9 max-[360px]:h-8 text-xs max-[360px]:text-[11px] sm:text-sm">
-                            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          <Button size="sm" className="w-full sm:w-auto gap-1 sm:gap-1.5 h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-xs px-2.5 sm:px-3">
+                            <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                             Ajouter Agriculteur
                           </Button>
                         </DialogTrigger>
@@ -1358,48 +1358,48 @@ const renderMenuButton = (
                           </DialogHeader>
                           <div className="flex-1 overflow-y-auto p-4 max-[360px]:p-3 sm:p-6 grid gap-3 max-[360px]:gap-2.5 sm:gap-4">
                             <div className="grid gap-1.5 sm:gap-2">
-                              <Label htmlFor="farmer-name" className="text-xs max-[360px]:text-[11px] sm:text-sm">Nom complet</Label>
+                              <Label htmlFor="farmer-name" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Nom complet</Label>
                               <Input
                                 id="farmer-name"
                                 placeholder="Richard DM"
                                 value={newFarmerData.name}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, name: e.target.value })}
-                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
+                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50 focus-visible:ring-primary/30"
                               />
                             </div>
                             <div className="grid gap-1.5 sm:gap-2">
-                              <Label htmlFor="farmer-email" className="text-xs max-[360px]:text-[11px] sm:text-sm">Adresse email</Label>
+                              <Label htmlFor="farmer-email" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Adresse email</Label>
                               <Input
                                 id="farmer-email"
                                 type="email"
                                 placeholder="exemple@gmail.com"
                                 value={newFarmerData.email}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, email: e.target.value })}
-                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
+                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50 focus-visible:ring-primary/30"
                               />
                             </div>
                             <div className="grid gap-1.5 sm:gap-2">
-                              <Label htmlFor="farmer-phone" className="text-xs max-[360px]:text-[11px] sm:text-sm">Téléphone</Label>
+                              <Label htmlFor="farmer-phone" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Téléphone</Label>
                               <Input
                                 id="farmer-phone"
                                 placeholder="+243 6 12 34 56 78"
                                 value={newFarmerData.phone}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, phone: e.target.value })}
-                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
+                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50 focus-visible:ring-primary/30"
                               />
                             </div>
                             <div className="grid gap-1.5 sm:gap-2">
-                              <Label htmlFor="farmer-location" className="text-xs max-[360px]:text-[11px] sm:text-sm">Localisation</Label>
+                              <Label htmlFor="farmer-location" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Localisation</Label>
                               <Input
                                 id="farmer-location"
                                 placeholder="Région, Ville"
                                 value={newFarmerData.location}
                                 onChange={(e) => setNewFarmerData({ ...newFarmerData, location: e.target.value })}
-                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
+                                className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50 focus-visible:ring-primary/30"
                               />
                             </div>
                             <div className="grid gap-1.5 sm:gap-2">
-                              <Label htmlFor="farmer-password" className="text-xs max-[360px]:text-[11px] sm:text-sm">Mot de passe temporaire *</Label>
+                              <Label htmlFor="farmer-password" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Mot de passe temporaire *</Label>
                               <div className="relative">
                                 <Input
                                   id="farmer-password"
@@ -1407,7 +1407,7 @@ const renderMenuButton = (
                                   placeholder="Min. 6 caractères"
                                   value={newFarmerData.password}
                                   onChange={(e) => setNewFarmerData({ ...newFarmerData, password: e.target.value })}
-                                  className="pr-9 sm:pr-10 h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
+                                  className="pr-9 sm:pr-10 h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50 focus-visible:ring-primary/30"
                                 />
                                 <button
                                   type="button"
@@ -1420,7 +1420,7 @@ const renderMenuButton = (
                               </div>
                             </div>
                             <div className="grid gap-1.5 sm:gap-2">
-                              <Label htmlFor="farmer-confirm-password" className="text-xs max-[360px]:text-[11px] sm:text-sm">Confirmer le mot de passe *</Label>
+                              <Label htmlFor="farmer-confirm-password" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Confirmer le mot de passe *</Label>
                               <div className="relative">
                                 <Input
                                   id="farmer-confirm-password"
@@ -1428,7 +1428,7 @@ const renderMenuButton = (
                                   placeholder="Répétez le mot de passe"
                                   value={newFarmerData.confirmPassword}
                                   onChange={(e) => setNewFarmerData({ ...newFarmerData, confirmPassword: e.target.value })}
-                                  className="pr-9 sm:pr-10 h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs"
+                                  className="pr-9 sm:pr-10 h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50 focus-visible:ring-primary/30"
                                 />
                                 <button
                                   type="button"
@@ -1451,44 +1451,44 @@ const renderMenuButton = (
                       </Dialog>
                     </div>
                   </CardHeader>
-                  <CardContent className="p-3 max-[360px]:p-2.5 sm:p-6">
+                  <CardContent className="p-2.5 max-[360px]:p-2 sm:p-4">
                     {farmers.length === 0 ? (
-                      <p className="text-sm max-[360px]:text-xs text-muted-foreground">Aucun agriculteur inscrit</p>
+                      <p className="text-xs max-[360px]:text-[11px] text-muted-foreground">Aucun agriculteur inscrit</p>
                     ) : (
-                      <div className="space-y-2.5 max-[360px]:space-y-2 sm:space-y-3">
+                      <div className="space-y-2 max-[360px]:space-y-1.5 sm:space-y-2">
                         {farmers.map((farmer: User) => (
-                          <div key={farmer.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-[360px]:gap-2 rounded-lg border p-3 max-[360px]:p-2.5 sm:p-3">
+                          <div key={farmer.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 max-[360px]:gap-1.5 rounded-lg border p-2.5 max-[360px]:p-2 sm:p-2.5">
                             <div className="min-w-0 flex-1">
-                              <p className="font-medium text-sm max-[360px]:text-xs sm:text-base truncate">{farmer.name}</p>
-                              <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground truncate break-all">{farmer.email}</p>
-                              <p className="text-xs max-[360px]:text-[11px] text-muted-foreground truncate">{farmer.location}</p>
+                              <p className="font-medium text-xs max-[360px]:text-[11px] sm:text-sm truncate">{farmer.name}</p>
+                              <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground truncate break-all">{farmer.email}</p>
+                              <p className="text-[11px] max-[360px]:text-[10px] text-muted-foreground truncate">{farmer.location}</p>
                               {farmer.rating && (
-                                <div className="flex items-center gap-1 mt-1">
-                                  <span className="text-xs font-medium">{farmer.rating} ({farmer.reviewCount})</span>
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <span className="text-[11px] max-[360px]:text-[10px] font-medium">{farmer.rating} ({farmer.reviewCount})</span>
                                 </div>
                               )}
-                              <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
+                              <p className="text-[11px] max-[360px]:text-[10px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
                                 Mot de passe: {revealedPasswords[farmer.id] ? (
-                                  <span className="font-mono text-foreground">{farmer.password || "password"}</span>
+                                  <span className="font-mono text-foreground text-[11px] max-[360px]:text-[10px]">{farmer.password || "password"}</span>
                                 ) : (
                                   <span className="font-mono text-muted-foreground">••••••••</span>
                                 )}
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-5 w-5 ml-1"
+                                  className="h-4 w-4 max-[360px]:h-3.5 max-[360px]:w-3.5 ml-0.5"
                                   onClick={() => handleTogglePasswordVisibility(farmer)}
                                 >
-                                  {revealedPasswords[farmer.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                                  {revealedPasswords[farmer.id] ? <EyeOff className="h-2.5 w-2.5" /> : <Eye className="h-2.5 w-2.5" />}
                                 </Button>
                               </p>
                             </div>
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-[360px]:gap-1.5 w-full sm:w-auto">
+                            <div className="flex flex-row sm:flex-col lg:flex-row items-center gap-1.5 max-[360px]:gap-1 w-full sm:w-auto">
                               <Select
                                 value={farmer.role}
                                 onValueChange={(value) => handleRoleChange(farmer.id, value as "farmer" | "buyer" | "admin")}
                               >
-                                <SelectTrigger className="w-full sm:w-32 h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-sm">
+                                <SelectTrigger className="flex-1 sm:w-28 lg:w-32 h-7 max-[360px]:h-6 text-[11px] max-[360px]:text-[10px] sm:text-xs">
                                   <SelectValue placeholder="Rôle" />
                                 </SelectTrigger>
                                 <SelectContent className="admin-theme">
@@ -1500,7 +1500,7 @@ const renderMenuButton = (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-destructive w-full sm:w-auto h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-sm justify-center"
+                                className="text-destructive flex-1 sm:flex-none h-7 max-[360px]:h-6 text-[11px] max-[360px]:text-[10px] sm:text-xs justify-center px-2"
                                 onClick={() => handleDeleteUser(farmer.id, farmer.name)}
                               >
                                 Supprimer
@@ -1513,44 +1513,44 @@ const renderMenuButton = (
                   </CardContent>
                 </Card>
 
-                <Card className="overflow-hidden">
-                  <CardHeader className="p-3 max-[360px]:p-2.5 sm:p-6">
-                    <CardTitle className="text-base max-[360px]:text-sm sm:text-lg">Acheteurs ({buyers.length})</CardTitle>
-                    <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-sm">Liste des acheteurs inscrits</CardDescription>
+                <Card className="overflow-hidden rounded-xl max-[360px]:rounded-lg shadow-sm">
+                  <CardHeader className="p-2.5 max-[360px]:p-2 sm:p-4">
+                    <CardTitle className="text-sm max-[360px]:text-xs sm:text-base">Acheteurs ({buyers.length})</CardTitle>
+                    <CardDescription className="text-xs max-[360px]:text-[11px] sm:text-xs">Liste des acheteurs inscrits</CardDescription>
                   </CardHeader>
-                  <CardContent className="p-3 max-[360px]:p-2.5 sm:p-6">
+                  <CardContent className="p-2.5 max-[360px]:p-2 sm:p-4">
                     {buyers.length === 0 ? (
-                      <p className="text-sm max-[360px]:text-xs text-muted-foreground">Aucun acheteur inscrit</p>
+                      <p className="text-xs max-[360px]:text-[11px] text-muted-foreground">Aucun acheteur inscrit</p>
                     ) : (
-                      <div className="space-y-2.5 max-[360px]:space-y-2 sm:space-y-3">
+                      <div className="space-y-2 max-[360px]:space-y-1.5 sm:space-y-2">
                         {buyers.map((buyer: User) => (
-                          <div key={buyer.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-[360px]:gap-2 rounded-lg border p-3 max-[360px]:p-2.5 sm:p-3">
+                          <div key={buyer.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 max-[360px]:gap-1.5 rounded-lg border p-2.5 max-[360px]:p-2 sm:p-2.5">
                             <div className="min-w-0 flex-1">
-                              <p className="font-medium text-sm max-[360px]:text-xs sm:text-base truncate">{buyer.name}</p>
-                              <p className="text-xs max-[360px]:text-[11px] sm:text-sm text-muted-foreground truncate break-all">{buyer.email}</p>
-                              <p className="text-xs max-[360px]:text-[11px] text-muted-foreground truncate">{buyer.location}</p>
-                              <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
+                              <p className="font-medium text-xs max-[360px]:text-[11px] sm:text-sm truncate">{buyer.name}</p>
+                              <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs text-muted-foreground truncate break-all">{buyer.email}</p>
+                              <p className="text-[11px] max-[360px]:text-[10px] text-muted-foreground truncate">{buyer.location}</p>
+                              <p className="text-[11px] max-[360px]:text-[10px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
                                 Mot de passe: {revealedPasswords[buyer.id] ? (
-                                  <span className="font-mono text-foreground">{buyer.password || "password"}</span>
+                                  <span className="font-mono text-foreground text-[11px] max-[360px]:text-[10px]">{buyer.password || "password"}</span>
                                 ) : (
                                   <span className="font-mono text-muted-foreground">••••••••</span>
                                 )}
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-5 w-5 ml-1"
+                                  className="h-4 w-4 max-[360px]:h-3.5 max-[360px]:w-3.5 ml-0.5"
                                   onClick={() => handleTogglePasswordVisibility(buyer)}
                                 >
-                                  {revealedPasswords[buyer.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                                  {revealedPasswords[buyer.id] ? <EyeOff className="h-2.5 w-2.5" /> : <Eye className="h-2.5 w-2.5" />}
                                 </Button>
                               </p>
                             </div>
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-[360px]:gap-1.5 w-full sm:w-auto">
+                            <div className="flex flex-row sm:flex-col lg:flex-row items-center gap-1.5 max-[360px]:gap-1 w-full sm:w-auto">
                               <Select
                                 value={buyer.role}
                                 onValueChange={(value) => handleRoleChange(buyer.id, value as "farmer" | "buyer" | "admin")}
                               >
-                                <SelectTrigger className="w-full sm:w-32 h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-sm">
+                                <SelectTrigger className="flex-1 sm:w-28 lg:w-32 h-7 max-[360px]:h-6 text-[11px] max-[360px]:text-[10px] sm:text-xs">
                                   <SelectValue placeholder="Rôle" />
                                 </SelectTrigger>
                                 <SelectContent className="admin-theme">
@@ -1562,7 +1562,7 @@ const renderMenuButton = (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-destructive w-full sm:w-auto h-8 max-[360px]:h-7 text-xs max-[360px]:text-[11px] sm:text-sm justify-center"
+                                className="text-destructive flex-1 sm:flex-none h-7 max-[360px]:h-6 text-[11px] max-[360px]:text-[10px] sm:text-xs justify-center px-2"
                                 onClick={() => handleDeleteUser(buyer.id, buyer.name)}
                               >
                                 Supprimer
@@ -1649,35 +1649,36 @@ const renderMenuButton = (
                     </div>
                     <Dialog open={isAddShowcaseDialogOpen} onOpenChange={setIsAddShowcaseDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button className="gap-2">
-                          <Plus className="h-4 w-4" />
+                        <Button size="sm" className="gap-1.5 sm:gap-2 h-9 max-[360px]:h-8 text-xs max-[360px]:text-[11px] sm:text-sm">
+                          <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           Ajouter un produit
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="admin-theme max-w-lg">
-                        <DialogHeader>
-                          <DialogTitle>Mettre un produit en avant</DialogTitle>
-                          <DialogDescription>
+                      <DialogContent className="admin-theme w-[calc(100%-1rem)] max-[360px]:w-[calc(100%-0.75rem)] sm:max-w-lg max-h-[92vh] flex flex-col gap-0 p-0 overflow-hidden">
+                        <DialogHeader className="shrink-0 p-4 max-[360px]:p-3 sm:p-6 pb-3 sm:pb-4 border-b">
+                          <DialogTitle className="text-left text-base max-[360px]:text-sm sm:text-lg text-foreground">Mettre un produit en avant</DialogTitle>
+                          <DialogDescription className="text-left text-xs max-[360px]:text-[11px] sm:text-sm">
                             Ce produit apparaîtra dans la section "Nos Produits du Moment" de la page d'accueil.
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="showcase-name">Nom du produit *</Label>
+                        <div className="flex-1 overflow-y-auto p-4 max-[360px]:p-3 sm:p-6 grid gap-3 max-[360px]:gap-2.5 sm:gap-4">
+                          <div className="grid gap-1.5 sm:gap-2">
+                            <Label htmlFor="showcase-name" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Nom du produit *</Label>
                             <Input
                               id="showcase-name"
                               placeholder="Ex: Bananes douces"
                               value={newShowcaseData.name}
                               onChange={(e) => setNewShowcaseData({ ...newShowcaseData, name: e.target.value })}
+                              className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50"
                             />
                           </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="showcase-category">Catégorie *</Label>
+                          <div className="grid gap-1.5 sm:gap-2">
+                            <Label htmlFor="showcase-category" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Catégorie *</Label>
                             <Select
                               value={newShowcaseData.category}
                               onValueChange={(val) => setNewShowcaseData({ ...newShowcaseData, category: val })}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="h-9 max-[360px]:h-8 bg-white/[0.05] border-white/15 text-foreground text-sm max-[360px]:text-xs">
                                 <SelectValue placeholder="Catégorie" />
                               </SelectTrigger>
                               <SelectContent className="admin-theme">
@@ -1689,43 +1690,43 @@ const renderMenuButton = (
                               </SelectContent>
                             </Select>
                           </div>
-                          <div className="grid gap-2">
-                            <Label>Image du produit</Label>
-                            <div className="flex flex-col items-center gap-4 rounded-lg border-2 border-dashed p-4">
+                          <div className="grid gap-1.5 sm:gap-2">
+                            <Label className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Image du produit</Label>
+                            <div className="flex flex-col items-center gap-3 max-[360px]:gap-2 rounded-lg border-2 border-dashed border-white/10 bg-white/[0.02] p-3 max-[360px]:p-2.5 sm:p-4">
                               {showcaseImagePreview ? (
-                                <div className="relative aspect-video max-h-48 w-full overflow-hidden rounded-md border">
+                                <div className="relative aspect-video max-h-40 max-[360px]:max-h-32 sm:max-h-48 w-full overflow-hidden rounded-md border border-white/10">
                                   <img src={showcaseImagePreview} alt="Aperçu" className="h-full w-full object-cover" />
                                   <Button
                                     variant="destructive"
                                     size="icon"
-                                    className="absolute right-2 top-2 h-8 w-8"
+                                    className="absolute right-2 top-2 h-7 w-7 max-[360px]:h-6 max-[360px]:w-6 sm:h-8 sm:w-8"
                                     onClick={() => {
                                       setShowcaseImagePreview(null)
                                       setNewShowcaseData({ ...newShowcaseData, image: "" })
                                     }}
                                   >
-                                    <X className="h-4 w-4" />
+                                    <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                   </Button>
                                 </div>
                               ) : (
-                                <label className="flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 transition-colors">
-                                  <Upload className="mb-2 h-8 w-8" />
-                                  <p className="text-sm font-semibold">Cliquez pour télécharger</p>
-                                  <p className="text-xs">PNG, JPG ou WebP (max. 2 Mo)</p>
+                                <label className="flex h-28 max-[360px]:h-24 sm:h-32 w-full cursor-pointer flex-col items-center justify-center gap-1.5 sm:gap-2 rounded-md text-muted-foreground hover:bg-white/[0.04] transition-colors">
+                                  <Upload className="mb-1.5 sm:mb-2 h-7 w-7 max-[360px]:h-6 max-[360px]:w-6 sm:h-8 sm:w-8" />
+                                  <p className="text-xs max-[360px]:text-[11px] sm:text-sm font-semibold">Cliquez pour télécharger</p>
+                                  <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs">PNG, JPG ou WebP (max. 2 Mo)</p>
                                   <input type="file" className="hidden" accept="image/*" onChange={handleShowcaseImageChange} />
                                 </label>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-[11px] max-[360px]:text-[10px] sm:text-xs leading-relaxed text-muted-foreground">
                               Sans image, un visuel de remplacement sera généré automatiquement.
                             </p>
                           </div>
                         </div>
-                        <DialogFooter>
-                          <Button variant="outline" onClick={() => setIsAddShowcaseDialogOpen(false)}>
+                        <DialogFooter className="shrink-0 p-4 max-[360px]:p-3 sm:p-6 pt-0 sm:pt-0 border-t flex-col-reverse sm:flex-row gap-2 sm:gap-2">
+                          <Button variant="outline" className="w-full sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs border-white/15 bg-transparent" onClick={() => setIsAddShowcaseDialogOpen(false)}>
                             Annuler
                           </Button>
-                          <Button onClick={handleAddShowcase}>Mettre en avant</Button>
+                          <Button className="w-full sm:w-auto h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs" onClick={handleAddShowcase}>Mettre en avant</Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
@@ -1908,40 +1909,42 @@ const renderMenuButton = (
                     </div>
                     <Dialog open={isAddArticleDialogOpen} onOpenChange={setIsAddArticleDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button className="gap-2">
-                          <Newspaper className="h-4 w-4" />
+                        <Button size="sm" className="gap-1.5 sm:gap-2 h-9 max-[360px]:h-8 text-xs max-[360px]:text-[11px] sm:text-sm">
+                          <Newspaper className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           Ajouter un article
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="admin-theme max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Créer un nouvel article</DialogTitle>
-                          <DialogDescription>
+                      <DialogContent className="admin-theme w-[calc(100%-1rem)] max-[360px]:w-[calc(100%-0.75rem)] sm:max-w-2xl max-h-[92vh] flex flex-col gap-0 p-0 overflow-hidden">
+                        <DialogHeader className="shrink-0 p-4 max-[360px]:p-3 sm:p-6 pb-3 sm:pb-4 border-b">
+                          <DialogTitle className="text-left text-base max-[360px]:text-sm sm:text-lg text-foreground">Créer un nouvel article</DialogTitle>
+                          <DialogDescription className="text-left text-xs max-[360px]:text-[11px] sm:text-sm">
                             Publiez une actualité sur le monde agricole, les tendances ou les agriculteurs.
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="article-title">Titre</Label>
+                        <div className="flex-1 overflow-y-auto p-4 max-[360px]:p-3 sm:p-6 grid gap-3 max-[360px]:gap-2.5 sm:gap-4">
+                          <div className="grid gap-1.5 sm:gap-2">
+                            <Label htmlFor="article-title" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Titre</Label>
                             <Input
                               id="article-title"
                               placeholder="Titre accrocheur..."
                               value={newArticleData.title}
                               onChange={(e) => setNewArticleData({ ...newArticleData, title: e.target.value })}
+                              className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50"
                             />
                           </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="article-desc">Description courte</Label>
+                          <div className="grid gap-1.5 sm:gap-2">
+                            <Label htmlFor="article-desc" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Description courte</Label>
                             <Input
                               id="article-desc"
                               placeholder="Résumé en une phrase..."
                               value={newArticleData.description}
                               onChange={(e) => setNewArticleData({ ...newArticleData, description: e.target.value })}
+                              className="h-9 max-[360px]:h-8 text-sm max-[360px]:text-xs bg-white/[0.05] border-white/15 text-foreground placeholder:text-muted-foreground/60 focus-visible:border-primary/50"
                             />
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="article-category">Catégorie</Label>
+                          <div className="grid grid-cols-2 gap-3 max-[360px]:gap-2 sm:gap-4">
+                            <div className="grid gap-1.5 sm:gap-2">
+                              <Label htmlFor="article-category" className="text-xs max-[360px]:text-[11px] sm:text-sm font-medium text-foreground">Catégorie</Label>
                               <Select
                                 value={newArticleData.category}
                                 onValueChange={(val: any) => setNewArticleData({ ...newArticleData, category: val })}
