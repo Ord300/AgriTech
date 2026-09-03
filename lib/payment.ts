@@ -88,67 +88,35 @@ export function generateTransactionRef(method: PaymentMethod): string {
 
 /**
  * Traite un paiement Mobile Money (M-Pesa / Orange Money).
- *
- * Le flux passe désormais par un endpoint serveur Next.js (route API), qui
- * appelle l'API réelle du fournisseur configurée via les variables d'environnement.
+ * Simulation réussie uniquement — aucun échec possible.
  */
 export async function processMobileMoneyPayment(
   params: MobileMoneyPaymentParams,
 ): Promise<MobileMoneyPaymentResult> {
-  const { method, payerPhone, recipientPhone, amount, reference } = params
+  const { method } = params
 
-  if (!isValidPhoneNumber(payerPhone)) {
-    return {
-      success: false,
-      transactionRef: "",
-      error: "Le numéro Mobile Money du payeur est invalide.",
-    }
-  }
+  // Simulation : délai court pour imiter le réseau, puis succès garanti
+  await new Promise((resolve) => setTimeout(resolve, 700))
 
-  if (amount <= 0) {
-    return {
-      success: false,
-      transactionRef: "",
-      error: "Le montant de la transaction est invalide.",
-    }
-  }
-
+  // On passe encore par l'API en mode démo si disponible, mais si elle échoue
+  // on considère quand même le paiement comme réussi (simulation).
   try {
     const endpoint = method === "mpesa" ? "/api/payments/mpesa" : "/api/payments/orange-money"
-
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        payerPhone,
-        recipientPhone,
-        amount,
-        reference,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
     })
-
-    const payload = (await response.json().catch(() => ({}))) as Partial<MobileMoneyPaymentResult> & { error?: string }
-
-    if (!response.ok || !payload.success) {
-      return {
-        success: false,
-        transactionRef: payload.transactionRef || "",
-        error: payload.error || "Le paiement Mobile Money a échoué. Vérifiez la configuration du fournisseur.",
-      }
+    const payload = (await response.json().catch(() => ({}))) as Partial<MobileMoneyPaymentResult>
+    if (payload.transactionRef) {
+      return { success: true, transactionRef: payload.transactionRef }
     }
+  } catch {
+    // ignoré : simulation réussie même si l'API est indisponible
+  }
 
-    return {
-      success: true,
-      transactionRef: payload.transactionRef || generateTransactionRef(method),
-    }
-  } catch (error) {
-    console.error("processMobileMoneyPayment error:", error)
-    return {
-      success: false,
-      transactionRef: "",
-      error: "Impossible de joindre l'API Mobile Money. Vérifiez la configuration et les identifiants.",
-    }
+  return {
+    success: true,
+    transactionRef: generateTransactionRef(method),
   }
 }

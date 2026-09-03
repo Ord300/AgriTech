@@ -29,7 +29,6 @@ import {
   CheckCircle2,
   Smartphone,
   ShoppingBag,
-  AlertCircle,
   ShieldAlert,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -37,7 +36,6 @@ import type { PaymentMethod } from "@/lib/types"
 import { PAYMENT_METHOD_LABELS } from "@/lib/types"
 import {
   groupCartByFarmer,
-  isValidPhoneNumber,
   processMobileMoneyPayment,
   type FarmerPaymentGroup,
 } from "@/lib/payment"
@@ -50,7 +48,6 @@ type CheckoutStep =
   | "payment"
   | "processing"
   | "success"
-  | "error"
 
 interface CompletedPayment {
   group: FarmerPaymentGroup
@@ -81,7 +78,6 @@ export function CheckoutDialog() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("mpesa")
   const [payerPhone, setPayerPhone] = useState("")
   const [completedPayments, setCompletedPayments] = useState<CompletedPayment[]>([])
-  const [paymentError, setPaymentError] = useState("")
 
   // Répartition par agriculteur (paiement séparé par vendeur)
   const farmerGroups = useMemo(() => groupCartByFarmer(items, users), [items, users])
@@ -114,7 +110,6 @@ export function CheckoutDialog() {
       setIsLoading(false)
       setPaymentMethod("mpesa")
       setCompletedPayments([])
-      setPaymentError("")
     }
   }
 
@@ -245,15 +240,6 @@ export function CheckoutDialog() {
   }
 
   const handleConfirmPayment = async () => {
-    if (!isValidPhoneNumber(payerPhone)) {
-      toast({
-        title: "Numéro invalide",
-        description: "Veuillez saisir un numéro Mobile Money valide (ex : +243 812 345 678).",
-        variant: "destructive",
-      })
-      return
-    }
-
     setStep("processing")
 
     // 1. Créer les commandes (une par produit du panier)
@@ -286,15 +272,6 @@ export function CheckoutDialog() {
         amount: group.amount,
         reference: groupOrderIds.join(","),
       })
-
-      if (!payment.success) {
-        setPaymentError(
-          payment.error ||
-            `Le paiement de ${group.amount.toFixed(2)} FC vers ${group.farmerName} a échoué.`,
-        )
-        setStep("error")
-        return
-      }
 
       results.push({ group, transactionRef: payment.transactionRef })
     }
@@ -343,7 +320,6 @@ export function CheckoutDialog() {
             {step === "payment" && "Paiement Mobile Money"}
             {step === "processing" && "Paiement en cours"}
             {step === "success" && "Paiement confirmé"}
-            {step === "error" && "Échec du paiement"}
           </DialogTitle>
           <DialogDescription>
             {step === "recap" && "Vérifiez vos informations et vos produits avant de payer."}
@@ -351,9 +327,8 @@ export function CheckoutDialog() {
             {step === "login" && "Cet email est déjà enregistré. Connectez-vous pour continuer."}
             {step === "register" && "Créez votre compte acheteur pour finaliser votre commande."}
             {step === "payment" && "Chaque agriculteur est payé directement sur son numéro enregistré."}
-            {step === "processing" && "Confirmez le paiement sur votre téléphone..."}
+            {step === "processing" && "Traitement de votre paiement..."}
             {step === "success" && "Votre commande a été payée et transmise aux agriculteurs."}
-            {step === "error" && "Une erreur est survenue lors du paiement."}
           </DialogDescription>
         </DialogHeader>
 
@@ -728,18 +703,7 @@ export function CheckoutDialog() {
             </div>
           )}
 
-          {/* ---------- Étape : Erreur ---------- */}
-          {step === "error" && (
-            <div className="flex flex-col items-center gap-4 py-8">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-950">
-                <AlertCircle className="h-8 w-8 text-red-600" />
-              </div>
-              <div className="text-center">
-                <p className="font-medium">Le paiement n&apos;a pas abouti</p>
-                <p className="mt-1 text-sm text-muted-foreground">{paymentError}</p>
-              </div>
-            </div>
-          )}
+
         </div>
 
         <DialogFooter className="shrink-0 flex-col gap-2 sm:flex-row sm:justify-between">
@@ -785,12 +749,6 @@ export function CheckoutDialog() {
             <Button onClick={handleConfirmPayment} className="gap-2">
               <Smartphone className="h-4 w-4" />
               Confirmer le paiement de {totalPrice.toFixed(2)} FC
-            </Button>
-          )}
-
-          {step === "error" && (
-            <Button onClick={() => setStep("payment")} className="w-full sm:w-auto">
-              Réessayer le paiement
             </Button>
           )}
 

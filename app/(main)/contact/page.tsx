@@ -18,7 +18,7 @@ import { ScrollReveal } from "@/components/scroll-reveal"
 import { cn } from "@/lib/utils"
 import type { AccountRequest, PaymentMethod } from "@/lib/types"
 import { ACCOUNT_REQUEST_STATUS_LABELS, FARMER_ACCOUNT_FEE, PAYMENT_METHOD_LABELS } from "@/lib/types"
-import { isValidPhoneNumber, processMobileMoneyPayment } from "@/lib/payment"
+import { processMobileMoneyPayment } from "@/lib/payment"
 import {
   Leaf,
   User,
@@ -196,21 +196,12 @@ export default function ContactPage() {
   const handlePayFee = async () => {
     if (!trackedRequest || trackedRequest === "not_found") return
 
-    if (!isValidPhoneNumber(payerPhone)) {
-      toast({
-        title: "Numéro invalide",
-        description: "Veuillez saisir un numéro Mobile Money valide (ex : +243 812 345 678).",
-        variant: "destructive",
-      })
-      return
-    }
-
     setIsPaying(true)
 
-    // Le paiement est versé à la plateforme (administrateur) comme frais de création
+    // Simulation réussie uniquement : le paiement est versé à la plateforme comme frais de création
     const result = await processMobileMoneyPayment({
       method: paymentMethod,
-      payerPhone,
+      payerPhone: payerPhone || trackedRequest.phone,
       recipientPhone: "Plateforme TerraFrais",
       amount: FARMER_ACCOUNT_FEE,
       reference: trackedRequest.id,
@@ -218,15 +209,7 @@ export default function ContactPage() {
 
     setIsPaying(false)
 
-    if (!result.success) {
-      toast({
-        title: "Échec du paiement",
-        description: result.error || "Le paiement n'a pas abouti. Veuillez réessayer.",
-        variant: "destructive",
-      })
-      return
-    }
-
+    // Succès garanti (simulation)
     payAccountRequest(trackedRequest.id, paymentMethod, result.transactionRef)
     setPaymentDone({ reference: result.transactionRef })
     setTrackedRequest({ ...trackedRequest, status: "paid", paymentReference: result.transactionRef })
