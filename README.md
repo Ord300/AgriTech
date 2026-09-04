@@ -230,3 +230,5 @@ Transaction enregistrée (commission 3% plateforme, 97% agriculteur)
 - **IA externe** : Le module `ai-insights.ts` est conçu pour être remplacé par un appel à un modèle d'IA externe (OpenAI, etc.) sans impact sur l'interface.
 - **Base de données** : La couche `DataProvider` centralise l'accès aux données — elle peut être migrée vers une vraie base de données (PostgreSQL, MongoDB) en remplaçant l'implémentation interne.
 - **Nouveaux fournisseurs de paiement** : Le pattern des routes API `mpesa/` et `orange-money/` peut être dupliqué pour ajouter d'autres opérateurs Mobile Money.
+
+Ajoute ceci 
